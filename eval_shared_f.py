@@ -8,10 +8,12 @@ import h5py
 import numpy as np
 import poselib
 # import pykitti
+from matplotlib import pyplot as plt
 from prettytable import PrettyTable
 from tqdm import tqdm
 
 from utils.data import depth_indices
+from utils.geometry import rotation_angle, angle, get_camera_dicts, force_inliers
 from utils.vis import draw_results_pose_auc_10, draw_cumplots
 
 
@@ -41,9 +43,10 @@ def get_pairs(file):
         pairs = f.readlines()
     return [tuple(x.strip().split(' ')) for x in pairs]
 
-def get_result_dict(info, pose_est, R_gt, t_gt):
+def get_result_dict(info, image_triplet, R_gt, t_gt, f1_gt, f2_gt):
     out = {}
 
+    pose_est = image_triplet.pose
     R_est, t_est = pose_est.R, pose_est.t
 
     # out['R_err'] = rotation_angle(R_est.T @ R_gt)
@@ -52,11 +55,19 @@ def get_result_dict(info, pose_est, R_gt, t_gt):
     out['R_gt'] = R_gt.tolist()
     out['t'] = R_est.tolist()
     out['t_gt'] = R_gt.tolist()
+    out['f1_gt'] = f1_gt
+    out['f1'] = image_triplet.camera1.focal()
+    out['f2_gt'] = f2_gt
+    out['f2'] = image_triplet.camera2.focal()
 
     out['R_err'] = np.rad2deg(2 * np.arcsin(np.clip(np.linalg.norm(R_gt - R_est) / (2*np.sqrt(2)), 0, 1)))
     out['t_err'] = np.rad2deg(2 * np.arcsin(np.clip(0.5 * np.linalg.norm(t_est / np.linalg.norm(t_est) - t_gt / np.linalg.norm(t_gt)), 0, 1)))
     # out['P_err'] = max(out['R_err'], out['t_err'])
     # out['P_err'] = out['R_err']
+
+    out['f1_err'] = np.abs(out['f1'] - f1_gt) / f1_gt
+    out['f2_err'] = np.abs(out['f2'] - f2_gt) / f2_gt
+    out['f_err'] = np.sqrt(out['f1_err'] * out['f2_err'])
 
     info['inliers'] = []
     out['info'] = info
@@ -66,6 +77,8 @@ def get_result_dict(info, pose_est, R_gt, t_gt):
 
 def eval_experiment(x):
     iters, experiment, kp1, kp2, d, R_gt, t_gt, K1, K2, t = x
+    f1_gt = (K1[0, 0] + K1[1, 1]) / 2
+    f2_gt = (K2[0, 0] + K2[1, 1]) / 2
 
     lo_iterations = 0 if 'nLO' in experiment else 25
 
@@ -79,30 +92,27 @@ def eval_experiment(x):
     ransac_dict['all_permutations'] = True
     ransac_dict['use_reldepth'] = 'reldepth' in experiment
     ransac_dict['use_p3p'] = 'p3p' in experiment
+    ransac_dict['use_eigen'] = 'eigen' in experiment
 
     bundle_dict = {'max_iterations': 0 if lo_iterations == 0 else 100}
 
-    camera1 = {'model': 'PINHOLE', 'width': -1, 'height': -1, 'params': [K1[0, 0], K1[1, 1], K1[0, 2], K1[1, 2]]}
-    camera2 = {'model': 'PINHOLE', 'width': -1, 'height': -1, 'params': [K2[0, 0], K2[1, 1], K2[0, 2], K2[1, 2]]}
-
-    if '5p' in experiment:
+    if '6p' in experiment:
         start = perf_counter()
-        pose_est, info = poselib.estimate_relative_pose(kp1, kp2, camera1, camera2, ransac_dict, bundle_dict)
+        image_pair, info = poselib.estimate_shared_focal_relative_pose(kp1, kp2, np.array([0.0, 0.0]), ransac_dict, bundle_dict)
         info['runtime'] = 1000 * (perf_counter() - start)
     else:
         start = perf_counter()
-        pose_est, info = poselib.estimate_relative_pose_w_mono_depth(kp1, kp2, d, camera1, camera2, ransac_dict, bundle_dict)
+        image_pair, info = poselib.estimate_shared_focal_monodepth_relative_pose(kp1, kp2, d, np.array([0.0, 0.0]), ransac_dict, bundle_dict)
         info['runtime'] = 1000 * (perf_counter() - start)
 
-
-    result_dict = get_result_dict(info, pose_est, R_gt, t_gt)
+    result_dict = get_result_dict(info, image_pair, R_gt, t_gt, f1_gt, f2_gt)
     result_dict['experiment'] = experiment
 
     return result_dict
 
 
 def print_results(experiments, results, eq_only=False):
-    tab = PrettyTable(['solver', 'median rot err', 'median t err',
+    tab = PrettyTable(['solver', 'median rot err', 'median t err', 'median f err',
                        'rot mAA', 't mAA', 'mean time', 'mean inliers'])
     tab.align["solver"] = "l"
     tab.float_format = '0.2'
@@ -112,6 +122,7 @@ def print_results(experiments, results, eq_only=False):
 
         R_errs = np.array([r['R_err'] for r in exp_results])
         t_errs = np.array([r['t_err'] for r in exp_results])
+        f_errs = np.array([r['f_err'] for r in exp_results])
 
         R_res = np.array([np.sum(R_errs < t) / len(R_errs) for t in range(1, 11)])
         t_res = np.array([np.sum(t_errs < t) / len(t_errs) for t in range(1, 11)])
@@ -122,7 +133,7 @@ def print_results(experiments, results, eq_only=False):
         exp_name = exp
 
 
-        tab.add_row([exp_name, np.median(R_errs), np.median(t_errs),
+        tab.add_row([exp_name, np.median(R_errs), np.median(t_errs), np.median(f_errs),
                      np.mean(R_res), np.mean(t_res),
                      np.mean(times),
                      np.mean(inliers)])
@@ -132,14 +143,23 @@ def print_results(experiments, results, eq_only=False):
 
     print(tab.get_formatted_string('latex'))
 
+def shuffle_portion(kp: np.ndarray, s: float) -> np.ndarray:
+    num_rows_to_shuffle = int(s * kp.shape[0])
+    indices_to_shuffle = np.random.choice(kp.shape[0], num_rows_to_shuffle, replace=False)
+    rows_to_shuffle = kp[indices_to_shuffle]
+    np.random.shuffle(rows_to_shuffle)
+    shuffled_kp = kp.copy()
+    shuffled_kp[indices_to_shuffle] = rows_to_shuffle
+
+    return shuffled_kp
+
 
 def eval(args):
 
-    experiments = [f'3p_monodepth+{i}' for i in range(1, 13)]
+    experiments = [f'4p_monodepth_eigen+{i}' for i in range(1, 13)]
+    experiments.extend([f'4p_monodepth_gb+{i}' for i in range(1, 13)])
     experiments.extend([f'3p_reldepth+{i}' for i in range(1, 13)])
-    experiments.extend([f'p3p+{i}' for i in range(1, 13)])
-    experiments.append('5p')
-
+    experiments.append('6p')
 
     # experiments = ['5p_nister', '3dp_monodepth+moge', '3dp_monodepth+marigold-bm', '3dp_reldepth+moge', '3dp_reldepth+marigold-bm']
     experiments.extend([f'nLO-{x}' for x in experiments])
@@ -156,7 +176,7 @@ def eval(args):
     else:
         iterations_list = [args.iters]
 
-    json_string = f'calibrated-{basename}.json'
+    json_string = f'shared_focal-{basename}.json'
     json_path = os.path.join('results', json_string)
 
     if args.load:
@@ -185,10 +205,12 @@ def eval(args):
 
                         K1 = np.array(H5_file[f'K_{img_name_1}'])
                         K2 = np.array(H5_file[f'K_{img_name_2}'])
+                        pp1 = K1[:2, 2]
+                        pp2 = K2[:2, 2]
 
                         data = np.array(H5_file[f'corr_{img_name_1}_{img_name_2}'])
-                        kp1 = data[:, :2]
-                        kp2 = data[:, 2:4]
+                        kp1 = data[:, :2] - pp1
+                        kp2 = data[:, 2:4] - pp2
 
                         if '+' in experiment:
                             depth = int(experiment.split('+')[1])

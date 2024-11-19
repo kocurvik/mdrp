@@ -27,9 +27,9 @@ plt.rcParams.update({'figure.autolayout': True})
 
 def get_colors_styles(experiments):
     # base_experiments = list(sorted(list(set([x.split(' ')[0] for x in experiments]))))
-    base_experiments = experiments
-    colors = {exp: sns.color_palette().as_hex()[i] for i, exp in enumerate(base_experiments)}
-    # base_colors = {exp: sns.color_palette("hsl", len(base_experiments)).as_hex()[i] for i, exp in enumerate(base_experiments)}
+    # base_experiments = experiments
+    # colors = {exp: sns.color_palette().as_hex()[i] for i, exp in enumerate(base_experiments)}
+    colors = {exp: sns.color_palette("hls", len(experiments)).as_hex()[i] for i, exp in enumerate(experiments)}
 
     print(colors)
 
@@ -168,3 +168,25 @@ def draw_results_pose_portion(results, experiments, iterations_list, title=None)
     else:
         plt.legend()
         plt.show()
+
+
+def draw_cumplots(experiments, results):
+    plt.figure()
+    plt.xlabel('Pose error')
+    plt.ylabel('Portion of samples')
+
+    for exp in experiments:
+        exp_results = [x for x in results if x['experiment'] == exp]
+        exp_name = exp
+        label = f'{exp_name}'
+
+        R_errs = np.array([max(r['R_err'], r['t_err']) for r in exp_results])
+        R_res = np.array([np.sum(R_errs < t) / len(R_errs) for t in range(1, 180)])
+        plt.plot(np.arange(1, 180), R_res, label = label)
+
+    plt.legend()
+    plt.show()
+
+    plt.figure()
+    plt.xlabel('k error')
+    plt.ylabel('Portion of samples')
