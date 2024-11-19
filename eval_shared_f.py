@@ -200,6 +200,10 @@ def eval(args):
                         kp1 = data[:, :2] - pp1
                         kp2 = data[:, 2:4] - pp2
 
+                        if (K1[0, 0] + K1[1, 1]) != (K2[0, 0] + K2[1, 1]):
+                            kp2 *= K2 * (K1[0, 0] + K1[1, 1]) / (K2[0, 0] + K2[1, 1])
+                            K2 = K1
+
                         if '+' in experiment:
                             depth = int(experiment.split('+')[1])
                             d = data[:, depth_indices(depth)]
