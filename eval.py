@@ -25,7 +25,6 @@ def parse_args():
     parser.add_argument('-nw', '--num_workers', type=int, default=1)
     parser.add_argument('-l', '--load', action='store_true', default=False)
     parser.add_argument('-g', '--graph', action='store_true', default=False)
-    parser.add_argument('-s', '--shuffle', type=float, default=0.0)
     parser.add_argument('-a', '--append', action='store_true', default=False)
     parser.add_argument('-o', '--overwrite', action='store_true', default=False)
     parser.add_argument('--iters', type=int, default=None)

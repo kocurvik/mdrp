@@ -27,7 +27,6 @@ def parse_args():
     parser.add_argument('-nw', '--num_workers', type=int, default=1)
     parser.add_argument('-l', '--load', action='store_true', default=False)
     parser.add_argument('-g', '--graph', action='store_true', default=False)
-    parser.add_argument('-s', '--shuffle', type=float, default=0.0)
     parser.add_argument('-a', '--append', action='store_true', default=False)
     parser.add_argument('-o', '--overwrite', action='store_true', default=False)
     parser.add_argument('--iters', type=int, default=None)
@@ -135,16 +134,6 @@ def print_results(experiments, results, eq_only=False):
     print('latex')
 
     print(tab.get_formatted_string('latex'))
-
-def shuffle_portion(kp: np.ndarray, s: float) -> np.ndarray:
-    num_rows_to_shuffle = int(s * kp.shape[0])
-    indices_to_shuffle = np.random.choice(kp.shape[0], num_rows_to_shuffle, replace=False)
-    rows_to_shuffle = kp[indices_to_shuffle]
-    np.random.shuffle(rows_to_shuffle)
-    shuffled_kp = kp.copy()
-    shuffled_kp[indices_to_shuffle] = rows_to_shuffle
-
-    return shuffled_kp
 
 
 def eval(args):
