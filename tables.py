@@ -239,18 +239,18 @@ def generate_varying_table(lo=False):
 
 
 if __name__ == '__main__':
-    # print("No LO calib")
-    # generate_calib_table(lo=False)
-    # print("LO calib")
-    # generate_calib_table(lo=True)
-    #
-    # print("No LO shared focal")
-    # generate_shared_table(lo=False)
-    # print("LO shared focal")
-    # generate_shared_table(lo=True)
+    print("No LO calib")
+    generate_calib_table(lo=False)
+    print("LO calib")
+    generate_calib_table(lo=True)
 
-    print("No LO varying focal")
-    generate_varying_table(lo=False)
-    print("LO varying focal")
-    generate_varying_table(lo=True)
+    print("No LO shared focal")
+    generate_shared_table(lo=False)
+    print("LO shared focal")
+    generate_shared_table(lo=True)
+
+    # print("No LO varying focal")
+    # generate_varying_table(lo=False)
+    # print("LO varying focal")
+    # generate_varying_table(lo=True)
 
