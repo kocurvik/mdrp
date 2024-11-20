@@ -197,6 +197,10 @@ def eval(args):
                         pp2 = K2[:2, 2]
 
                         data = np.array(H5_file[f'corr_{img_name_1}_{img_name_2}'])
+
+                        if len(data) < 4:
+                            continue
+
                         kp1 = data[:, :2] - pp1
                         kp2 = data[:, 2:4] - pp2
 

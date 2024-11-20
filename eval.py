@@ -134,15 +134,11 @@ def print_results(experiments, results, eq_only=False):
 
 def eval(args):
 
-    # experiments = [f'3p_monodepth+{i}' for i in range(1, 13)]
-    # experiments.extend([f'3p_reldepth+{i}' for i in range(1, 13)])
-    # experiments.extend([f'p3p+{i}' for i in range(1, 13)])
-    # experiments.append('5p')
+    experiments = [f'3p_monodepth+{i}' for i in range(1, 13)]
+    experiments.extend([f'3p_reldepth+{i}' for i in range(1, 13)])
+    experiments.extend([f'p3p+{i}' for i in range(1, 13)])
+    experiments.append('5p')
 
-    experiments = [f'p3p+{i}' for i in range(1, 13)]
-
-
-    # experiments = ['5p_nister', '3dp_monodepth+moge', '3dp_monodepth+marigold-bm', '3dp_reldepth+moge', '3dp_reldepth+marigold-bm']
     experiments.extend([f'nLO-{x}' for x in experiments])
 
     dataset_path = args.dataset_path
