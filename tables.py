@@ -6,6 +6,24 @@ import numpy as np
 from utils.data import basenames_all, basenames_pt, basenames_eth
 
 
+def R_err_fun(r):
+    R_gt = r['R_gt']
+    R = r['R']
+    R2R1 = np.dot(R_gt, np.transpose(R))
+    cos_angle = max(min(1.0, 0.5 * (np.trace(R2R1) - 1.0)), -1.0)
+    err_r = np.acos(cos_angle)
+    return err_r
+
+def t_err_fun(r):
+    t = r['t']
+    t_gt = r['t_gt']
+    eps = 1e-15
+    t = t / (np.linalg.norm(t) + eps)
+    t_gt = t_gt / (np.linalg.norm(t_gt) + eps)
+    loss_t = np.maximum(eps, (1.0 - np.sum(t * t_gt) ** 2))
+    err_t = np.arccos(np.sqrt(1 - loss_t))
+    return  err_t
+
 def get_median_errors(scene, experiments, prefix='calibrated', calc_f_err=False):
     json_path = f'{prefix}-{scene}.json'
     with open(os.path.join('results', json_path), 'r') as f:
@@ -21,12 +39,13 @@ def get_median_errors(scene, experiments, prefix='calibrated', calc_f_err=False)
     out = {}
     for exp in experiments:
         d = {}
-        R_errs = np.array([x['R_err'] for x in exp_results[exp]])
+
+        R_errs = np.array([R_err_fun(x) for x in exp_results[exp]])
         R_res = np.array([np.sum(R_errs < t) / len(R_errs) for t in range(1, 11)])
         d['median_R_err'] = np.nanmedian(R_errs)
         d['mAA_R'] = np.mean(R_res)
 
-        t_errs = np.array([x['t_err'] for x in exp_results[exp]])
+        t_errs = np.array([t_err_fun(x) for x in exp_results[exp]])
         t_res = np.array([np.sum(t_errs < t) / len(t_errs) for t in range(1, 11)])
         d['median_t_err'] = np.nanmedian(t_errs)
         d['mAA_t'] = np.mean(t_res)

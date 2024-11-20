@@ -61,8 +61,6 @@ def get_result_dict(info, image_triplet, R_gt, t_gt, f1_gt, f2_gt):
 
     out['R_err'] = np.rad2deg(2 * np.arcsin(np.clip(np.linalg.norm(R_gt - R_est) / (2*np.sqrt(2)), 0, 1)))
     out['t_err'] = np.rad2deg(2 * np.arcsin(np.clip(0.5 * np.linalg.norm(t_est / np.linalg.norm(t_est) - t_gt / np.linalg.norm(t_gt)), 0, 1)))
-    # out['P_err'] = max(out['R_err'], out['t_err'])
-    # out['P_err'] = out['R_err']
 
     out['f1_err'] = np.abs(out['f1'] - f1_gt) / f1_gt
     out['f2_err'] = np.abs(out['f2'] - f2_gt) / f2_gt
