@@ -149,7 +149,7 @@ def generate_calib_table(lo=False):
     print('\\begin{tabular}{cccccccccccc}')
     print('\\toprule')
     print('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{7}{c}{Phototourism} & \\multicolumn{7}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-8} \\cmidrule(rl){8-12}')
-    print('\cmidrule(rl){3-9} \cmidrule(rl){10-16} & &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\  &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule')
+    print('\\cmidrule(rl){3-9} \\cmidrule(rl){10-16} & &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\  &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule')
 
     print_monodepth_rows(0, baseline_methods, phototourism_means, eth3d_means)
     for i in depth_order:
