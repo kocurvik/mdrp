@@ -227,14 +227,14 @@ def generate_shared_table(lo=False):
 
 
 if __name__ == '__main__':
-    # print(20 * '*')
-    # print("No LO calib")
-    # print(20 * '*')
-    # generate_calib_table(lo=False)
-    # print(20 * '*')
-    # print("LO calib")
-    # print(20 * '*')
-    # generate_calib_table(lo=True)
+    print(20 * '*')
+    print("No LO calib")
+    print(20 * '*')
+    generate_calib_table(lo=False)
+    print(20 * '*')
+    print("LO calib")
+    print(20 * '*')
+    generate_calib_table(lo=True)
 
 
     print(20 * '*')
