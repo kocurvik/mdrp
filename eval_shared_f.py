@@ -97,11 +97,11 @@ def eval_experiment(x):
 
     if '6p' in experiment:
         start = perf_counter()
-        image_pair, info = poselib.estimate_shared_focal_relative_pose(kp1, kp2, np.array([0.0, 0.0]), ransac_dict, bundle_dict)
+        image_pair, info = poselib.estimate_shared_focal_relative_pose(kp1, kp2, ransac_dict, bundle_dict)
         info['runtime'] = 1000 * (perf_counter() - start)
     else:
         start = perf_counter()
-        image_pair, info = poselib.estimate_shared_focal_monodepth_relative_pose(kp1, kp2, d, np.array([0.0, 0.0]), ransac_dict, bundle_dict)
+        image_pair, info = poselib.estimate_shared_focal_monodepth_relative_pose(kp1, kp2, d, ransac_dict, bundle_dict)
         info['runtime'] = 1000 * (perf_counter() - start)
 
     result_dict = get_result_dict(info, image_pair, R_gt, t_gt, f1_gt, f2_gt)
@@ -198,8 +198,8 @@ def eval(args):
 
                         data = np.array(H5_file[f'corr_{img_name_1}_{img_name_2}'])
 
-                        if len(data) < 4:
-                            continue
+                        # if len(data) < 4:
+                        #     continue
 
                         kp1 = data[:, :2] - pp1
                         kp2 = data[:, 2:4] - pp2
