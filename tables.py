@@ -60,7 +60,8 @@ def get_means(scene_errors, scenes, experiments):
 method_names = {'5p': '5PT', '3p_monodepth': '3PT$_{suv}$', '3p_reldepth': 'Rel3PT' , 'p3p': 'P3P' }
 method_names.update({f'nLO-{k}': v for k, v in method_names.items()})
 
-depth_names = {1: 'Real Depth',
+depth_names = {0: '-',
+               1: 'Real Depth',
                2: 'MiDas~\\cite{birkl2023midas}',
                3: 'DPT~\\cite{ranftl2021vision}',
                4: 'ZoeDepth~\\cite{bhat2023zoedepth}',
