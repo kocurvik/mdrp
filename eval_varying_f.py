@@ -52,8 +52,8 @@ def get_result_dict(info, image_triplet, R_gt, t_gt, f1_gt, f2_gt):
     # out['t_err'] = angle(t_est, t_gt)
     out['R'] = R_est.tolist()
     out['R_gt'] = R_gt.tolist()
-    out['t'] = R_est.tolist()
-    out['t_gt'] = R_gt.tolist()
+    out['t'] = t_est.tolist()
+    out['t_gt'] = t_gt.tolist()
     out['f1_gt'] = f1_gt
     out['f1'] = image_triplet.camera1.focal()
     out['f2_gt'] = f2_gt

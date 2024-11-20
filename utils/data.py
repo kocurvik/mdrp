@@ -37,13 +37,12 @@ def R_err_fun(r):
     # R2R1 = np.dot(R_gt, np.transpose(R))
     # cos_angle = max(min(1.0, 0.5 * (np.trace(R2R1) - 1.0)), -1.0)
     # err_r = np.rad2deg(np.acos(cos_angle))
+    # R2R1 = R.T @ R_gt
+    # err_r = np.rad2deg(np.arccos(np.clip((np.trace(R2R1) - 1) / 2, -1, 1)))
 
-    R2R1 = R.T @ R_gt
-    err_r = np.rad2deg(np.arccos(np.clip((np.trace(R2R1) - 1) / 2, -1, 1)))
-
-    # sin_angle1 = np.linalg.norm(R_gt - R) / (2 * np.sqrt(2))
-    # sin_angle = max(min(1.0, sin_angle1), -1.0)
-    # err_r = np.rad2deg(2*np.arcsin(sin_angle))
+    sin_angle1 = np.linalg.norm(R_gt - R) / (2 * np.sqrt(2))
+    sin_angle = max(min(1.0, sin_angle1), -1.0)
+    err_r = np.rad2deg(2*np.arcsin(sin_angle))
     return err_r
 
 
@@ -57,10 +56,10 @@ def t_err_fun(r):
     # loss_t = np.maximum(eps, (1.0 - np.sum(t * t_gt) ** 2))
     # err_t = np.rad2deg(np.arccos(np.sqrt(1 - loss_t)))
 
-    err_t = np.rad2deg(np.arccos(np.clip(np.dot(t, t_gt) / (np.linalg.norm(t) * np.linalg.norm(t_gt)), -1, 1)))
+    # err_t = np.rad2deg(np.arccos(np.clip(np.dot(t, t_gt) / (np.linalg.norm(t) * np.linalg.norm(t_gt)), -1, 1)))
 
-    # t = t / (np.linalg.norm(t))
-    # t_gt = t_gt / (np.linalg.norm(t_gt))
-    # err_t = np.rad2deg(2*np.arcsin(np.linalg.norm(t - t_gt)*0.5))
+    t = t / (np.linalg.norm(t))
+    t_gt = t_gt / (np.linalg.norm(t_gt))
+    err_t = np.rad2deg(2*np.arcsin(np.linalg.norm(t - t_gt)*0.5))
 
     return err_t

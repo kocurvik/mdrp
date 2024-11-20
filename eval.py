@@ -11,7 +11,7 @@ import poselib
 from prettytable import PrettyTable
 from tqdm import tqdm
 
-from utils.data import depth_indices
+from utils.data import depth_indices, R_err_fun, t_err_fun
 from utils.vis import draw_results_pose_auc_10, draw_cumplots
 
 
@@ -49,11 +49,11 @@ def get_result_dict(info, pose_est, R_gt, t_gt):
     # out['t_err'] = angle(t_est, t_gt)
     out['R'] = R_est.tolist()
     out['R_gt'] = R_gt.tolist()
-    out['t'] = R_est.tolist()
-    out['t_gt'] = R_gt.tolist()
+    out['t'] = t_est.tolist()
+    out['t_gt'] = t_gt.tolist()
 
-    out['R_err'] = np.rad2deg(2 * np.arcsin(np.clip(np.linalg.norm(R_gt - R_est) / (2*np.sqrt(2)), 0, 1)))
-    out['t_err'] = np.rad2deg(2 * np.arcsin(np.clip(0.5 * np.linalg.norm(t_est / np.linalg.norm(t_est) - t_gt / np.linalg.norm(t_gt)), 0, 1)))
+    out['R_err'] = R_err_fun(out)
+    out['t_err'] = t_err_fun(out)
     # out['P_err'] = max(out['R_err'], out['t_err'])
     # out['P_err'] = out['R_err']
 
