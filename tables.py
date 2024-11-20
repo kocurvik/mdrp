@@ -1,0 +1,161 @@
+import json
+import os
+
+import numpy as np
+
+from utils.data import basenames_all, basenames_pt, basenames_eth
+
+
+def get_median_errors(scene, experiments, prefix='calibrated', calc_f_err=False):
+    json_path = f'{prefix}-{scene}.json'
+    with open(os.path.join('results', json_path), 'r') as f:
+        results = json.load(f)
+
+    exp_results = {exp: [] for exp in experiments}
+    for r in results:
+        try: # if we do not have such key in dict skip
+            exp_results[r['experiment']].append(r)
+        except Exception:
+            ...
+
+    out = {}
+    for exp in experiments:
+        d = {}
+        R_errs = np.array([x['R_err'] for x in exp_results[exp]])
+        R_res = np.array([np.sum(R_errs < t) / len(R_errs) for t in range(1, 11)])
+        d['median_R_err'] = np.nanmedian(R_errs)
+        d['mAA_R'] = np.mean(R_res)
+
+        t_errs = np.array([x['t_err'] for x in exp_results[exp]])
+        t_res = np.array([np.sum(t_errs < t) / len(t_errs) for t in range(1, 11)])
+        d['median_t_err'] = np.nanmedian(t_errs)
+        d['mAA_t'] = np.mean(t_res)
+
+        runtimes = [x['info']['runtime'] for x in exp_results[exp]]
+        d['mean_runtime'] = np.nanmean(runtimes)
+
+        if calc_f_err:
+            f_errs = np.array([x['f_err'] for x in exp_results[exp]])
+            f_res = np.array([np.sum(f_errs * 100 < t) / len(f_errs) for t in range(1, 11)])
+            d['median_f_err'] = np.nanmedian(f_errs)
+            d['mAA_f'] = np.mean(f_res)
+
+        out[exp] = d
+
+    return out
+
+
+def get_means(scene_errors, scenes, experiments):
+    metrics = list(scene_errors[scenes[0]][experiments[0]].keys())
+
+    means = {}
+
+    for experiment in experiments:
+        means[experiment] = {}
+        for metric in metrics:
+            means[experiment][metric] = np.mean([scene_errors[scene][experiment][metric] for scene in scenes])
+
+    return means
+
+method_names = {'5p': '5PT', '3p_monodepth': '3PT$_{suv}$', '3p_reldepth': 'Rel3PT' , 'p3p': 'P3P' }
+method_names.update({f'nLO-{k}': v for k, v in method_names.items()})
+
+depth_names = {1: 'Real Depth',
+               2: 'MiDas~\\cite{birkl2023midas}',
+               3: 'DPT~\\cite{ranftl2021vision}',
+               4: 'ZoeDepth~\\cite{bhat2023zoedepth}',
+               5: 'DA V1~\\cite{yang2024depth}',
+               6: 'DA V2~\\cite{yang2024depthv2}',
+               7: 'Depth Pro~\\cite{bochkovskii2024depth}',
+               12: 'UniDepth~\\cite{piccinelli2024unidepth}',
+               8: 'Metric3d V2~\\cite{hu2024metric3d}',
+               11: 'Marigold~\\cite{ke2023repurposing}',
+               9: 'Marigold + FT~\\cite{martingarcia2024diffusione2eft}',
+               10: 'MoGe~\\cite{wang2024moge}'}
+
+depth_order = [1, 2, 3, 4, 5, 6, 7, 12, 8, 11, 9, 10]
+
+def print_monodepth_rows(depth, methods, phototourism_means, eth3d_means):
+    if depth == 0:
+        method = methods[0]
+        print(f'- & {method_names[method]} &'
+              f' {phototourism_means[method]["median_R_err"]:0.2f} & {phototourism_means[method]["median_t_err"]:0.2f} & '
+              f'{phototourism_means[method]["mAA_R"]:0.2f} & {phototourism_means[method]["mAA_t"]:0.2f} & {phototourism_means[method]["mean_runtime"]:0.2f} & '
+              f'{eth3d_means[method]["median_R_err"]:0.2f} & {eth3d_means[method]["median_t_err"]:0.2f} & '
+              f'{eth3d_means[method]["mAA_R"]:0.2f} & {eth3d_means[method]["mAA_t"]:0.2f} & {eth3d_means[method]["mean_runtime"]:0.2f}')
+        print('\\\\ \\hline')
+        return
+
+    num_rows = []
+    for method in methods:
+        method = f'{method}+{depth}'
+        pt_vals = [phototourism_means[method]["median_R_err"], phototourism_means[method]["median_t_err"], 
+                   phototourism_means[method]["mAA_R"], phototourism_means[method]['mAA_t'], 
+                   phototourism_means[method]['mean_runtime']]
+        
+        eth_vals = [eth3d_means[method]["median_R_err"], eth3d_means[method]["median_t_err"], 
+                    eth3d_means[method]["mAA_R"], eth3d_means[method]['mAA_t'], 
+                    eth3d_means[method]['mean_runtime']]
+
+        num_rows.append(pt_vals + eth_vals)
+
+    incdec = [1,1,-1,-1,1,1,1,-1,-1,1]
+
+    text_rows = [[f'{x:0.2f}' for x in y] for y in num_rows]
+    arr = np.array(num_rows)
+    for j in range(len(text_rows[0])):
+        idxs = np.argsort(incdec[j] * arr[:, j])
+        text_rows[idxs[0]][j] = '\\textbf{' + text_rows[idxs[0]][j] + '}'
+        text_rows[idxs[1]][j] = '\\underline{' + text_rows[idxs[1]][j] + '}'
+
+    print('\\multirow{', len(methods), '}{*}{', depth_names[depth], '}')
+    for i, method in enumerate(methods):
+        print(f'& {method_names[method]} & {"&".join(text_rows[i])} \\\\')
+    print('\\hline')
+
+
+def generate_calib_table(lo=False):
+    experiments = [f'3p_monodepth+{i}' for i in range(1, 13)]
+    experiments.extend([f'3p_reldepth+{i}' for i in range(1, 13)])
+    experiments.extend([f'p3p+{i}' for i in range(1, 13)])
+    experiments.append('5p')
+
+    monodepth_methods = ['p3p', '3p_reldepth', '3p_monodepth']
+    baseline_methods = ['5p']
+
+    if not lo:
+        experiments = [f'nLO-{x}' for x in experiments]
+        monodepth_methods = [f'nLO-{x}' for x in monodepth_methods]
+        baseline_methods = [f'nLO-{x}' for x in baseline_methods]
+
+
+    scene_errors = {}
+    for scene in basenames_all:
+        print(f"Loading: {scene}")
+        scene_errors[scene] = get_median_errors(scene, experiments, prefix='calibrated')
+
+    print("Calculating Means")
+    phototourism_means = get_means(scene_errors, basenames_pt, experiments)
+    eth3d_means = get_means(scene_errors, basenames_eth, experiments)
+
+    # table head
+    print('\\begin{tabular}{cccccccccccc}')
+    print('\\toprule')
+    print('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{5}{c}{Phototourism} & \\multicolumn{5}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-7} \\cmidrule(rl){8-12}')
+    print('& &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$& $\\tau (ms)\\downarrow$ \\  &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$& $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule')
+
+    print_monodepth_rows(0, baseline_methods, phototourism_means, eth3d_means)
+    for i in depth_order:
+        print_monodepth_rows(i, monodepth_methods, phototourism_means, eth3d_means)
+    print('\\end{tabular}')
+
+
+if __name__ == '__main__':
+    print(20 * '*')
+    print("no LO calib")
+    print(20 * '*')
+    generate_calib_table(lo=False)
+    print(20 * '*')
+    print("LO calib")
+    print(20 * '*')
+    generate_calib_table(lo=True)

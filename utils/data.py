@@ -1,3 +1,8 @@
+# basenames_eth = ['courtyard_splg', 'delivery_area_splg', 'electro_splg', 'facade_splg', 'kicker_splg', 'meadow_splg', 'office_splg', 'pipes_splg', 'playground_splg', 'relief_2_splg', 'relief_splg', 'terrace_splg', 'terrains_splg']
+basenames_eth = ['courtyard_splg', 'delivery_area_splg', 'electro_splg']
+basenames_pt = ['british_museum_splg']
+basenames_all = basenames_eth + basenames_pt
+
 def depth_indices(depth):
     if depth == 1: # real
         return (8, 9)
