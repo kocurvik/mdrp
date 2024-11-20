@@ -94,7 +94,8 @@ def print_monodepth_rows(depth, methods, phototourism_means, eth3d_means, use_fo
 
     num_rows = []
     for method in methods:
-        method = f'{method}+{depth}'
+        if depth > 0:
+            method = f'{method}+{depth}'
         if use_focal:
             metrics = ['median_R_err', 'median_t_err', 'median_f_err', 'mAA_R', 'mAA_t', 'mAA_f', 'mean_runtime']
             incdec = [1, 1, 1, -1, -1, -1,  1, 1, 1, 1, -1, -1, -1, 1]
@@ -103,7 +104,7 @@ def print_monodepth_rows(depth, methods, phototourism_means, eth3d_means, use_fo
             incdec = [1, 1, -1, -1, 1, 1, 1, -1, -1, 1]
 
         pt_vals = [phototourism_means[method][x] for x in metrics]
-        eth_vals = [phototourism_means[method][x] for x in metrics]
+        eth_vals = [eth3d_means[method][x] for x in metrics]
 
         num_rows.append(pt_vals + eth_vals)
 
