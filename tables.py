@@ -172,7 +172,7 @@ def generate_calib_table(lo=False):
     scene_errors = {}
     for scene in basenames_all:
         print(f"Loading: {scene}")
-        scene_errors[scene] = get_median_errors(scene, experiments, prefix='calibrated', calc_f_err=True)
+        scene_errors[scene] = get_median_errors(scene, experiments, prefix='calibrated')
 
     print("Calculating Means")
     phototourism_means = get_means(scene_errors, basenames_pt, experiments)
