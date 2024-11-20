@@ -7,8 +7,8 @@ from utils.data import basenames_all, basenames_pt, basenames_eth
 
 
 def R_err_fun(r):
-    R_gt = r['R_gt']
-    R = r['R']
+    R_gt = np.array(r['R_gt'])
+    R = np.array(r['R'])
     # R2R1 = np.dot(R_gt, np.transpose(R))
     # cos_angle = max(min(1.0, 0.5 * (np.trace(R2R1) - 1.0)), -1.0)
     # err_r = np.rad2deg(np.acos(cos_angle))
@@ -18,8 +18,8 @@ def R_err_fun(r):
     return err_r
 
 def t_err_fun(r):
-    t = r['t']
-    t_gt = r['t_gt']
+    t = np.array(r['t']).flatten()
+    t_gt = np.array(r['t_gt']).flatten()
 
     # eps = 1e-15
     # t = t / (np.linalg.norm(t) + eps)
