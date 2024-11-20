@@ -208,7 +208,7 @@ def generate_varying_table(lo=False):
     experiments.append('7p')
 
     monodepth_methods = ['4p4d', '4p_eigen', '4p_gj']
-    baseline_methods = ['6p']
+    baseline_methods = ['7p']
 
     if not lo:
         experiments = [f'nLO-{x}' for x in experiments]
