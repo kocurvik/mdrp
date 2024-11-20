@@ -3,35 +3,8 @@ import os
 
 import numpy as np
 
-from utils.data import basenames_all, basenames_pt, basenames_eth
+from utils.data import basenames_all, basenames_pt, basenames_eth, R_err_fun, t_err_fun
 
-
-def R_err_fun(r):
-    R_gt = np.array(r['R_gt'])
-    R = np.array(r['R'])
-    # R2R1 = np.dot(R_gt, np.transpose(R))
-    # cos_angle = max(min(1.0, 0.5 * (np.trace(R2R1) - 1.0)), -1.0)
-    # err_r = np.rad2deg(np.acos(cos_angle))
-    sin_angle1 = np.linalg.norm(R_gt - R) / (2 * np.sqrt(2))
-    sin_angle = max(min(1.0, sin_angle1), -1.0)
-    err_r = np.rad2deg(2*np.arcsin(sin_angle))
-    return err_r
-
-def t_err_fun(r):
-    t = np.array(r['t']).flatten()
-    t_gt = np.array(r['t_gt']).flatten()
-
-    # eps = 1e-15
-    # t = t / (np.linalg.norm(t) + eps)
-    # t_gt = t_gt / (np.linalg.norm(t_gt) + eps)
-    # loss_t = np.maximum(eps, (1.0 - np.sum(t * t_gt) ** 2))
-    # err_t = np.rad2deg(np.arccos(np.sqrt(1 - loss_t)))
-
-    t = t / (np.linalg.norm(t))
-    t_gt = t_gt / (np.linalg.norm(t_gt))
-    err_t = np.rad2deg(2*np.arcsin(np.linalg.norm(t - t_gt)*0.5))
-
-    return  err_t
 
 def get_median_errors(scene, experiments, prefix='calibrated', calc_f_err=False):
     json_path = f'{prefix}-{scene}.json'

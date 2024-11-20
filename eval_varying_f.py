@@ -12,7 +12,7 @@ from matplotlib import pyplot as plt
 from prettytable import PrettyTable
 from tqdm import tqdm
 
-from utils.data import depth_indices
+from utils.data import depth_indices, t_err_fun, R_err_fun
 from utils.geometry import rotation_angle, angle, get_camera_dicts, force_inliers
 from utils.vis import draw_results_pose_auc_10, draw_cumplots
 
@@ -59,8 +59,8 @@ def get_result_dict(info, image_triplet, R_gt, t_gt, f1_gt, f2_gt):
     out['f2_gt'] = f2_gt
     out['f2'] = image_triplet.camera2.focal()
 
-    out['R_err'] = np.rad2deg(2 * np.arcsin(np.clip(np.linalg.norm(R_gt - R_est) / (2*np.sqrt(2)), 0, 1)))
-    out['t_err'] = np.rad2deg(2 * np.arcsin(np.clip(0.5 * np.linalg.norm(t_est / np.linalg.norm(t_est) - t_gt / np.linalg.norm(t_gt)), 0, 1)))
+    out['R_err'] = R_err_fun(out)
+    out['t_err'] = t_err_fun(out)
     # out['P_err'] = max(out['R_err'], out['t_err'])
     # out['P_err'] = out['R_err']
 
@@ -91,6 +91,8 @@ def eval_experiment(x):
     bundle_dict = {'max_iterations': 0 if lo_iterations == 0 else 100}
 
     ransac_dict['use_fundamental'] = '7p' in experiment
+    ransac_dict['use_4p4d'] = '4p4d' in experiment
+    ransac_dict['use_eigen'] = 'eigen' in experiment
 
     start = perf_counter()
     image_pair, info = poselib.estimate_varying_focal_monodepth_relative_pose(kp1, kp2, d, ransac_dict, bundle_dict)
@@ -124,7 +126,6 @@ def print_results(experiments, results, eq_only=False):
 
         exp_name = exp
 
-
         tab.add_row([exp_name, np.median(R_errs), np.median(t_errs), np.median(f_errs),
                      np.mean(R_res), np.mean(t_res),
                      np.mean(times),
@@ -138,12 +139,14 @@ def print_results(experiments, results, eq_only=False):
 
 def eval(args):
 
-    experiments = [f'4p_monodepth+{i}' for i in range(1, 13)]
+    experiments = [f'4p4d+{i}' for i in range(1, 13)]
+    experiments.extend([f'4p_eigen+{i}' for i in range(1, 13)])
+    experiments.extend([f'4p_gj+{i}' for i in range(1, 13)])
     experiments.append('7p')
 
 
     # experiments = ['5p_nister', '3dp_monodepth+moge', '3dp_monodepth+marigold-bm', '3dp_reldepth+moge', '3dp_reldepth+marigold-bm']
-    experiments = [f'nLO-{x}' for x in experiments]
+    experiments.extend([f'nLO-{x}' for x in experiments])
 
     dataset_path = args.dataset_path
     basename = os.path.basename(dataset_path).split('.')[0]
