@@ -57,8 +57,11 @@ def get_means(scene_errors, scenes, experiments):
 
     return means
 
-method_names = {'5p': '5PT', '3p_monodepth': '3PT$_{suv}$', '3p_reldepth': 'Rel3PT' , 'p3p': 'P3P' }
-method_names.update({f'nLO-{k}': v for k, v in method_names.items()})
+method_names_calib = {'5p': '5PT', '3p_monodepth': '3PT$_{suv}$', '3p_reldepth': 'Rel3PT' , 'p3p': 'P3P' }
+method_names_calib.update({f'nLO-{k}': v for k, v in method_names_calib.items()})
+
+method_names_shared = {'6p': '6PT', '3p_reldepth': '3p3d', '4p_monodepth_gb': '4PT$_{suv}f$(GB)' , '4p_monodepth_eigen': '4PT$_{suv}f$(Eigen)' }
+method_names_shared.update({f'nLO-{k}': v for k, v in method_names_shared.items()})
 
 depth_names = {0: '-',
                1: 'Real Depth',
@@ -76,7 +79,7 @@ depth_names = {0: '-',
 
 depth_order = [1, 2, 3, 4, 5, 6, 7, 12, 8, 11, 9, 10]
 
-def print_monodepth_rows(depth, methods, phototourism_means, eth3d_means, use_focal=False):
+def print_monodepth_rows(depth, methods, method_names, phototourism_means, eth3d_means, use_focal=False):
     # if depth == 0:
     #     method = methods[0]
     #     if use_focal:
@@ -153,9 +156,9 @@ def generate_calib_table(lo=False):
     print('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{7}{c}{Phototourism} & \\multicolumn{7}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-8} \\cmidrule(rl){8-12}')
     print('\\cmidrule(rl){3-9} \\cmidrule(rl){10-16} & &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\  &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule')
 
-    print_monodepth_rows(0, baseline_methods, phototourism_means, eth3d_means)
+    print_monodepth_rows(0, baseline_methods, method_names_calib, phototourism_means, eth3d_means)
     for i in depth_order:
-        print_monodepth_rows(i, monodepth_methods, phototourism_means, eth3d_means)
+        print_monodepth_rows(i, monodepth_methods, method_names_calib, phototourism_means, eth3d_means)
     print('\\end{tabular}')
 
 def generate_shared_table(lo=False):
@@ -188,9 +191,9 @@ def generate_shared_table(lo=False):
     print('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{5}{c}{Phototourism} & \\multicolumn{5}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-7} \\cmidrule(rl){8-12}')
     print('& &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$& $\\tau (ms)\\downarrow$ \\  &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$& $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule')
 
-    print_monodepth_rows(0, baseline_methods, phototourism_means, eth3d_means, use_focal=True)
+    print_monodepth_rows(0, baseline_methods, method_names_shared, phototourism_means, eth3d_means, use_focal=True)
     for i in depth_order:
-        print_monodepth_rows(i, monodepth_methods, phototourism_means, eth3d_means, use_focal=True)
+        print_monodepth_rows(i, monodepth_methods, method_names_shared, phototourism_means, eth3d_means, use_focal=True)
     print('\\end{tabular}')
 
 
