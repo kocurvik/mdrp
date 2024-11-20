@@ -186,7 +186,7 @@ def generate_shared_table(lo=False):
     eth3d_means = get_means(scene_errors, basenames_eth, experiments)
 
     # table head
-    print('\\begin{tabular}{cccccccccccc}')
+    print('\\begin{tabular}{cccccccccccccccc}')
     print('\\toprule')
     print('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{7}{c}{Phototourism} & \\multicolumn{7}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-8} \\cmidrule(rl){8-12}')
     print('\\cmidrule(rl){3-9} \\cmidrule(rl){10-16} & &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\  &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule')
