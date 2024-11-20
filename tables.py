@@ -175,7 +175,7 @@ def generate_shared_table(lo=False):
     scene_errors = {}
     for scene in basenames_all:
         print(f"Loading: {scene}")
-        scene_errors[scene] = get_median_errors(scene, experiments, prefix='shared_focal')
+        scene_errors[scene] = get_median_errors(scene, experiments, prefix='shared_focal', calc_f_err=True)
 
     print("Calculating Means")
     phototourism_means = get_means(scene_errors, basenames_pt, experiments)
