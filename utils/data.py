@@ -47,11 +47,13 @@ def t_err_fun(r):
     t = np.array(r['t']).flatten()
     t_gt = np.array(r['t_gt']).flatten()
 
-    eps = 1e-15
-    t = t / (np.linalg.norm(t) + eps)
-    t_gt = t_gt / (np.linalg.norm(t_gt) + eps)
-    loss_t = np.maximum(eps, (1.0 - np.sum(t * t_gt) ** 2))
-    err_t = np.rad2deg(np.arccos(np.sqrt(1 - loss_t)))
+    # eps = 1e-15
+    # t = t / (np.linalg.norm(t) + eps)
+    # t_gt = t_gt / (np.linalg.norm(t_gt) + eps)
+    # loss_t = np.maximum(eps, (1.0 - np.sum(t * t_gt) ** 2))
+    # err_t = np.rad2deg(np.arccos(np.sqrt(1 - loss_t)))
+
+    err_t = np.rad2deg(np.arccos(np.clip(np.dot(t, t_gt) / (np.linalg.norm(t) * np.linalg.norm(t_gt)), -1, 1)))
 
     # t = t / (np.linalg.norm(t))
     # t_gt = t_gt / (np.linalg.norm(t_gt))
