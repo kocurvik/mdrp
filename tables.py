@@ -11,7 +11,7 @@ def R_err_fun(r):
     R = r['R']
     R2R1 = np.dot(R_gt, np.transpose(R))
     cos_angle = max(min(1.0, 0.5 * (np.trace(R2R1) - 1.0)), -1.0)
-    err_r = np.acos(cos_angle)
+    err_r = np.rad2deg(np.acos(cos_angle))
     return err_r
 
 def t_err_fun(r):
@@ -21,7 +21,7 @@ def t_err_fun(r):
     t = t / (np.linalg.norm(t) + eps)
     t_gt = t_gt / (np.linalg.norm(t_gt) + eps)
     loss_t = np.maximum(eps, (1.0 - np.sum(t * t_gt) ** 2))
-    err_t = np.arccos(np.sqrt(1 - loss_t))
+    err_t = np.rad2deg(np.arccos(np.sqrt(1 - loss_t)))
     return  err_t
 
 def get_median_errors(scene, experiments, prefix='calibrated', calc_f_err=False):
