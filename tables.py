@@ -64,6 +64,9 @@ method_names_calib.update({f'nLO-{k}': v for k, v in method_names_calib.items()}
 method_names_shared = {'6p': '6PT', '3p_reldepth': '3p3d', '4p_monodepth_gb': '4PT$_{suv}f$(GB)' , '4p_monodepth_eigen': '4PT$_{suv}f$(Eigen)' }
 method_names_shared.update({f'nLO-{k}': v for k, v in method_names_shared.items()})
 
+method_names_varying = {'7p': '7PT', '4p4d': '4p4d', '4p_eigen': '4PT$_{suv}f_1f_2$(Eigen)' , '4p_gj': '4PT$_{suv}f_1f_2$(GJ)' }
+method_names_shared.update({f'nLO-{k}': v for k, v in method_names_shared.items()})
+
 depth_names = {0: '-',
                1: 'Real Depth',
                2: 'MiDas~\\cite{birkl2023midas}',
@@ -198,24 +201,56 @@ def generate_shared_table(lo=False):
         print_monodepth_rows(i, monodepth_methods, method_names_shared, phototourism_means, eth3d_means, use_focal=True)
     print('\\end{tabular}')
 
+def generate_varying_table(lo=False):
+    experiments = [f'4p4d+{i}' for i in range(1, 13)]
+    experiments.extend([f'4p_eigen+{i}' for i in range(1, 13)])
+    experiments.extend([f'4p_gj+{i}' for i in range(1, 13)])
+    experiments.append('7p')
+
+    monodepth_methods = ['4p4d', '4p_eigen', '4p_gj']
+    baseline_methods = ['6p']
+
+    if not lo:
+        experiments = [f'nLO-{x}' for x in experiments]
+        monodepth_methods = [f'nLO-{x}' for x in monodepth_methods]
+        baseline_methods = [f'nLO-{x}' for x in baseline_methods]
+
+
+    scene_errors = {}
+    for scene in basenames_all:
+        print(f"Loading: {scene}")
+        scene_errors[scene] = get_median_errors(scene, experiments, prefix='shared_focal', calc_f_err=True)
+
+    print("Calculating Means")
+    phototourism_means = get_means(scene_errors, basenames_pt, experiments)
+    eth3d_means = get_means(scene_errors, basenames_eth, experiments)
+
+    # table head
+    print('\\begin{tabular}{cccccccccccccccc}')
+    print('\\toprule')
+    print('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{7}{c}{Phototourism} & \\multicolumn{7}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-8} \\cmidrule(rl){8-12}')
+    print('\\cmidrule(rl){3-9} \\cmidrule(rl){10-16} & &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\  &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule')
+
+
+    print_monodepth_rows(0, baseline_methods, method_names_varying, phototourism_means, eth3d_means, use_focal=True)
+    for i in depth_order:
+        print_monodepth_rows(i, monodepth_methods, method_names_varying, phototourism_means, eth3d_means, use_focal=True)
+    print('\\end{tabular}')
+
 
 if __name__ == '__main__':
-    print(20 * '*')
-    print("No LO calib")
-    print(20 * '*')
-    generate_calib_table(lo=False)
-    print(20 * '*')
-    print("LO calib")
-    print(20 * '*')
-    generate_calib_table(lo=True)
+    # print("No LO calib")
+    # generate_calib_table(lo=False)
+    # print("LO calib")
+    # generate_calib_table(lo=True)
+    #
+    # print("No LO shared focal")
+    # generate_shared_table(lo=False)
+    # print("LO shared focal")
+    # generate_shared_table(lo=True)
 
-
-    print(20 * '*')
-    print("No LO shared focal")
-    print(20 * '*')
-    generate_shared_table(lo=False)
-    print(20 * '*')
-    print("LO shared focal")
-    print(20 * '*')
-    generate_shared_table(lo=True)
+    print("No LO varying focal")
+    generate_varying_table(lo=False)
+    print("LO varying focal")
+    generate_varying_table(lo=True)
 
