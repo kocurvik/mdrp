@@ -34,9 +34,13 @@ def depth_indices(depth):
 def R_err_fun(r):
     R_gt = np.array(r['R_gt'])
     R = np.array(r['R'])
-    R2R1 = np.dot(R_gt, np.transpose(R))
-    cos_angle = max(min(1.0, 0.5 * (np.trace(R2R1) - 1.0)), -1.0)
-    err_r = np.rad2deg(np.acos(cos_angle))
+    # R2R1 = np.dot(R_gt, np.transpose(R))
+    # cos_angle = max(min(1.0, 0.5 * (np.trace(R2R1) - 1.0)), -1.0)
+    # err_r = np.rad2deg(np.acos(cos_angle))
+
+    R2R1 = R.T @ R_gt
+    err_r = np.rad2deg(np.arccos(np.clip((np.trace(R2R1) - 1) / 2, -1, 1)))
+
     # sin_angle1 = np.linalg.norm(R_gt - R) / (2 * np.sqrt(2))
     # sin_angle = max(min(1.0, sin_angle1), -1.0)
     # err_r = np.rad2deg(2*np.arcsin(sin_angle))
