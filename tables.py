@@ -75,38 +75,45 @@ depth_names = {1: 'Real Depth',
 
 depth_order = [1, 2, 3, 4, 5, 6, 7, 12, 8, 11, 9, 10]
 
-def print_monodepth_rows(depth, methods, phototourism_means, eth3d_means):
-    if depth == 0:
-        method = methods[0]
-        print(f'- & {method_names[method]} &'
-              f' {phototourism_means[method]["median_R_err"]:0.2f} & {phototourism_means[method]["median_t_err"]:0.2f} & '
-              f'{phototourism_means[method]["mAA_R"]:0.2f} & {phototourism_means[method]["mAA_t"]:0.2f} & {phototourism_means[method]["mean_runtime"]:0.2f} & '
-              f'{eth3d_means[method]["median_R_err"]:0.2f} & {eth3d_means[method]["median_t_err"]:0.2f} & '
-              f'{eth3d_means[method]["mAA_R"]:0.2f} & {eth3d_means[method]["mAA_t"]:0.2f} & {eth3d_means[method]["mean_runtime"]:0.2f}')
-        print('\\\\ \\hline')
-        return
+def print_monodepth_rows(depth, methods, phototourism_means, eth3d_means, use_focal=False):
+    # if depth == 0:
+    #     method = methods[0]
+    #     if use_focal:
+    #         print(f'- & {method_names[method]} &'
+    #               f'{phototourism_means[method]["median_R_err"]:0.2f} & {phototourism_means[method]["median_t_err"]:0.2f} & {phototourism_means[method]["median_f_err"]:0.2f} & '
+    #               f'{phototourism_means[method]["mAA_R"]:0.2f} & {phototourism_means[method]["mAA_t"]:0.2f} & {phototourism_means[method]["mAA_f"]:0.2f} & {phototourism_means[method]["mean_runtime"]:0.2f} & '
+    #               f'{eth3d_means[method]["median_R_err"]:0.2f} & {eth3d_means[method]["median_t_err"]:0.2f} & {eth3d_means[method]["median_f_err"]:0.2f} & '
+    #               f'{eth3d_means[method]["mAA_R"]:0.2f} & {eth3d_means[method]["mAA_t"]:0.2f} & {eth3d_means[method]["mAA_f"]:0.2f} & {eth3d_means[method]["mean_runtime"]:0.2f}')        else:
+    #         print(f'- & {method_names[method]} &'
+    #               f' {phototourism_means[method]["median_R_err"]:0.2f} & {phototourism_means[method]["median_t_err"]:0.2f} & '
+    #               f'{phototourism_means[method]["mAA_R"]:0.2f} & {phototourism_means[method]["mAA_t"]:0.2f} & {phototourism_means[method]["mean_runtime"]:0.2f} & '
+    #               f'{eth3d_means[method]["median_R_err"]:0.2f} & {eth3d_means[method]["median_t_err"]:0.2f} & '
+    #               f'{eth3d_means[method]["mAA_R"]:0.2f} & {eth3d_means[method]["mAA_t"]:0.2f} & {eth3d_means[method]["mean_runtime"]:0.2f}')
+    #     print('\\\\ \\hline')
+    #     return
 
     num_rows = []
     for method in methods:
         method = f'{method}+{depth}'
-        pt_vals = [phototourism_means[method]["median_R_err"], phototourism_means[method]["median_t_err"], 
-                   phototourism_means[method]["mAA_R"], phototourism_means[method]['mAA_t'], 
-                   phototourism_means[method]['mean_runtime']]
-        
-        eth_vals = [eth3d_means[method]["median_R_err"], eth3d_means[method]["median_t_err"], 
-                    eth3d_means[method]["mAA_R"], eth3d_means[method]['mAA_t'], 
-                    eth3d_means[method]['mean_runtime']]
+        if use_focal:
+            metrics = ['median_R_err', 'median_t_err', 'median_f_err', 'mAA_R', 'mAA_t', 'mAA_f', 'mean_runtime']
+            incdec = [1, 1, 1, -1, -1, -1,  1, 1, 1, 1, -1, -1, -1, 1]
+        else:
+            metrics = ['median_R_err', 'median_t_err', 'mAA_R', 'mAA_t', 'mean_runtime']
+            incdec = [1, 1, -1, -1, 1, 1, 1, -1, -1, 1]
+
+        pt_vals = [phototourism_means[method][x] for x in metrics]
+        eth_vals = [phototourism_means[method][x] for x in metrics]
 
         num_rows.append(pt_vals + eth_vals)
 
-    incdec = [1,1,-1,-1,1,1,1,-1,-1,1]
-
     text_rows = [[f'{x:0.2f}' for x in y] for y in num_rows]
     arr = np.array(num_rows)
-    for j in range(len(text_rows[0])):
-        idxs = np.argsort(incdec[j] * arr[:, j])
-        text_rows[idxs[0]][j] = '\\textbf{' + text_rows[idxs[0]][j] + '}'
-        text_rows[idxs[1]][j] = '\\underline{' + text_rows[idxs[1]][j] + '}'
+    if depth > 0:
+        for j in range(len(text_rows[0])):
+            idxs = np.argsort(incdec[j] * arr[:, j])
+            text_rows[idxs[0]][j] = '\\textbf{' + text_rows[idxs[0]][j] + '}'
+            text_rows[idxs[1]][j] = '\\underline{' + text_rows[idxs[1]][j] + '}'
 
     print('\\multirow{', len(methods), '}{*}{', depth_names[depth], '}')
     for i, method in enumerate(methods):
@@ -132,7 +139,42 @@ def generate_calib_table(lo=False):
     scene_errors = {}
     for scene in basenames_all:
         print(f"Loading: {scene}")
-        scene_errors[scene] = get_median_errors(scene, experiments, prefix='calibrated')
+        scene_errors[scene] = get_median_errors(scene, experiments, prefix='calibrated', calc_f_err=True)
+
+    print("Calculating Means")
+    phototourism_means = get_means(scene_errors, basenames_pt, experiments)
+    eth3d_means = get_means(scene_errors, basenames_eth, experiments)
+
+    # table head
+    print('\\begin{tabular}{cccccccccccc}')
+    print('\\toprule')
+    print('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{7}{c}{Phototourism} & \\multicolumn{7}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-8} \\cmidrule(rl){8-12}')
+    print('\cmidrule(rl){3-9} \cmidrule(rl){10-16} & &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\  &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule')
+
+    print_monodepth_rows(0, baseline_methods, phototourism_means, eth3d_means)
+    for i in depth_order:
+        print_monodepth_rows(i, monodepth_methods, phototourism_means, eth3d_means)
+    print('\\end{tabular}')
+
+def generate_shared_table(lo=False):
+    experiments = [f'4p_monodepth_eigen+{i}' for i in range(1, 13)]
+    experiments.extend([f'4p_monodepth_gb+{i}' for i in range(1, 13)])
+    experiments.extend([f'3p_reldepth+{i}' for i in range(1, 13)])
+    experiments.append('6p')
+
+    monodepth_methods = ['3p_reldepth', '4p_monodepth_gb', '4p_monodepth_eigen']
+    baseline_methods = ['6p']
+
+    if not lo:
+        experiments = [f'nLO-{x}' for x in experiments]
+        monodepth_methods = [f'nLO-{x}' for x in monodepth_methods]
+        baseline_methods = [f'nLO-{x}' for x in baseline_methods]
+
+
+    scene_errors = {}
+    for scene in basenames_all:
+        print(f"Loading: {scene}")
+        scene_errors[scene] = get_median_errors(scene, experiments, prefix='shared_focal')
 
     print("Calculating Means")
     phototourism_means = get_means(scene_errors, basenames_pt, experiments)
@@ -144,18 +186,29 @@ def generate_calib_table(lo=False):
     print('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{5}{c}{Phototourism} & \\multicolumn{5}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-7} \\cmidrule(rl){8-12}')
     print('& &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$& $\\tau (ms)\\downarrow$ \\  &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$& $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule')
 
-    print_monodepth_rows(0, baseline_methods, phototourism_means, eth3d_means)
+    print_monodepth_rows(0, baseline_methods, phototourism_means, eth3d_means, use_focal=True)
     for i in depth_order:
-        print_monodepth_rows(i, monodepth_methods, phototourism_means, eth3d_means)
+        print_monodepth_rows(i, monodepth_methods, phototourism_means, eth3d_means, use_focal=True)
     print('\\end{tabular}')
 
 
 if __name__ == '__main__':
+    # print(20 * '*')
+    # print("No LO calib")
+    # print(20 * '*')
+    # generate_calib_table(lo=False)
+    # print(20 * '*')
+    # print("LO calib")
+    # print(20 * '*')
+    # generate_calib_table(lo=True)
+
+
     print(20 * '*')
-    print("no LO calib")
+    print("No LO shared focal")
     print(20 * '*')
-    generate_calib_table(lo=False)
+    generate_shared_table(lo=False)
     print(20 * '*')
-    print("LO calib")
+    print("LO shared focal")
     print(20 * '*')
-    generate_calib_table(lo=True)
+    generate_shared_table(lo=True)
+
