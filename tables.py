@@ -133,7 +133,7 @@ def print_monodepth_rows(depth, methods, method_names, phototourism_means, eth3d
     print('\\hline')
 
 
-def generate_calib_table(lo=False):
+def generate_calib_table(prefix=''):
     experiments = [f'3p_monodepth+{i}' for i in range(1, 13)]
     experiments.extend([f'3p_reldepth+{i}' for i in range(1, 13)])
     experiments.extend([f'p3p+{i}' for i in range(1, 13)])
@@ -142,15 +142,9 @@ def generate_calib_table(lo=False):
     monodepth_methods = ['p3p', '3p_reldepth', '3p_monodepth']
     baseline_methods = ['5p']
 
-    if not lo:
-        experiments = [f'nLO-{x}' for x in experiments]
-        monodepth_methods = [f'nLO-{x}' for x in monodepth_methods]
-        baseline_methods = [f'nLO-{x}' for x in baseline_methods]
-    else:
-        experiments = [f'GLO-{x}' for x in experiments]
-        monodepth_methods = [f'GLO-{x}' for x in monodepth_methods]
-        baseline_methods = [f'GLO-{x}' for x in baseline_methods]
-
+    experiments = [f'{prefix}{x}' for x in experiments]
+    monodepth_methods = [f'{prefix}{x}' for x in monodepth_methods]
+    baseline_methods = [f'{prefix}{x}' for x in baseline_methods]
 
     scene_errors = {}
     for scene in basenames_all:
@@ -172,7 +166,7 @@ def generate_calib_table(lo=False):
         print_monodepth_rows(i, monodepth_methods, method_names_calib, phototourism_means, eth3d_means)
     print('\\end{tabular}')
 
-def generate_shared_table(lo=False):
+def generate_shared_table(prefix=''):
     experiments = [f'4p_monodepth_eigen+{i}' for i in range(1, 13)]
     experiments.extend([f'4p_monodepth_gb+{i}' for i in range(1, 13)])
     experiments.extend([f'3p_reldepth+{i}' for i in range(1, 13)])
@@ -181,11 +175,9 @@ def generate_shared_table(lo=False):
     monodepth_methods = ['3p_reldepth', '4p_monodepth_gb', '4p_monodepth_eigen']
     baseline_methods = ['6p']
 
-    if not lo:
-        experiments = [f'nLO-{x}' for x in experiments]
-        monodepth_methods = [f'nLO-{x}' for x in monodepth_methods]
-        baseline_methods = [f'nLO-{x}' for x in baseline_methods]
-
+    experiments = [f'{prefix}{x}' for x in experiments]
+    monodepth_methods = [f'{prefix}{x}' for x in monodepth_methods]
+    baseline_methods = [f'{prefix}{x}' for x in baseline_methods]
 
     scene_errors = {}
     for scene in basenames_all:
@@ -208,7 +200,7 @@ def generate_shared_table(lo=False):
         print_monodepth_rows(i, monodepth_methods, method_names_shared, phototourism_means, eth3d_means, use_focal=True)
     print('\\end{tabular}')
 
-def generate_varying_table(lo=False):
+def generate_varying_table(prefix=''):
     experiments = [f'4p4d+{i}' for i in range(1, 13)]
     experiments.extend([f'4p_eigen+{i}' for i in range(1, 13)])
     experiments.extend([f'4p_gj+{i}' for i in range(1, 13)])
@@ -217,10 +209,9 @@ def generate_varying_table(lo=False):
     monodepth_methods = ['4p4d', '4p_eigen', '4p_gj']
     baseline_methods = ['7p']
 
-    if not lo:
-        experiments = [f'nLO-{x}' for x in experiments]
-        monodepth_methods = [f'nLO-{x}' for x in monodepth_methods]
-        baseline_methods = [f'nLO-{x}' for x in baseline_methods]
+    experiments = [f'{prefix}{x}' for x in experiments]
+    monodepth_methods = [f'{prefix}{x}' for x in monodepth_methods]
+    baseline_methods = [f'{prefix}{x}' for x in baseline_methods]
 
 
     scene_errors = {}
@@ -248,13 +239,15 @@ def generate_varying_table(lo=False):
 if __name__ == '__main__':
     # print("No LO calib")
     # generate_calib_table(lo=False)
+    print("LO calib")
+    generate_calib_table()
     print("GLO calib")
-    generate_calib_table(lo=True)
+    generate_calib_table('GLO-')
 
-    # print("No LO shared focal")
-    # generate_shared_table(lo=False)
+    print("LO shared focal")
+    generate_shared_table()
     print("GLO shared focal")
-    generate_shared_table(lo=True)
+    generate_shared_table('GLO-')
 
     # print("No LO varying focal")
     # generate_varying_table(lo=False)
