@@ -97,7 +97,7 @@ def eval_experiment(x):
     ransac_dict['use_4p4d'] = '4p4d' in experiment
     ransac_dict['use_eigen'] = 'eigen' in experiment
     ransac_dict['graduated_steps'] = 3 if 'GLO' in experiment else 0
-    ransac_dict['no_normalizaton'] = 'NN' in experiment
+    ransac_dict['no_normalization'] = 'NN' in experiment
 
     start = perf_counter()
     image_pair, info = poselib.estimate_varying_focal_monodepth_relative_pose(kp1, kp2, d, ransac_dict, bundle_dict)

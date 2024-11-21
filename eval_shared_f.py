@@ -93,7 +93,7 @@ def eval_experiment(x):
     ransac_dict['use_reldepth'] = 'reldepth' in experiment
     ransac_dict['use_p3p'] = 'p3p' in experiment
     ransac_dict['use_eigen'] = 'eigen' in experiment
-    ransac_dict['no_normalizaton'] = 'NN' in experiment
+    ransac_dict['no_normalization'] = 'NN' in experiment
     ransac_dict['graduated_steps'] = 3 if 'GLO' in experiment else 0
 
     bundle_dict = {'max_iterations': 0 if lo_iterations == 0 else 100}
