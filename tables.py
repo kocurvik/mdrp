@@ -248,9 +248,13 @@ if __name__ == '__main__':
     # generate_shared_table()
     # print("GLO shared focal")
     # generate_shared_table('GLO-')
+    print("NN shared focal")
+    generate_shared_table('NN-')
 
-    print("LO varying focal")
-    generate_varying_table()
+    # print("LO varying focal")
+    # generate_varying_table()
     # print("LO varying focal")
     # generate_varying_table(lo=True)
+    print("NN varying focal")
+    generate_varying_table('NN-')
 
