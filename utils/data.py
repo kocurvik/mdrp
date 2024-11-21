@@ -4,6 +4,16 @@ basenames_eth = ['courtyard_splg', 'delivery_area_splg', 'electro_splg', 'facade
 basenames_pt = ['british_museum_splg', 'florence_cathedral_splg', 'lincoln_memorial_splg', 'london_bridge_splg', 'milan_cathedral_splg', 'mount_rushmore_splg', 'sagrada_familia_splg', 'stpauls_cathedral_splg']
 basenames_all = basenames_eth + basenames_pt
 
+
+def get_basenames(dataset):
+    if dataset == 'pt':
+        return basenames_pt
+    elif dataset == 'eth':
+        return basenames_eth
+    elif dataset == 'all':
+        return basenames_all
+
+
 def get_valid_depth_mask(d):
     l = np.logical_or(np.isinf(d[:, 0]), np.isinf(d[:, 1]))
     l = np.logical_or(np.isnan(d[:, 0]), l)
@@ -71,3 +81,6 @@ def t_err_fun(r):
     # err_t = np.rad2deg(2*np.arcsin(np.linalg.norm(t - t_gt)*0.5))
 
     return err_t
+
+def err_fun_pose(r):
+    return max(R_err_fun(r), t_err_fun(r))

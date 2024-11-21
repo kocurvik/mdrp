@@ -8,7 +8,7 @@ from matplotlib import rc
 import seaborn as sns
 from tqdm import tqdm
 
-experiments = ['4p(HC)', '5p3v', '4p3v(M) + R + C', '4p3v(M-D) + R + C']
+from utils.data import get_basenames, err_fun_pose
 
 large_size = 24
 small_size = 20
@@ -82,7 +82,7 @@ def draw_results(results, experiments, iterations_list, title=''):
     plt.show()
 
 
-def draw_results_pose_auc_10(results, experiments, iterations_list, title=None):
+def draw_results_pose_auc_10(results, experiments, iterations_list, err_fun=err_fun_pose, title=None):
     fig = plt.figure(frameon=True)
 
     colors, styles = get_colors_styles(experiments)
@@ -96,7 +96,7 @@ def draw_results_pose_auc_10(results, experiments, iterations_list, title=None):
         for iterations in iterations_list:
             iter_results = [x for x in experiment_results if x['info']['iterations'] == iterations]
             mean_runtime = np.mean([x['info']['runtime'] for x in iter_results])
-            errs = np.array([out['P_err'] for out in iter_results])
+            errs = np.array([err_fun(out) for out in iter_results])
             # errs = np.array([0.5 * (out['t_12_err'] + out['t_13_err']) for out in iter_results])
             errs[np.isnan(errs)] = 180
             AUC10 = np.mean(np.array([np.sum(errs < t) / len(errs) for t in range(1, 11)]))
@@ -122,6 +122,7 @@ def draw_results_pose_auc_10(results, experiments, iterations_list, title=None):
         # plt.savefig(f'figs/{title}_pose.pdf', bbox_inches='tight', pad_inches=0)
         plt.savefig(f'figs/{title}_pose.pdf')#, bbox_inches='tight', pad_inches=0)
 
+        plt.legend()
         plt.savefig(f'figs/{title}_pose.png', bbox_inches='tight', pad_inches=0.1)
         print(f'saved pose: {title}')
 
@@ -190,3 +191,46 @@ def draw_cumplots(experiments, results):
     plt.figure()
     plt.xlabel('k error')
     plt.ylabel('Portion of samples')
+
+def generate_graphs(dataset, results_type, all=True, basenames = None, prefix='', ylim=None, colors=None):
+    if basenames is None:
+        basenames = get_basenames(dataset)
+
+    depths = [10, 12]
+    if 'calib' in results_type:
+        experiments = [f'3p_monodepth+{i}' for i in depths]
+        # experiments.extend([f'3p_reldepth+{i}' for i in depths])
+        experiments.extend([f'p3p+{i}' for i in depths])
+        experiments.append('5p')
+    if 'shared' in results_type:
+        experiments = [f'4p_monodepth_eigen+{i}' for i in depths]
+        experiments.extend([f'4p_monodepth_gb+{i}' for i in depths])
+        experiments.extend([f'3p_reldepth+{i}' for i in depths])
+        experiments.append('6p')
+
+
+
+    iterations_list = [10, 20, 50, 100, 200, 500, 1000]
+
+    all_results = []
+    for basename in basenames:
+        json_path = os.path.join('results', f'{results_type}-{basename}.json')
+        print(f'json_path: {json_path}')
+        with open(json_path, 'r') as f:
+            results = [x for x in json.load(f) if x['experiment'] in experiments]
+            # draw_results_pose_auc_10(results, exps, iterations_list,
+            #                          title=f'{prefix}{dataset}_{basename}_{results_type}', err_fun=err_fun_pose, colors=colors)
+            # draw_results_pose_auc_10(results, experiments, iterations_list,
+            #                          f'maxerr_{dataset}_{basename}_{results_type}', err_fun=err_fun_max)
+            if all:
+               all_results.extend(results)
+
+    if all:
+        title = f'{dataset}_{results_type}'
+        draw_results_pose_auc_10(all_results, experiments, iterations_list, title=prefix + title, err_fun=err_fun_pose)
+
+if __name__ == '__main__':
+    # generate_graphs('eth', 'calibrated-graph', all=True)
+    generate_graphs('pt', 'calibrated-graph', all=True)
+    generate_graphs('eth', 'shared_focal-graph', all=True)
+    generate_graphs('pt', 'shared_focal-graph', all=True)
