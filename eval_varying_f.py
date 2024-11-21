@@ -30,6 +30,7 @@ def parse_args():
     parser.add_argument('-a', '--append', action='store_true', default=False)
     parser.add_argument('-o', '--overwrite', action='store_true', default=False)
     parser.add_argument('--graduated', action='store_true', default=False)
+    parser.add_argument('--nn', action='store_true', default=False)
     parser.add_argument('--nlo',action='store_true', default=False)
     parser.add_argument('--iters', type=int, default=None)
     parser.add_argument('dataset_path')
@@ -96,6 +97,7 @@ def eval_experiment(x):
     ransac_dict['use_4p4d'] = '4p4d' in experiment
     ransac_dict['use_eigen'] = 'eigen' in experiment
     ransac_dict['graduated_steps'] = 3 if 'GLO' in experiment else 0
+    ransac_dict['no_normalizaton'] = 'NN' in experiment
 
     start = perf_counter()
     image_pair, info = poselib.estimate_varying_focal_monodepth_relative_pose(kp1, kp2, d, ransac_dict, bundle_dict)
@@ -153,6 +155,9 @@ def eval(args):
 
     if args.graduated:
         experiments = [f'GLO-{x}' for x in experiments]
+
+    if args.nn:
+        experiments = [f'NN-{x}' for x in experiments]
 
     dataset_path = args.dataset_path
     basename = os.path.basename(dataset_path).split('.')[0]

@@ -31,6 +31,7 @@ def parse_args():
     parser.add_argument('-o', '--overwrite', action='store_true', default=False)
     parser.add_argument('--graduated', action='store_true', default=False)
     parser.add_argument('--nlo',action='store_true', default=False)
+    parser.add_argument('--nn',action='store_true', default=False)
     parser.add_argument('--iters', type=int, default=None)
     parser.add_argument('dataset_path')
 
@@ -92,6 +93,7 @@ def eval_experiment(x):
     ransac_dict['use_reldepth'] = 'reldepth' in experiment
     ransac_dict['use_p3p'] = 'p3p' in experiment
     ransac_dict['use_eigen'] = 'eigen' in experiment
+    ransac_dict['no_normalizaton'] = 'NN' in experiment
     ransac_dict['graduated_steps'] = 3 if 'GLO' in experiment else 0
 
     bundle_dict = {'max_iterations': 0 if lo_iterations == 0 else 100}
@@ -155,6 +157,9 @@ def eval(args):
 
     if args.graduated:
         experiments = [f'GLO-{x}' for x in experiments]
+
+    if args.nn:
+        experiments = [f'NN-{x}' for x in experiments]
 
     if args.graph:
         experiments = []
