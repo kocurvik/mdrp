@@ -156,6 +156,14 @@ def eval(args):
     if args.graduated:
         experiments = [f'GLO-{x}' for x in experiments]
 
+    if args.graph:
+        experiments = []
+        depths = [10, 12]
+        experiments = [f'4p_monodepth_eigen+{i}' for i in depths]
+        experiments.extend([f'4p_monodepth_gb+{i}' for i in depths])
+        experiments.extend([f'3p_reldepth+{i}' for i in depths])
+        experiments.append('6p')
+
     dataset_path = args.dataset_path
     basename = os.path.basename(dataset_path).split('.')[0]
 
@@ -163,7 +171,7 @@ def eval(args):
         basename = f'{basename}-{args.threshold}t'
 
     if args.graph:
-        basename = f'{basename}-graph'
+        basename = f'graph-{basename}'
         iterations_list = [10, 20, 50, 100, 200, 500, 1000]
     else:
         iterations_list = [args.iters]
