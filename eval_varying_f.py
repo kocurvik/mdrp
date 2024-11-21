@@ -142,9 +142,10 @@ def print_results(experiments, results, eq_only=False):
 
 def eval(args):
 
-    experiments = [f'4p4d+{i}' for i in range(1, 13)]
-    experiments.extend([f'4p_eigen+{i}' for i in range(1, 13)])
-    experiments.extend([f'4p_gj+{i}' for i in range(1, 13)])
+    experiments = []
+    # experiments.extend([f'4p4d+{i}' for i in range(1, 13)])
+    # experiments.extend([f'4p_eigen+{i}' for i in range(1, 13)])
+    # experiments.extend([f'4p_gj+{i}' for i in range(1, 13)])
     experiments.append('7p')
 
     if args.nlo:
@@ -184,7 +185,7 @@ def eval(args):
             pairs = pairs[:args.first]
 
         def gen_data():
-            for img_name_1, img_name_2 in pairs:
+            for img_name_1, img_name_2 in pairs[302:]:
                 for experiment in experiments:
                     for iterations in iterations_list:
 
@@ -199,7 +200,7 @@ def eval(args):
 
                         data = np.array(H5_file[f'corr_{img_name_1}_{img_name_2}'])
 
-                        if len(data) < 8:
+                        if len(data) < 7:
                             continue
 
                         kp1 = data[:, :2] - pp1
