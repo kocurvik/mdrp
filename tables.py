@@ -69,9 +69,9 @@ method_names_shared.update({f'GLO-{k}': v for k, v in method_names_shared.items(
 method_names_shared.update({f'NN-{k}': v for k, v in method_names_shared.items()})
 
 method_names_varying = {'7p': '7PT', '4p4d': '4p4d', '4p_eigen': '4PT$_{suv}f_1f_2$(Eigen)' , '4p_gj': '4PT$_{suv}f_1f_2$(GJ)' }
-method_names_shared.update({f'nLO-{k}': v for k, v in method_names_shared.items()})
-method_names_shared.update({f'GLO-{k}': v for k, v in method_names_shared.items()})
-method_names_shared.update({f'NN-{k}': v for k, v in method_names_shared.items()})
+method_names_varying.update({f'nLO-{k}': v for k, v in method_names_varying.items()})
+method_names_varying.update({f'GLO-{k}': v for k, v in method_names_varying.items()})
+method_names_varying.update({f'NN-{k}': v for k, v in method_names_varying.items()})
 
 depth_names = {0: '-',
                1: 'Real Depth',
