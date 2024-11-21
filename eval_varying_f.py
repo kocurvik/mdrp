@@ -29,6 +29,8 @@ def parse_args():
     parser.add_argument('-g', '--graph', action='store_true', default=False)
     parser.add_argument('-a', '--append', action='store_true', default=False)
     parser.add_argument('-o', '--overwrite', action='store_true', default=False)
+    parser.add_argument('--graduated', action='store_true', default=False)
+    parser.add_argument('--nlo',action='store_true', default=False)
     parser.add_argument('--iters', type=int, default=None)
     parser.add_argument('dataset_path')
 
@@ -93,6 +95,7 @@ def eval_experiment(x):
     ransac_dict['use_fundamental'] = '7p' in experiment
     ransac_dict['use_4p4d'] = '4p4d' in experiment
     ransac_dict['use_eigen'] = 'eigen' in experiment
+    ransac_dict['graduated_steps'] = 3 if 'GLO' in experiment else 0
 
     start = perf_counter()
     image_pair, info = poselib.estimate_varying_focal_monodepth_relative_pose(kp1, kp2, d, ransac_dict, bundle_dict)
@@ -144,9 +147,11 @@ def eval(args):
     experiments.extend([f'4p_gj+{i}' for i in range(1, 13)])
     experiments.append('7p')
 
+    if args.nlo:
+        experiments = [f'nLO-{x}' for x in experiments]
 
-    # experiments = ['5p_nister', '3dp_monodepth+moge', '3dp_monodepth+marigold-bm', '3dp_reldepth+moge', '3dp_reldepth+marigold-bm']
-    experiments.extend([f'nLO-{x}' for x in experiments])
+    if args.graduated:
+        experiments = [f'GLO-{x}' for x in experiments]
 
     dataset_path = args.dataset_path
     basename = os.path.basename(dataset_path).split('.')[0]

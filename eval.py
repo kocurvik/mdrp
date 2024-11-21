@@ -11,7 +11,7 @@ import poselib
 from prettytable import PrettyTable
 from tqdm import tqdm
 
-from utils.data import depth_indices, R_err_fun, t_err_fun
+from utils.data import depth_indices, R_err_fun, t_err_fun, get_valid_depth_mask
 from utils.vis import draw_results_pose_auc_10, draw_cumplots
 
 
@@ -27,6 +27,8 @@ def parse_args():
     parser.add_argument('-g', '--graph', action='store_true', default=False)
     parser.add_argument('-a', '--append', action='store_true', default=False)
     parser.add_argument('-o', '--overwrite', action='store_true', default=False)
+    parser.add_argument('--graduated', action='store_true', default=False)
+    parser.add_argument('--nlo', action='store_true', default=False)
     parser.add_argument('--iters', type=int, default=None)
     parser.add_argument('dataset_path')
 
@@ -79,6 +81,8 @@ def eval_experiment(x):
     ransac_dict['use_reldepth'] = 'reldepth' in experiment
     ransac_dict['use_p3p'] = 'p3p' in experiment
 
+    ransac_dict['graduated_steps'] = 3 if 'GLO' in experiment else 0
+
     bundle_dict = {'max_iterations': 0 if lo_iterations == 0 else 100}
 
     camera1 = {'model': 'PINHOLE', 'width': -1, 'height': -1, 'params': [K1[0, 0], K1[1, 1], K1[0, 2], K1[1, 2]]}
@@ -88,6 +92,10 @@ def eval_experiment(x):
         start = perf_counter()
         pose_est, info = poselib.estimate_relative_pose(kp1, kp2, camera1, camera2, ransac_dict, bundle_dict)
         info['runtime'] = 1000 * (perf_counter() - start)
+    # elif 'reldepth' in experiment:
+    #     start = perf_counter()
+    #     pose_est, info = poselib.estimate_relative_pose_w_relative_depth(kp1, kp2, d[:, 1] / d[:, 0], camera1, camera2, ransac_dict, bundle_dict)
+    #     info['runtime'] = 1000 * (perf_counter() - start)
     else:
         start = perf_counter()
         pose_est, info = poselib.estimate_relative_pose_w_mono_depth(kp1, kp2, d, camera1, camera2, ransac_dict, bundle_dict)
@@ -133,13 +141,17 @@ def print_results(experiments, results, eq_only=False):
 
 
 def eval(args):
-
+    experiments = []
     experiments = [f'3p_monodepth+{i}' for i in range(1, 13)]
     experiments.extend([f'3p_reldepth+{i}' for i in range(1, 13)])
     experiments.extend([f'p3p+{i}' for i in range(1, 13)])
     experiments.append('5p')
 
-    experiments.extend([f'nLO-{x}' for x in experiments])
+    if args.nlo:
+        experiments = [f'nLO-{x}' for x in experiments]
+
+    if args.graduated:
+        experiments = [f'GLO-{x}' for x in experiments]
 
     dataset_path = args.dataset_path
     basename = os.path.basename(dataset_path).split('.')[0]
@@ -190,8 +202,13 @@ def eval(args):
                         if '+' in experiment:
                             depth = int(experiment.split('+')[1])
                             d = data[:, depth_indices(depth)]
+                            # d = data[:, 31] / data[:, 30]
                         else:
                             d = np.ones_like(kp1)
+
+                        l = get_valid_depth_mask(d)
+                        # l = ~np.logical_or(np.isinf(d[:, 0]), np.isinf(d[:, 1]))
+                        d[l] = 1.0
 
                         yield iterations, experiment, np.copy(kp1), np.copy(kp2), \
                             np.copy(d), R_gt, t_gt, K1, K2, args.threshold

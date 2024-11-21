@@ -29,6 +29,8 @@ def parse_args():
     parser.add_argument('-g', '--graph', action='store_true', default=False)
     parser.add_argument('-a', '--append', action='store_true', default=False)
     parser.add_argument('-o', '--overwrite', action='store_true', default=False)
+    parser.add_argument('--graduated', action='store_true', default=False)
+    parser.add_argument('--nlo',action='store_true', default=False)
     parser.add_argument('--iters', type=int, default=None)
     parser.add_argument('dataset_path')
 
@@ -90,6 +92,7 @@ def eval_experiment(x):
     ransac_dict['use_reldepth'] = 'reldepth' in experiment
     ransac_dict['use_p3p'] = 'p3p' in experiment
     ransac_dict['use_eigen'] = 'eigen' in experiment
+    ransac_dict['graduated_steps'] = 3 if 'GLO' in experiment else 0
 
     bundle_dict = {'max_iterations': 0 if lo_iterations == 0 else 100}
 
@@ -147,8 +150,11 @@ def eval(args):
     experiments.extend([f'3p_reldepth+{i}' for i in range(1, 13)])
     experiments.append('6p')
 
-    # experiments = ['5p_nister', '3dp_monodepth+moge', '3dp_monodepth+marigold-bm', '3dp_reldepth+moge', '3dp_reldepth+marigold-bm']
-    experiments.extend([f'nLO-{x}' for x in experiments])
+    if args.nlo:
+        experiments = [f'nLO-{x}' for x in experiments]
+
+    if args.graduated:
+        experiments = [f'GLO-{x}' for x in experiments]
 
     dataset_path = args.dataset_path
     basename = os.path.basename(dataset_path).split('.')[0]

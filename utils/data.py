@@ -4,6 +4,14 @@ basenames_eth = ['courtyard_splg', 'delivery_area_splg', 'electro_splg', 'facade
 basenames_pt = ['british_museum_splg', 'florence_cathedral_splg', 'lincoln_memorial_splg', 'london_bridge_splg', 'milan_cathedral_splg', 'mount_rushmore_splg', 'sagrada_familia_splg', 'stpauls_cathedral_splg']
 basenames_all = basenames_eth + basenames_pt
 
+def get_valid_depth_mask(d):
+    l = np.logical_or(np.isinf(d[:, 0]), np.isinf(d[:, 1]))
+    l = np.logical_or(np.isnan(d[:, 0]), l)
+    l = np.logical_or(np.isnan(d[:, 1]), l)
+    l = np.logical_or(d[:, 0] < 0, l)
+    l = np.logical_or(d[:, 1] < 0, l)
+    return l
+
 def depth_indices(depth):
     if depth == 1: # real
         return (8, 9)
@@ -50,16 +58,16 @@ def t_err_fun(r):
     t = np.array(r['t']).flatten()
     t_gt = np.array(r['t_gt']).flatten()
 
-    # eps = 1e-15
-    # t = t / (np.linalg.norm(t) + eps)
-    # t_gt = t_gt / (np.linalg.norm(t_gt) + eps)
-    # loss_t = np.maximum(eps, (1.0 - np.sum(t * t_gt) ** 2))
-    # err_t = np.rad2deg(np.arccos(np.sqrt(1 - loss_t)))
+    eps = 1e-15
+    t = t / (np.linalg.norm(t) + eps)
+    t_gt = t_gt / (np.linalg.norm(t_gt) + eps)
+    loss_t = np.maximum(eps, (1.0 - np.sum(t * t_gt) ** 2))
+    err_t = np.rad2deg(np.arccos(np.sqrt(1 - loss_t)))
 
     # err_t = np.rad2deg(np.arccos(np.clip(np.dot(t, t_gt) / (np.linalg.norm(t) * np.linalg.norm(t_gt)), -1, 1)))
 
-    t = t / (np.linalg.norm(t))
-    t_gt = t_gt / (np.linalg.norm(t_gt))
-    err_t = np.rad2deg(2*np.arcsin(np.linalg.norm(t - t_gt)*0.5))
+    # t = t / (np.linalg.norm(t))
+    # t_gt = t_gt / (np.linalg.norm(t_gt))
+    # err_t = np.rad2deg(2*np.arcsin(np.linalg.norm(t - t_gt)*0.5))
 
     return err_t
