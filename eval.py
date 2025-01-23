@@ -142,9 +142,9 @@ def print_results(experiments, results, eq_only=False):
 
 def eval(args):
     experiments = []
-    experiments = [f'3p_monodepth+{i}' for i in range(1, 13)]
-    experiments.extend([f'3p_reldepth+{i}' for i in range(1, 13)])
-    experiments.extend([f'p3p+{i}' for i in range(1, 13)])
+    experiments = [f'3p_monodepth+{i}' for i in range(10, 11)]
+    experiments.extend([f'3p_reldepth+{i}' for i in range(10, 11)])
+    experiments.extend([f'p3p+{i}' for i in range(10, 11)])
     experiments.append('5p')
 
     if args.nlo:
@@ -157,9 +157,9 @@ def eval(args):
         experiments = []
         depths = [10, 12]
         experiments = [f'3p_monodepth+{i}' for i in depths]
-        experiments.extend([f'3p_reldepth+{i}' for i in depths])
-        experiments.extend([f'p3p+{i}' for i in depths])
-        experiments.append('5p')
+        # experiments.extend([f'3p_reldepth+{i}' for i in depths])
+        # experiments.extend([f'p3p+{i}' for i in depths])
+        # experiments.append('5p')
 
     dataset_path = args.dataset_path
     basename = os.path.basename(dataset_path).split('.')[0]
