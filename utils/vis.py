@@ -87,6 +87,9 @@ def draw_results_pose_auc_10(results, experiments, iterations_list, err_fun=err_
 
     colors, styles = get_colors_styles(experiments)
 
+    aucs = {}
+    rts = {}
+
     for experiment in tqdm(experiments):
         experiment_results = [x for x in results if x['experiment'] == experiment]
 
@@ -104,6 +107,9 @@ def draw_results_pose_auc_10(results, experiments, iterations_list, err_fun=err_
 
             xs.append(mean_runtime)
             ys.append(AUC10)
+
+        aucs[experiment] = np.array(xs)
+        rts[experiment] = np.array(ys)
 
 
         # colors = {exp: sns.color_palette("hls", len(experiments))[i] for i, exp in enumerate(experiments)}
@@ -129,6 +135,42 @@ def draw_results_pose_auc_10(results, experiments, iterations_list, err_fun=err_
     else:
         plt.legend()
         plt.show()
+
+    return aucs, rts
+
+def draw_results_pose_auc_10_mm(aucs, rts, experiments, title=None):
+    fig = plt.figure(frameon=True)
+
+    colors, styles = get_colors_styles(experiments)
+    basenames = list(aucs.keys())
+
+    for experiment in tqdm(experiments):
+        xss = np.array([rts[b][experiment] for b in basenames])
+        yss = np.array([aucs[b][experiment] for b in basenames])
+
+        xs = np.mean(xss, axis=0)
+        ys = np.mean(yss, axis=0)
+        plt.semilogx(xs, ys, label=experiment, marker='*', color=colors[experiment], linestyle=styles[experiment])
+
+    plt.xlabel('Mean runtime (ms)', fontsize=large_size)
+    plt.ylabel('AUC@10$^\\circ$', fontsize=large_size)
+    plt.tick_params(axis='x', which='major', labelsize=small_size)
+    plt.tick_params(axis='y', which='major', labelsize=small_size)
+    if title is not None:
+        # plt.legend()
+        # plt.title(title)
+        # plt.savefig(f'figs/{title}_pose.pdf', bbox_inches='tight', pad_inches=0)
+        plt.savefig(f'figs/{title}_pose.pdf')#, bbox_inches='tight', pad_inches=0)
+
+        plt.legend()
+        plt.savefig(f'figs/{title}_pose.png', bbox_inches='tight', pad_inches=0.1)
+        print(f'saved pose: {title}')
+
+    else:
+        plt.legend()
+        plt.show()
+
+    return aucs, rts
 
 
 def draw_results_pose_portion(results, experiments, iterations_list, title=None):
@@ -208,29 +250,31 @@ def generate_graphs(dataset, results_type, all=True, basenames = None, prefix=''
         experiments.extend([f'3p_reldepth+{i}' for i in depths])
         experiments.append('6p')
 
-
-
-    iterations_list = [10, 20, 50, 100, 200, 500, 1000]
+    iterations_list = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000]
 
     all_results = []
+    aucs = {}
+    rts = {}
     for basename in basenames:
         json_path = os.path.join('results', f'{results_type}-{basename}.json')
         print(f'json_path: {json_path}')
         with open(json_path, 'r') as f:
             results = [x for x in json.load(f) if x['experiment'] in experiments]
-            draw_results_pose_auc_10(results, experiments, iterations_list,
-                                     title=f'{prefix}{dataset}_{basename}_{results_type}', err_fun=err_fun_pose)
+            aucs[basename], rts[basename] = draw_results_pose_auc_10(results, experiments, iterations_list,
+                                                      title=f'{prefix}{dataset}_{basename}_{results_type}',
+                                                      err_fun=err_fun_pose)
             # draw_results_pose_auc_10(results, experiments, iterations_list,
             #                          f'maxerr_{dataset}_{basename}_{results_type}', err_fun=err_fun_max)
-            if all:
-               all_results.extend(results)
+            # if all:
+            #    all_results.extend(results)
 
     if all:
         title = f'{dataset}_{results_type}'
-        draw_results_pose_auc_10(all_results, experiments, iterations_list, title=prefix + title, err_fun=err_fun_pose)
+        draw_results_pose_auc_10_mm(aucs, rts, experiments, title=prefix + title)
 
 if __name__ == '__main__':
     # generate_graphs('eth', 'calibrated-graph', all=True)
+    generate_graphs('eth', 'calibrated-graph', all=True)
     generate_graphs('pt', 'calibrated-graph', all=True)
-    generate_graphs('eth', 'shared_focal-graph', all=True)
-    generate_graphs('pt', 'shared_focal-graph', all=True)
+    # generate_graphs('eth', 'shared_focal-graph', all=True)
+    # generate_graphs('pt', 'shared_focal-graph', all=True)
