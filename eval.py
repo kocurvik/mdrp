@@ -155,11 +155,11 @@ def eval(args):
 
     if args.graph:
         experiments = []
-        depths = [2, 6, 11]
+        depths = [2, 6, 10, 11, 12]
         experiments = [f'3p_monodepth+{i}' for i in depths]
         # experiments.extend([f'3p_reldepth+{i}' for i in depths])
         experiments.extend([f'p3p+{i}' for i in depths])
-        # experiments.append('5p')
+        experiments.append('5p')
 
     dataset_path = args.dataset_path
     basename = os.path.basename(dataset_path).split('.')[0]
@@ -169,7 +169,8 @@ def eval(args):
 
     if args.graph:
         basename = f'graph-{basename}'
-        iterations_list = [10, 20, 50, 100, 200, 500, 1000]
+        # iterations_list = [10, 20, 50, 100, 200, 500, 1000]
+        iterations_list = [2000, 5000, 10000]
     else:
         iterations_list = [args.iters]
 
