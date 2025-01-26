@@ -108,8 +108,8 @@ def draw_results_pose_auc_10(results, experiments, iterations_list, err_fun=err_
             xs.append(mean_runtime)
             ys.append(AUC10)
 
-        aucs[experiment] = np.array(xs)
-        rts[experiment] = np.array(ys)
+        aucs[experiment] = np.array(ys)
+        rts[experiment] = np.array(xs)
 
 
         # colors = {exp: sns.color_palette("hls", len(experiments))[i] for i, exp in enumerate(experiments)}
