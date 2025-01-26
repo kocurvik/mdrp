@@ -142,9 +142,9 @@ def print_results(experiments, results, eq_only=False):
 
 def eval(args):
     experiments = []
-    experiments = [f'3p_monodepth+{i}' for i in range(10, 11)]
-    experiments.extend([f'3p_reldepth+{i}' for i in range(10, 11)])
-    experiments.extend([f'p3p+{i}' for i in range(10, 11)])
+    experiments = [f'3p_monodepth+{i}' for i in range(1, 13)]
+    experiments.extend([f'3p_reldepth+{i}' for i in range(1, 13)])
+    experiments.extend([f'p3p+{i}' for i in range(1, 13)])
     experiments.append('5p')
 
     if args.nlo:
@@ -169,7 +169,7 @@ def eval(args):
 
     if args.graph:
         basename = f'graph-{basename}'
-        iterations_list = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000]
+        iterations_list = [10, 20, 50, 100, 200, 500, 1000]
     else:
         iterations_list = [args.iters]
 
