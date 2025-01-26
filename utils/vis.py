@@ -218,8 +218,8 @@ def generate_graphs(dataset, results_type, all=True, basenames = None, prefix=''
         print(f'json_path: {json_path}')
         with open(json_path, 'r') as f:
             results = [x for x in json.load(f) if x['experiment'] in experiments]
-            # draw_results_pose_auc_10(results, exps, iterations_list,
-            #                          title=f'{prefix}{dataset}_{basename}_{results_type}', err_fun=err_fun_pose, colors=colors)
+            draw_results_pose_auc_10(results, experiments, iterations_list,
+                                     title=f'{prefix}{dataset}_{basename}_{results_type}', err_fun=err_fun_pose, colors=colors)
             # draw_results_pose_auc_10(results, experiments, iterations_list,
             #                          f'maxerr_{dataset}_{basename}_{results_type}', err_fun=err_fun_max)
             if all:
