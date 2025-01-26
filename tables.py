@@ -242,8 +242,8 @@ def generate_varying_table(prefix=''):
 if __name__ == '__main__':
     # print("No LO calib")
     # generate_calib_table(lo=False)
-    # print("LO calib")
-    # generate_calib_table()
+    print("LO calib")
+    generate_calib_table()
     # print("GLO calib")
     # generate_calib_table('GLO-')
     #
@@ -258,6 +258,6 @@ if __name__ == '__main__':
     # generate_varying_table()
     # print("LO varying focal")
     # generate_varying_table(lo=True)
-    print("NN varying focal")
-    generate_varying_table('NN-')
+    # print("NN varying focal")
+    # generate_varying_table('NN-')
 
