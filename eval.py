@@ -155,10 +155,10 @@ def eval(args):
 
     if args.graph:
         experiments = []
-        depths = [10, 12]
+        depths = [2, 6, 11]
         experiments = [f'3p_monodepth+{i}' for i in depths]
         # experiments.extend([f'3p_reldepth+{i}' for i in depths])
-        # experiments.extend([f'p3p+{i}' for i in depths])
+        experiments.extend([f'p3p+{i}' for i in depths])
         # experiments.append('5p')
 
     dataset_path = args.dataset_path
