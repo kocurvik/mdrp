@@ -80,6 +80,7 @@ def eval_experiment(x):
     ransac_dict['all_permutations'] = True
     ransac_dict['use_reldepth'] = 'reldepth' in experiment
     ransac_dict['use_p3p'] = 'p3p' in experiment
+    ransac_dict['use_monodepth'] = 'monodepth' in experiment
 
     ransac_dict['graduated_steps'] = 3 if 'GLO' in experiment else 0
 
@@ -144,6 +145,7 @@ def eval(args):
     experiments = []
     experiments = [f'3p_monodepth+{i}' for i in range(1, 13)]
     experiments.extend([f'3p_reldepth+{i}' for i in range(1, 13)])
+    experiments.extend([f'3p_monodepth_p3p+{i}' for i in range(1, 13)])
     experiments.extend([f'p3p+{i}' for i in range(1, 13)])
     experiments.append('5p')
 
@@ -155,11 +157,12 @@ def eval(args):
 
     if args.graph:
         experiments = []
-        depths = [10, 12]
-        experiments = [f'3p_monodepth+{i}' for i in depths]
+        depths = [2, 6, 10, 11, 12]
+        # experiments = [f'3p_monodepth+{i}' for i in depths]
+        experiments = [f'3p_monodepth_p3p+{i}' for i in depths]
         # experiments.extend([f'3p_reldepth+{i}' for i in depths])
-        experiments.extend([f'p3p+{i}' for i in depths])
-        experiments.append('5p')
+        # experiments.extend([f'p3p+{i}' for i in depths])
+        # experiments.append('5p')
 
     dataset_path = args.dataset_path
     basename = os.path.basename(dataset_path).split('.')[0]
