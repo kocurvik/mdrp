@@ -1,8 +1,8 @@
 import numpy as np
 
-basenames_eth = ['courtyard_splg', 'delivery_area_splg', 'electro_splg', 'facade_splg', 'kicker_splg', 'meadow_splg', 'office_splg', 'pipes_splg', 'playground_splg', 'relief_2_splg', 'relief_splg', 'terrace_splg', 'terrains_splg']
-basenames_pt_old = ['british_museum_splg', 'florence_cathedral_splg', 'lincoln_memorial_splg', 'london_bridge_splg', 'milan_cathedral_splg', 'mount_rushmore_splg', 'sagrada_familia_splg', 'stpauls_cathedral_splg']
-basenames_pt = ['florence_cathedral_splg', 'lincoln_memorial_splg', 'london_bridge_splg', 'milan_cathedral_splg', 'sagrada_familia_splg']
+basenames_eth = ['courtyard', 'delivery_area', 'electro', 'facade', 'kicker', 'meadow', 'office', 'pipes', 'playground', 'relief_2', 'relief', 'terrace', 'terrains']
+basenames_pt_old = ['british_museum', 'florence_cathedral', 'lincoln_memorial', 'london_bridge', 'milan_cathedral', 'mount_rushmore', 'sagrada_familia', 'stpauls_cathedral']
+basenames_pt = ['florence_cathedral', 'lincoln_memorial', 'london_bridge', 'milan_cathedral', 'sagrada_familia']
 basenames_all = basenames_eth + basenames_pt
 
 
