@@ -1,6 +1,8 @@
 import json
 import os
 import subprocess
+from contextlib import contextmanager
+
 # from pylatex import Document, Section, Subsection, Command, Tabular, MultiColumn, MultiRow, NoEscape
 
 import numpy as np
@@ -240,7 +242,7 @@ def generate_varying_table(prefix='', cprint=print):
     cprint('\\end{tabular}')
 
 
-def init_latex():
+def init_latex(destination):
     global latex_preamble
     latex_preamble = """
     \\documentclass{article}
@@ -279,9 +281,35 @@ def init_latex():
     \\begin{document}
     """
     # Write the first part (preamble) to a .tex file
-    with open('output.tex', 'w') as file:
+    with open(destination, 'w') as file:
         file.write(latex_preamble)
 
+
+def typeset_latex(destination, cprint=print):
+    command = 'pdflatex' if os.name == 'nt' else 'tectonic'
+    try:
+        cprint('\\end{document}')
+        subprocess.run([command, destination, '--output-directory=pdfs'], check=True)
+        print("PDF generated successfully!")
+    except subprocess.CalledProcessError as e:
+        print(f"Error during LaTeX compilation: {e}")
+
+def type_table(table_func, prefix='', make_pdf=True):
+    if make_pdf:
+        if not os.path.exists('pdfs'):
+            os.makedirs('pdfs', exist_ok=True)
+        destination = f'pdfs/{prefix}{table_func.__name__}.tex'
+        def cprint(*args):
+            with open(destination, 'a') as file:
+                print(*args, file=file)
+
+        init_latex(destination)
+        print(prefix, table_func.__name__)
+        table_func(prefix=prefix, cprint=cprint)
+        typeset_latex(destination, cprint=cprint)
+    else:
+        print(prefix, table_func.__name__)
+        table_func(prefix=prefix)
 
 if __name__ == '__main__':
     # print("No LO calib")
@@ -290,13 +318,10 @@ if __name__ == '__main__':
     # just print normally
     # cprint = print
 
-    init_latex()
-    def cprint(*args):
-        with open('output.tex', 'a') as file:
-            print(*args, file=file)
+    type_table(generate_calib_table, make_pdf=True)
+    type_table(generate_shared_table, make_pdf=True)
+    type_table(generate_varying_table, make_pdf=True)
 
-    print("LO calib")
-    generate_calib_table(cprint=cprint)
 
     # print("GLO calib")
     # generate_calib_table('GLO-')
@@ -313,11 +338,4 @@ if __name__ == '__main__':
     # generate_varying_table(lo=True)
     # print("NN varying focal")
     # generate_varying_table('NN-')
-
-    try:
-        cprint('\\end{document}')
-        subprocess.run(['pdflatex', 'output.tex'], check=True)
-        print("PDF generated successfully!")
-    except subprocess.CalledProcessError as e:
-        print(f"Error during LaTeX compilation: {e}")
 
