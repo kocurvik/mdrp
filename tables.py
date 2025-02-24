@@ -10,8 +10,8 @@ import numpy as np
 from utils.data import basenames_all, basenames_pt, basenames_eth, R_err_fun, t_err_fun
 
 
-def get_median_errors(scene, experiments, prefix='calibrated', calc_f_err=False):
-    json_path = f'{prefix}-{scene}.json'
+def get_median_errors(scene, experiments, prefix='calibrated', t='', calc_f_err=False):
+    json_path = f'{prefix}-{scene}-{t}.json'
     with open(os.path.join('results', json_path), 'r') as f:
         results = json.load(f)
 
@@ -134,7 +134,7 @@ def print_monodepth_rows(depth, methods, method_names, phototourism_means, eth3d
     cprint('\\hline')
 
 
-def generate_calib_table(prefix='', cprint=print):
+def generate_calib_table(prefix='', t='', cprint=print):
     # experiments = [f'3p_monodepth+{i}' for i in range(1, 13)]
     # experiments.extend([f'3p_reldepth+{i}' for i in range(1, 13)])
     # experiments.extend([f'p3p+{i}' for i in range(1, 13)])
@@ -163,7 +163,7 @@ def generate_calib_table(prefix='', cprint=print):
     scene_errors = {}
     for scene in basenames_all:
         print(f"Loading: {scene}")
-        scene_errors[scene] = get_median_errors(scene, experiments, prefix='calibrated')
+        scene_errors[scene] = get_median_errors(scene, experiments, prefix='calibrated', t=t)
 
     print("Calculating Means")
     phototourism_means = get_means(scene_errors, basenames_pt, experiments)
@@ -183,7 +183,7 @@ def generate_calib_table(prefix='', cprint=print):
 
 
 
-def generate_shared_table(prefix='', cprint=print):
+def generate_shared_table(prefix='', t='', cprint=print):
     # depths = range(1, 13)
     mdepths = [1, 2, 6, 10, 12]
     depths = [1, 2, 6, 10, 12]
@@ -211,7 +211,7 @@ def generate_shared_table(prefix='', cprint=print):
     scene_errors = {}
     for scene in basenames_all:
         print(f"Loading: {scene}")
-        scene_errors[scene] = get_median_errors(scene, experiments, prefix='shared_focal', calc_f_err=True)
+        scene_errors[scene] = get_median_errors(scene, experiments, prefix='shared_focal', calc_f_err=True, t=t)
 
     print("Calculating Means")
     phototourism_means = get_means(scene_errors, basenames_pt, experiments)
@@ -231,7 +231,7 @@ def generate_shared_table(prefix='', cprint=print):
     cprint('\\end{tabular}}')
 
 
-def generate_varying_table(prefix='', cprint=print):
+def generate_varying_table(prefix='', t='', cprint=print):
     experiments = []
     # depths = range(1, 13)
     mdepths = [1, 2, 6, 10, 12]
@@ -260,7 +260,7 @@ def generate_varying_table(prefix='', cprint=print):
     scene_errors = {}
     for scene in basenames_all:
         print(f"Loading: {scene}")
-        scene_errors[scene] = get_median_errors(scene, experiments, prefix='varying_focal', calc_f_err=True)
+        scene_errors[scene] = get_median_errors(scene, experiments, prefix='varying_focal', t=t, calc_f_err=True)
 
     print("Calculating Means")
     phototourism_means = get_means(scene_errors, basenames_pt, experiments)
@@ -332,7 +332,7 @@ def typeset_latex(destination, cprint=print):
     except subprocess.CalledProcessError as e:
         print(f"Error during LaTeX compilation: {e}")
 
-def type_table(table_func, prefix='', make_pdf=True):
+def type_table(table_func, prefix='', t='', make_pdf=True):
     if make_pdf:
         if not os.path.exists('pdfs'):
             os.makedirs('pdfs', exist_ok=True)
@@ -343,11 +343,11 @@ def type_table(table_func, prefix='', make_pdf=True):
 
         init_latex(destination)
         print(prefix, table_func.__name__)
-        table_func(prefix=prefix, cprint=cprint)
+        table_func(prefix=prefix, t=t, cprint=cprint)
         typeset_latex(destination, cprint=cprint)
     else:
         print(prefix, table_func.__name__)
-        table_func(prefix=prefix)
+        table_func(prefix=prefix, t=t)
 
 if __name__ == '__main__':
     # print("No LO calib")
@@ -356,9 +356,9 @@ if __name__ == '__main__':
     # just print normally
     # cprint = print
 
-    type_table(generate_calib_table, make_pdf=True)
-    type_table(generate_shared_table, make_pdf=True)
-    type_table(generate_varying_table, make_pdf=True)
+    type_table(generate_calib_table, t='2.0t', make_pdf=True)
+    type_table(generate_shared_table, t='2.0t', make_pdf=True)
+    type_table(generate_varying_table, t='2.0t', make_pdf=True)
 
 
     # print("GLO calib")
