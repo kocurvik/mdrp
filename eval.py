@@ -7,11 +7,13 @@ from time import perf_counter
 import h5py
 import numpy as np
 import poselib
+import madpose
 # import pykitti
 from prettytable import PrettyTable
 from tqdm import tqdm
 
 from utils.data import depth_indices, R_err_fun, t_err_fun, get_valid_depth_mask
+from utils.madpose import madpose_opt_from_dict
 from utils.vis import draw_results_pose_auc_10, draw_cumplots
 
 
@@ -63,6 +65,26 @@ def get_result_dict(info, pose_est, R_gt, t_gt):
     out['info'] = info
 
     return out
+def get_result_dict_madpose(stats, pose_est, R_gt, t_gt):
+    out = {}
+
+    R_est, t_est = pose_est.R(), pose_est.t()
+
+    out['R'] = R_est.tolist()
+    out['R_gt'] = R_gt.tolist()
+    out['t'] = t_est.tolist()
+    out['t_gt'] = t_gt.tolist()
+
+    out['R_err'] = R_err_fun(out)
+    out['t_err'] = t_err_fun(out)
+
+    info = {}
+
+    info['num_inliers'] = stats.best_num_inliers
+    info['inlier_ratio'] = stats.inlier_ratios[0]
+    out['info'] = info
+
+    return out
 
 
 def eval_experiment(x):
@@ -72,15 +94,22 @@ def eval_experiment(x):
 
     if iters is None:
         ransac_dict = {'max_iterations': 1000, 'max_epipolar_error': t, 'progressive_sampling': False,
-                       'min_iterations': 1000, 'lo_iterations': lo_iterations}
+                       'min_iterations': 1000, 'lo_iterations': lo_iterations, 'max_reproj_error': 8 * t}
     else:
         ransac_dict = {'max_iterations': iters, 'max_epipolar_error': t, 'progressive_sampling': False,
-                       'min_iterations': iters, 'lo_iterations': lo_iterations}
+                       'min_iterations': iters, 'lo_iterations': lo_iterations, 'max_reproj_error': 8 * t}
 
     ransac_dict['all_permutations'] = True
+
     ransac_dict['use_reldepth'] = 'reldepth' in experiment
     ransac_dict['use_p3p'] = 'p3p' in experiment
-    ransac_dict['use_monodepth'] = 'monodepth' in experiment
+
+    ransac_dict['use_ours'] = 'ours' in experiment
+    ransac_dict['solver_shift'] = 'shift' in experiment
+    ransac_dict['solver_scale'] = 'scale' in experiment
+
+    ransac_dict['use_reproj'] = 'reproj' in experiment
+    ransac_dict['optimize_shift'] = 'reproj-s' in experiment
 
     ransac_dict['graduated_steps'] = 3 if 'GLO' in experiment else 0
 
@@ -97,6 +126,15 @@ def eval_experiment(x):
     #     start = perf_counter()
     #     pose_est, info = poselib.estimate_relative_pose_w_relative_depth(kp1, kp2, d[:, 1] / d[:, 0], camera1, camera2, ransac_dict, bundle_dict)
     #     info['runtime'] = 1000 * (perf_counter() - start)
+    elif 'madpose' in experiment:
+        opt, est_config = madpose_opt_from_dict(ransac_dict)
+        start = perf_counter()
+        pose, info = madpose.HybridEstimatePoseScaleOffset(kp1, kp2, d[:, 0], d[:, 1], [d[:, 0].min(), d[:, 1].min()],
+            K1, K2, opt, est_config)
+        result_dict = get_result_dict_madpose(info, pose, R_gt, t_gt)
+        result_dict['info']['runtime'] = 1000 * (perf_counter() - start)
+        result_dict['experiment'] = experiment
+        return result_dict
     else:
         start = perf_counter()
         pose_est, info = poselib.estimate_relative_pose_w_mono_depth(kp1, kp2, d, camera1, camera2, ransac_dict, bundle_dict)
@@ -110,19 +148,17 @@ def eval_experiment(x):
 
 
 def print_results(experiments, results, eq_only=False):
-    tab = PrettyTable(['solver', 'median rot err', 'median t err',
-                       'rot mAA', 't mAA', 'mean time', 'mean inliers'])
+    tab = PrettyTable(['solver', 'median pose err', 'pose mAA', 'mean time', 'mean inliers'])
     tab.align["solver"] = "l"
     tab.float_format = '0.2'
 
     for exp in experiments:
         exp_results = [x for x in results if x['experiment'] == exp]
 
-        R_errs = np.array([r['R_err'] for r in exp_results])
-        t_errs = np.array([r['t_err'] for r in exp_results])
+        p_errs = np.array([max(r['R_err'], r['t_err']) for r in exp_results])
+        p_errs[np.isnan(p_errs)] = 180
 
-        R_res = np.array([np.sum(R_errs < t) / len(R_errs) for t in range(1, 11)])
-        t_res = np.array([np.sum(t_errs < t) / len(t_errs) for t in range(1, 11)])
+        p_res = np.array([np.sum(p_errs < t) / len(p_errs) for t in range(1, 11)])
 
         times = np.array([x['info']['runtime'] for x in exp_results])
         inliers = np.array([x['info']['inlier_ratio'] for x in exp_results])
@@ -130,8 +166,7 @@ def print_results(experiments, results, eq_only=False):
         exp_name = exp
 
 
-        tab.add_row([exp_name, np.median(R_errs), np.median(t_errs),
-                     np.mean(R_res), np.mean(t_res),
+        tab.add_row([exp_name, np.median(p_errs), np.mean(p_res),
                      np.mean(times),
                      np.mean(inliers)])
     print(tab)
@@ -143,10 +178,16 @@ def print_results(experiments, results, eq_only=False):
 
 def eval(args):
     experiments = []
-    experiments = [f'3p_monodepth+{i}' for i in range(1, 13)]
-    experiments.extend([f'3p_reldepth+{i}' for i in range(1, 13)])
-    experiments.extend([f'3p_monodepth_p3p+{i}' for i in range(1, 13)])
-    experiments.extend([f'p3p+{i}' for i in range(1, 13)])
+    depths = range(1, 13)
+    mdepths = [1, 2, 6, 10, 12]
+    experiments.extend([f'3p_reldepth+{i}' for i in depths])
+    experiments.extend([f'3p_ours_shift_scale+{i}' for i in depths])
+    experiments.extend([f'3p_ours_shift_scale_reproj+{i}' for i in depths])
+    experiments.extend([f'3p_ours_shift_scale_reproj-s+{i}' for i in depths])
+    experiments.extend([f'p3p+{i}' for i in depths])
+    experiments.extend([f'p3p_reproj+{i}' for i in depths])
+    experiments.extend([f'p3p_reproj-s+{i}' for i in depths])
+    experiments.extend([f'madpose+{i}' for i in mdepths])
     experiments.append('5p')
 
     if args.nlo:

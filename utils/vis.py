@@ -9,6 +9,7 @@ import seaborn as sns
 from tqdm import tqdm
 
 from utils.data import get_basenames, err_fun_pose
+from utils.geometry import rotation_angle
 
 large_size = 24
 small_size = 20
@@ -234,6 +235,38 @@ def draw_cumplots(experiments, results):
     plt.xlabel('k error')
     plt.ylabel('Portion of samples')
 
+def draw_rotation_angle_f_err(experiments, results):
+    plt.figure()
+    plt.xlabel('Pose error')
+    plt.ylabel('median f err')
+
+    for exp in experiments:
+        exp_results = [x for x in results if x['experiment'] == exp]
+        exp_name = exp
+        label = f'{exp_name}'
+
+        lims = np.linspace(0, 60, 61)
+        y_vals = []
+        for i in range(len(lims) - 1):
+            R_angles = np.array([r['f_err'] for r in exp_results if lims[i] < rotation_angle(r['R_gt']) < lims[i + 1]])
+            y_vals.append(R_angles)
+
+        plt.boxplot(y_vals, labels=lims[:60])
+        plt.ylim([0, 1])
+        plt.title(exp)
+
+
+        plt.show()
+
+
+
+    plt.legend()
+    plt.show()
+
+    plt.figure()
+    plt.xlabel('k error')
+    plt.ylabel('Portion of samples')
+
 def generate_graphs(dataset, results_type, all=True, basenames = None, prefix='', ylim=None, colors=None):
     if basenames is None:
         basenames = get_basenames(dataset)
@@ -262,7 +295,7 @@ def generate_graphs(dataset, results_type, all=True, basenames = None, prefix=''
             results = [x for x in json.load(f) if x['experiment'] in experiments]
             aucs[basename], rts[basename] = draw_results_pose_auc_10(results, experiments, iterations_list,
                                                       title=f'{prefix}{dataset}_{basename}_{results_type}',
-                                                      err_fun=err_fun_pose)
+                                                      err_fun=t_err_fun)
             # draw_results_pose_auc_10(results, experiments, iterations_list,
             #                          f'maxerr_{dataset}_{basename}_{results_type}', err_fun=err_fun_max)
             # if all:
