@@ -74,18 +74,21 @@ method_names_calib = {'5p': '5PT', '3p_monodepth': '3PT$_{suv}$', '3p_reldepth':
 method_names_calib.update({f'nLO-{k}': v for k, v in method_names_calib.items()})
 method_names_calib.update({f'GLO-{k}': v for k, v in method_names_calib.items()})
 method_names_calib.update({f'NN-{k}': v for k, v in method_names_calib.items()})
+method_names_calib = {}
 method_names_calib = smart_dict(method_names_calib)
 
 method_names_shared = {'6p': '6PT', '3p_reldepth': '3p3d', '4p_monodepth_gb': '4PT$_{suv}f$(GB)' , '4p_monodepth_eigen': '4PT$_{suv}f$(Eigen)' }
 method_names_shared.update({f'nLO-{k}': v for k, v in method_names_shared.items()})
 method_names_shared.update({f'GLO-{k}': v for k, v in method_names_shared.items()})
 method_names_shared.update({f'NN-{k}': v for k, v in method_names_shared.items()})
+method_names_shared = {}
 method_names_shared = smart_dict(method_names_shared)
 
 method_names_varying = {'7p': '7PT', '4p4d': '4p4d', '4p_eigen': '4PT$_{suv}f_1f_2$(Eigen)' , '4p_gj': '4PT$_{suv}f_1f_2$(GJ)' }
 method_names_varying.update({f'nLO-{k}': v for k, v in method_names_varying.items()})
 method_names_varying.update({f'GLO-{k}': v for k, v in method_names_varying.items()})
 method_names_varying.update({f'NN-{k}': v for k, v in method_names_varying.items()})
+method_names_varying = {}
 method_names_varying = smart_dict(method_names_varying)
 
 depth_names = {0: '-',
