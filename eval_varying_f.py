@@ -232,9 +232,6 @@ def eval(args):
     if args.nn:
         experiments = [f'NN-{x}' for x in experiments]
 
-    dataset_path = args.dataset_path
-    basename = os.path.basename(dataset_path).split('.')[0]
-
     if args.threshold != 1.0:
         basename = f'{basename}-{args.threshold}t'
 
