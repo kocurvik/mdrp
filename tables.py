@@ -62,20 +62,29 @@ def get_means(scene_errors, scenes, experiments):
 
     return means
 
+class smart_dict(dict):
+    @staticmethod
+    def __missing__(key):
+        return key.replace('_', '-')
+
+
 method_names_calib = {'5p': '5PT', '3p_monodepth': '3PT$_{suv}$', '3p_reldepth': 'Rel3PT' , 'p3p': 'P3P' }
 method_names_calib.update({f'nLO-{k}': v for k, v in method_names_calib.items()})
 method_names_calib.update({f'GLO-{k}': v for k, v in method_names_calib.items()})
 method_names_calib.update({f'NN-{k}': v for k, v in method_names_calib.items()})
+method_names_calib = smart_dict(method_names_calib)
 
 method_names_shared = {'6p': '6PT', '3p_reldepth': '3p3d', '4p_monodepth_gb': '4PT$_{suv}f$(GB)' , '4p_monodepth_eigen': '4PT$_{suv}f$(Eigen)' }
 method_names_shared.update({f'nLO-{k}': v for k, v in method_names_shared.items()})
 method_names_shared.update({f'GLO-{k}': v for k, v in method_names_shared.items()})
 method_names_shared.update({f'NN-{k}': v for k, v in method_names_shared.items()})
+method_names_shared = smart_dict(method_names_shared)
 
 method_names_varying = {'7p': '7PT', '4p4d': '4p4d', '4p_eigen': '4PT$_{suv}f_1f_2$(Eigen)' , '4p_gj': '4PT$_{suv}f_1f_2$(GJ)' }
 method_names_varying.update({f'nLO-{k}': v for k, v in method_names_varying.items()})
 method_names_varying.update({f'GLO-{k}': v for k, v in method_names_varying.items()})
 method_names_varying.update({f'NN-{k}': v for k, v in method_names_varying.items()})
+method_names_varying = smart_dict(method_names_varying)
 
 depth_names = {0: '-',
                1: 'Real Depth',
@@ -91,7 +100,8 @@ depth_names = {0: '-',
                9: 'Marigold + FT~\\cite{martingarcia2024diffusione2eft}',
                10: 'MoGe~\\cite{wang2024moge}'}
 
-depth_order = [1, 2, 3, 4, 5, 6, 7, 12, 8, 11, 9, 10]
+# depth_order = [1, 2, 3, 4, 5, 6, 7, 12, 8, 11, 9, 10]
+depth_order = [1, 2, 6, 10, 12]
 
 def print_monodepth_rows(depth, methods, method_names, phototourism_means, eth3d_means, use_focal=False, cprint=print):
     num_rows = []
@@ -125,12 +135,25 @@ def print_monodepth_rows(depth, methods, method_names, phototourism_means, eth3d
 
 
 def generate_calib_table(prefix='', cprint=print):
-    experiments = [f'3p_monodepth+{i}' for i in range(1, 13)]
-    experiments.extend([f'3p_reldepth+{i}' for i in range(1, 13)])
-    experiments.extend([f'p3p+{i}' for i in range(1, 13)])
+    # experiments = [f'3p_monodepth+{i}' for i in range(1, 13)]
+    # experiments.extend([f'3p_reldepth+{i}' for i in range(1, 13)])
+    # experiments.extend([f'p3p+{i}' for i in range(1, 13)])
+    # experiments.append('5p')
+
+    experiments = []
+    mdepths = [1, 2, 6, 10, 12]
+    depths = [1, 2, 6, 10, 12]
+    experiments.extend([f'3p_reldepth+{i}' for i in depths])
+    experiments.extend([f'3p_ours_shift_scale+{i}' for i in depths])
+    experiments.extend([f'3p_ours_shift_scale_reproj+{i}' for i in depths])
+    experiments.extend([f'3p_ours_shift_scale_reproj-s+{i}' for i in depths])
+    experiments.extend([f'p3p+{i}' for i in depths])
+    experiments.extend([f'p3p_reproj+{i}' for i in depths])
+    experiments.extend([f'p3p_reproj-s+{i}' for i in depths])
+    experiments.extend([f'madpose+{i}' for i in mdepths])
     experiments.append('5p')
 
-    monodepth_methods = ['p3p', '3p_reldepth', '3p_monodepth']
+    monodepth_methods = sorted(list(set([x.split('+')[0] for x in experiments]) - {'5p'}))
     baseline_methods = ['5p']
 
     experiments = [f'{prefix}{x}' for x in experiments]
@@ -161,12 +184,24 @@ def generate_calib_table(prefix='', cprint=print):
 
 
 def generate_shared_table(prefix='', cprint=print):
-    experiments = [f'4p_monodepth_eigen+{i}' for i in range(1, 13)]
-    experiments.extend([f'4p_monodepth_gb+{i}' for i in range(1, 13)])
-    experiments.extend([f'3p_reldepth+{i}' for i in range(1, 13)])
+    # depths = range(1, 13)
+    mdepths = [1, 2, 6, 10, 12]
+    depths = [1, 2, 6, 10, 12]
+    experiments = []
+    experiments.extend([f'3p_reldepth+{i}' for i in depths])
+    experiments.extend([f'4p_ours_scale_shift+{i}' for i in depths])
+    experiments.extend([f'4p_ours_scale_shift_reproj+{i}' for i in depths])
+    experiments.extend([f'4p_ours_scale_shift_reproj-s+{i}' for i in depths])
+    experiments.extend([f'3p_ours_scale+{i}' for i in depths])
+    experiments.extend([f'3p_ours_scale_reproj+{i}' for i in depths])
+    experiments.extend([f'3p_ours_scale_reproj-s+{i}' for i in depths])
+    experiments.extend([f'3p_ours+{i}' for i in depths])
+    experiments.extend([f'3p_ours_reproj+{i}' for i in depths])
+    experiments.extend([f'3p_ours_reproj-s+{i}' for i in depths])
+    experiments.extend([f'madpose+{i}' for i in mdepths])
     experiments.append('6p')
 
-    monodepth_methods = ['3p_reldepth', '4p_monodepth_gb', '4p_monodepth_eigen']
+    monodepth_methods = sorted(list(set([x.split('+')[0] for x in experiments]) - {'6p'}))
     baseline_methods = ['6p']
 
     experiments = [f'{prefix}{x}' for x in experiments]
@@ -197,12 +232,24 @@ def generate_shared_table(prefix='', cprint=print):
 
 
 def generate_varying_table(prefix='', cprint=print):
-    experiments = [f'4p4d+{i}' for i in range(1, 13)]
-    experiments.extend([f'4p_eigen+{i}' for i in range(1, 13)])
-    experiments.extend([f'4p_gj+{i}' for i in range(1, 13)])
+    experiments = []
+    # depths = range(1, 13)
+    mdepths = [1, 2, 6, 10, 12]
+    depths = [1, 2, 6, 10, 12]
+    experiments.extend([f'4p4d+{i}' for i in depths])
+    experiments.extend([f'4p_ours_scale_shift+{i}' for i in depths])
+    experiments.extend([f'4p_ours_scale_shift_reproj+{i}' for i in depths])
+    experiments.extend([f'4p_ours_scale_shift_reproj-s+{i}' for i in depths])
+    experiments.extend([f'3p_ours_scale+{i}' for i in depths])
+    experiments.extend([f'3p_ours_scale_reproj+{i}' for i in depths])
+    experiments.extend([f'3p_ours_scale_reproj-s+{i}' for i in depths])
+    experiments.extend([f'3p_ours+{i}' for i in depths])
+    experiments.extend([f'3p_ours_reproj+{i}' for i in depths])
+    experiments.extend([f'3p_ours_reproj-s+{i}' for i in depths])
+    experiments.extend([f'madpose+{i}' for i in mdepths])
     experiments.append('7p')
 
-    monodepth_methods = ['4p4d', '4p_eigen', '4p_gj']
+    monodepth_methods = sorted(list(set([x.split('+')[0] for x in experiments]) - {'7p'}))
     baseline_methods = ['7p']
 
     experiments = [f'{prefix}{x}' for x in experiments]
