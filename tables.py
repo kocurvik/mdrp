@@ -324,10 +324,10 @@ def init_latex(destination):
 
 
 def typeset_latex(destination, cprint=print):
-    command = 'pdflatex' if os.name == 'nt' else 'tectonic'
+    command = 'pdflatex --output-directory=pdfs' if os.name == 'nt' else 'tectonic'
     try:
         cprint('\\end{document}')
-        subprocess.run([command, destination, '--output-directory=pdfs'], check=True)
+        subprocess.run([command, destination], check=True)
         print("PDF generated successfully!")
     except subprocess.CalledProcessError as e:
         print(f"Error during LaTeX compilation: {e}")
