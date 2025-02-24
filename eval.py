@@ -251,6 +251,9 @@ def eval(args):
                         kp1 = data[:, :2]
                         kp2 = data[:, 2:4]
 
+                        if len(data) < 5:
+                            continue
+
                         if '+' in experiment:
                             depth = int(experiment.split('+')[1])
                             d = data[:, depth_indices(depth)]
