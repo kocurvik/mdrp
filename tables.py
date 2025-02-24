@@ -65,6 +65,8 @@ def get_means(scene_errors, scenes, experiments):
 class smart_dict(dict):
     @staticmethod
     def __missing__(key):
+        if 'madpose' not in key and 'reproj' not in key:
+            return key.replace('_', '-') + '_sampson'
         return key.replace('_', '-')
 
 
@@ -356,7 +358,7 @@ if __name__ == '__main__':
     # just print normally
     # cprint = print
 
-    type_table(generate_calib_table, t='2.0t', make_pdf=True)
+    # type_table(generate_calib_table, t='2.0t', make_pdf=True)
     type_table(generate_shared_table, t='2.0t', make_pdf=True)
     type_table(generate_varying_table, t='2.0t', make_pdf=True)
 
