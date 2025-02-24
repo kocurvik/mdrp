@@ -206,8 +206,17 @@ def print_results(experiments, results, eq_only=False):
     # print(tab.get_formatted_string('latex'))
 
 def eval(args):
+    dataset_path = args.dataset_path
+    basename = os.path.basename(dataset_path).split('.')[0]
+
+    experiments = []
     depths = range(1, 13)
     mdepths = [1, 2, 6, 10, 12]
+
+    if 'mast3r' in basename:
+        depths = [1]
+        mdepths = [1]
+
     experiments = []
     experiments.extend([f'3p_reldepth+{i}' for i in depths])
     experiments.extend([f'4p_ours_scale_shift+{i}' for i in depths])
@@ -241,9 +250,6 @@ def eval(args):
         # experiments.extend([f'4p_monodepth_gb+{i}' for i in depths])
         # experiments.extend([f'3p_reldepth+{i}' for i in depths])
         experiments.append('6p')
-
-    dataset_path = args.dataset_path
-    basename = os.path.basename(dataset_path).split('.')[0]
 
     if args.threshold != 1.0:
         basename = f'{basename}-{args.threshold}t'

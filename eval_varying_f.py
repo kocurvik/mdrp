@@ -198,10 +198,18 @@ def print_results(experiments, results, eq_only=False):
 
 
 def eval(args):
+    dataset_path = args.dataset_path
+    basename = os.path.basename(dataset_path).split('.')[0]
 
     experiments = []
     depths = range(1, 13)
     mdepths = [1, 2, 6, 10, 12]
+
+    if 'mast3r' in basename:
+        depths = [1]
+        mdepths = [1]
+
+    experiments = []
     experiments.extend([f'4p4d+{i}' for i in depths])
     experiments.extend([f'4p_ours_scale_shift+{i}' for i in depths])
     experiments.extend([f'4p_ours_scale_shift_reproj+{i}' for i in depths])

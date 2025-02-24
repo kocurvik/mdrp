@@ -177,9 +177,17 @@ def print_results(experiments, results, eq_only=False):
 
 
 def eval(args):
+    dataset_path = args.dataset_path
+    basename = os.path.basename(dataset_path).split('.')[0]
+
     experiments = []
     depths = range(1, 13)
     mdepths = [1, 2, 6, 10, 12]
+
+    if 'mast3r' in basename:
+        depths = [1]
+        mdepths = [1]
+
     experiments.extend([f'3p_reldepth+{i}' for i in depths])
     experiments.extend([f'3p_ours_shift_scale+{i}' for i in depths])
     experiments.extend([f'3p_ours_shift_scale_reproj+{i}' for i in depths])
@@ -204,9 +212,6 @@ def eval(args):
         # experiments.extend([f'3p_reldepth+{i}' for i in depths])
         # experiments.extend([f'p3p+{i}' for i in depths])
         # experiments.append('5p')
-
-    dataset_path = args.dataset_path
-    basename = os.path.basename(dataset_path).split('.')[0]
 
     if args.threshold != 1.0:
         basename = f'{basename}-{args.threshold}t'
