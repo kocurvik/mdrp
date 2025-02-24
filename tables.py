@@ -91,23 +91,7 @@ depth_names = {0: '-',
 
 depth_order = [1, 2, 3, 4, 5, 6, 7, 12, 8, 11, 9, 10]
 
-def print_monodepth_rows(depth, methods, method_names, phototourism_means, eth3d_means, use_focal=False):
-    # if depth == 0:
-    #     method = methods[0]
-    #     if use_focal:
-    #         print(f'- & {method_names[method]} &'
-    #               f'{phototourism_means[method]["median_R_err"]:0.2f} & {phototourism_means[method]["median_t_err"]:0.2f} & {phototourism_means[method]["median_f_err"]:0.2f} & '
-    #               f'{phototourism_means[method]["mAA_R"]:0.2f} & {phototourism_means[method]["mAA_t"]:0.2f} & {phototourism_means[method]["mAA_f"]:0.2f} & {phototourism_means[method]["mean_runtime"]:0.2f} & '
-    #               f'{eth3d_means[method]["median_R_err"]:0.2f} & {eth3d_means[method]["median_t_err"]:0.2f} & {eth3d_means[method]["median_f_err"]:0.2f} & '
-    #               f'{eth3d_means[method]["mAA_R"]:0.2f} & {eth3d_means[method]["mAA_t"]:0.2f} & {eth3d_means[method]["mAA_f"]:0.2f} & {eth3d_means[method]["mean_runtime"]:0.2f}')        else:
-    #         print(f'- & {method_names[method]} &'
-    #               f' {phototourism_means[method]["median_R_err"]:0.2f} & {phototourism_means[method]["median_t_err"]:0.2f} & '
-    #               f'{phototourism_means[method]["mAA_R"]:0.2f} & {phototourism_means[method]["mAA_t"]:0.2f} & {phototourism_means[method]["mean_runtime"]:0.2f} & '
-    #               f'{eth3d_means[method]["median_R_err"]:0.2f} & {eth3d_means[method]["median_t_err"]:0.2f} & '
-    #               f'{eth3d_means[method]["mAA_R"]:0.2f} & {eth3d_means[method]["mAA_t"]:0.2f} & {eth3d_means[method]["mean_runtime"]:0.2f}')
-    #     print('\\\\ \\hline')
-    #     return
-
+def print_monodepth_rows(depth, methods, method_names, phototourism_means, eth3d_means, use_focal=False, cprint=print):
     num_rows = []
     for method in methods:
         if depth > 0:
@@ -132,28 +116,13 @@ def print_monodepth_rows(depth, methods, method_names, phototourism_means, eth3d
             text_rows[idxs[0]][j] = '\\textbf{' + text_rows[idxs[0]][j] + '}'
             text_rows[idxs[1]][j] = '\\underline{' + text_rows[idxs[1]][j] + '}'
 
-    print('\\multirow{', len(methods), '}{*}{', depth_names[depth], '}')
+    cprint('\\multirow{', len(methods), '}{*}{', depth_names[depth], '}')
     for i, method in enumerate(methods):
-        print(f'& {method_names[method]} & {"&".join(text_rows[i])} \\\\')
-    print('\\hline')
-
-    #Add it to the latex file
-    latex_table_content = ""
-
-    # Multirow for depth
-    latex_table_content += f"\\multirow{{{len(methods)}}}{{*}}{{{depth_names[depth]}}}"
-
-    for i, method in enumerate(methods):
-        latex_table_content += f" & {method_names[method]} & {' & '.join(text_rows[i])} \\\\\n"
-
-    # Add table row separator
-    latex_table_content += "\\hline\n"
-    with open('output.tex', 'a') as file:
-        file.write(latex_table_content)
+        cprint(f'& {method_names[method]} & {"&".join(text_rows[i])} \\\\')
+    cprint('\\hline')
 
 
-
-def generate_calib_table(prefix=''):
+def generate_calib_table(prefix='', cprint=print):
     experiments = [f'3p_monodepth+{i}' for i in range(1, 13)]
     experiments.extend([f'3p_reldepth+{i}' for i in range(1, 13)])
     experiments.extend([f'p3p+{i}' for i in range(1, 13)])
@@ -176,46 +145,20 @@ def generate_calib_table(prefix=''):
     eth3d_means = get_means(scene_errors, basenames_eth, experiments)
 
     # table head
-    print('\\begin{tabular}{cccccccccccc}')
-    print('\\toprule')
-    print('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{5}{c}{Phototourism} & \\multicolumn{5}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-7} \\cmidrule(rl){8-12}')
-    print('& &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$& $\\tau (ms)\\downarrow$ \\  &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$& $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule')
+    cprint('\\resizebox{\\textwidth}{!}{')
+    cprint('\\begin{tabular}{cccccccccccc}')
+    cprint('\\toprule')
+    cprint('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{5}{c}{Phototourism} & \\multicolumn{5}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-7} \\cmidrule(rl){8-12}')
+    cprint('& &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$& $\\tau (ms)\\downarrow$ \\  &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$& $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule')
 
-    latex_table_begin = """
-        % Table content
-    \\resizebox{\\textwidth}{!}{
-    \\begin{tabular}{cccccccccccc}
-    \\toprule
-    \\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{5}{c}{Phototourism} & \\multicolumn{5}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-7} \\cmidrule(rl){8-12}
-    & &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$& $\\tau (ms)\\downarrow$ \\  & \\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$& $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule
-    """
-    with open('output.tex', 'a') as file:
-        file.write(latex_table_begin)
-
-
-    print_monodepth_rows(0, baseline_methods, method_names_calib, phototourism_means, eth3d_means)
+    print_monodepth_rows(0, baseline_methods, method_names_calib, phototourism_means, eth3d_means, cprint=cprint)
     for i in depth_order:
-        print_monodepth_rows(i, monodepth_methods, method_names_calib, phototourism_means, eth3d_means)
-    print('\\end{tabular}')
-
-    latex_table_end = """
-    \\end{tabular}
-    }
-
-    \\end{document}
-    """
-    # Append the second part (table) to the same .tex file
-
-
-    with open('output.tex', 'a') as file:
-            file.write(latex_table_end)
-
-    # Optionally, compile the .tex file into a PDF using pdflatex
+        print_monodepth_rows(i, monodepth_methods, method_names_calib, phototourism_means, eth3d_means, cprint=cprint)
+    cprint('\\end{tabular}}')
 
 
 
-
-def generate_shared_table(prefix=''):
+def generate_shared_table(prefix='', cprint=print):
     experiments = [f'4p_monodepth_eigen+{i}' for i in range(1, 13)]
     experiments.extend([f'4p_monodepth_gb+{i}' for i in range(1, 13)])
     experiments.extend([f'3p_reldepth+{i}' for i in range(1, 13)])
@@ -237,41 +180,20 @@ def generate_shared_table(prefix=''):
     phototourism_means = get_means(scene_errors, basenames_pt, experiments)
     eth3d_means = get_means(scene_errors, basenames_eth, experiments)
 
-    latex_table_begin = """
-            % Table content
-        \\resizebox{\\textwidth}{!}{
-        \\begin{tabular}{cccccccccccccccc}
-        \\toprule
-        \\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{7}{c}{Phototourism} & \\multicolumn{7}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-8} \\cmidrule(rl){8-12}
-       \\cmidrule(rl){3-9} \\cmidrule(rl){10-16} & &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\  &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule
-    """
-    with open('output.tex', 'a') as file:
-        file.write(latex_table_begin)
-
     # table head
-    print('\\begin{tabular}{cccccccccccccccc}')
-    print('\\toprule')
-    print('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{7}{c}{Phototourism} & \\multicolumn{7}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-8} \\cmidrule(rl){8-12}')
-    print('\\cmidrule(rl){3-9} \\cmidrule(rl){10-16} & &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\  &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule')
+    cprint('\\begin{tabular}{cccccccccccccccc}')
+    cprint('\\toprule')
+    cprint('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{7}{c}{Phototourism} & \\multicolumn{7}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-8} \\cmidrule(rl){8-12}')
+    cprint('\\cmidrule(rl){3-9} \\cmidrule(rl){10-16} & &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\  &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule')
 
 
-    print_monodepth_rows(0, baseline_methods, method_names_shared, phototourism_means, eth3d_means, use_focal=True)
+    print_monodepth_rows(0, baseline_methods, method_names_shared, phototourism_means, eth3d_means, use_focal=True, cprint=cprint)
     for i in depth_order:
-        print_monodepth_rows(i, monodepth_methods, method_names_shared, phototourism_means, eth3d_means, use_focal=True)
-    print('\\end{tabular}')
-
-    latex_table_end = """
-    \\end{tabular}
-    }
-
-    \\end{document}
-    """
-    # Append the second part (table) to the same .tex file
-    with open('output.tex', 'a') as file:
-            file.write(latex_table_end)
+        print_monodepth_rows(i, monodepth_methods, method_names_shared, phototourism_means, eth3d_means, use_focal=True, cprint=cprint)
+    cprint('\\end{tabular}')
 
 
-def generate_varying_table(prefix=''):
+def generate_varying_table(prefix='', cprint=print):
     experiments = [f'4p4d+{i}' for i in range(1, 13)]
     experiments.extend([f'4p_eigen+{i}' for i in range(1, 13)])
     experiments.extend([f'4p_gj+{i}' for i in range(1, 13)])
@@ -306,32 +228,20 @@ def generate_varying_table(prefix=''):
         file.write(latex_table_begin)
 
     # table head
-    print('\\begin{tabular}{cccccccccccccccc}')
-    print('\\toprule')
-    print('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{7}{c}{Phototourism} & \\multicolumn{7}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-8} \\cmidrule(rl){8-12}')
-    print('\\cmidrule(rl){3-9} \\cmidrule(rl){10-16} & &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\  &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule')
+    cprint('\\begin{tabular}{cccccccccccccccc}')
+    cprint('\\toprule')
+    cprint('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{7}{c}{Phototourism} & \\multicolumn{7}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-8} \\cmidrule(rl){8-12}')
+    cprint('\\cmidrule(rl){3-9} \\cmidrule(rl){10-16} & &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\  &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule')
 
 
-    print_monodepth_rows(0, baseline_methods, method_names_varying, phototourism_means, eth3d_means, use_focal=True)
+    print_monodepth_rows(0, baseline_methods, method_names_varying, phototourism_means, eth3d_means, use_focal=True, cprint=cprint)
     for i in depth_order:
-        print_monodepth_rows(i, monodepth_methods, method_names_varying, phototourism_means, eth3d_means, use_focal=True)
-    print('\\end{tabular}')
-
-    latex_table_end = """
-     \\end{tabular}
-     }
-
-     \\end{document}
-     """
-    # Append the second part (table) to the same .tex file
-    with open('output.tex', 'a') as file:
-        file.write(latex_table_end)
+        print_monodepth_rows(i, monodepth_methods, method_names_varying, phototourism_means, eth3d_means, use_focal=True, cprint=cprint)
+    cprint('\\end{tabular}')
 
 
-
-if __name__ == '__main__':
-    # print("No LO calib")
-    # generate_calib_table(lo=False)
+def init_latex():
+    global latex_preamble
     latex_preamble = """
     \\documentclass{article}
     % Add the required LaTeX packages
@@ -372,8 +282,21 @@ if __name__ == '__main__':
     with open('output.tex', 'w') as file:
         file.write(latex_preamble)
 
+
+if __name__ == '__main__':
+    # print("No LO calib")
+    # generate_calib_table(lo=False)
+
+    # just print normally
+    # cprint = print
+
+    init_latex()
+    def cprint(*args):
+        with open('output.tex', 'a') as file:
+            print(*args, file=file)
+
     print("LO calib")
-    generate_calib_table()
+    generate_calib_table(cprint=cprint)
 
     # print("GLO calib")
     # generate_calib_table('GLO-')
@@ -392,6 +315,7 @@ if __name__ == '__main__':
     # generate_varying_table('NN-')
 
     try:
+        cprint('\\end{document}')
         subprocess.run(['pdflatex', 'output.tex'], check=True)
         print("PDF generated successfully!")
     except subprocess.CalledProcessError as e:
