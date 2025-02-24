@@ -183,6 +183,7 @@ def generate_shared_table(prefix='', cprint=print):
     eth3d_means = get_means(scene_errors, basenames_eth, experiments)
 
     # table head
+    cprint('\\resizebox{\\textwidth}{!}{')
     cprint('\\begin{tabular}{cccccccccccccccc}')
     cprint('\\toprule')
     cprint('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{7}{c}{Phototourism} & \\multicolumn{7}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-8} \\cmidrule(rl){8-12}')
@@ -192,7 +193,7 @@ def generate_shared_table(prefix='', cprint=print):
     print_monodepth_rows(0, baseline_methods, method_names_shared, phototourism_means, eth3d_means, use_focal=True, cprint=cprint)
     for i in depth_order:
         print_monodepth_rows(i, monodepth_methods, method_names_shared, phototourism_means, eth3d_means, use_focal=True, cprint=cprint)
-    cprint('\\end{tabular}')
+    cprint('\\end{tabular}}')
 
 
 def generate_varying_table(prefix='', cprint=print):
@@ -218,18 +219,8 @@ def generate_varying_table(prefix='', cprint=print):
     phototourism_means = get_means(scene_errors, basenames_pt, experiments)
     eth3d_means = get_means(scene_errors, basenames_eth, experiments)
 
-    latex_table_begin = """
-            % Table content
-        \\resizebox{\\textwidth}{!}{
-        \\begin{tabular}{cccccccccccccccc}
-        \\toprule
-        \\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{7}{c}{Phototourism} & \\multicolumn{7}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-8} \\cmidrule(rl){8-12}
-       \\cmidrule(rl){3-9} \\cmidrule(rl){10-16} & &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\  &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule
-    """
-    with open('output.tex', 'a') as file:
-        file.write(latex_table_begin)
-
     # table head
+    cprint('\\resizebox{\\textwidth}{!}{')
     cprint('\\begin{tabular}{cccccccccccccccc}')
     cprint('\\toprule')
     cprint('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{7}{c}{Phototourism} & \\multicolumn{7}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-8} \\cmidrule(rl){8-12}')
@@ -239,7 +230,7 @@ def generate_varying_table(prefix='', cprint=print):
     print_monodepth_rows(0, baseline_methods, method_names_varying, phototourism_means, eth3d_means, use_focal=True, cprint=cprint)
     for i in depth_order:
         print_monodepth_rows(i, monodepth_methods, method_names_varying, phototourism_means, eth3d_means, use_focal=True, cprint=cprint)
-    cprint('\\end{tabular}')
+    cprint('\\end{tabular}}')
 
 
 def init_latex(destination):
