@@ -66,7 +66,7 @@ class smart_dict(dict):
     @staticmethod
     def __missing__(key):
         if 'madpose' not in key and 'reproj' not in key:
-            return key.replace('_', '-') + '_sampson'
+            return key.replace('_', '-') + '-sampson'
         return key.replace('_', '-')
 
 
