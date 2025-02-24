@@ -119,10 +119,10 @@ def eval_experiment(x):
 
     if iters is None:
         ransac_dict = {'max_iterations': 1000, 'max_epipolar_error': t, 'progressive_sampling': False,
-                       'min_iterations': 1000, 'lo_iterations': lo_iterations, 'max_reproj_error': 16 * t}
+                       'min_iterations': 1000, 'lo_iterations': lo_iterations, 'max_reproj_error': 8 * t}
     else:
         ransac_dict = {'max_iterations': iters, 'max_epipolar_error': t, 'progressive_sampling': False,
-                       'min_iterations': iters, 'lo_iterations': lo_iterations, 'max_reproj_error': 16 * t}
+                       'min_iterations': iters, 'lo_iterations': lo_iterations, 'max_reproj_error': 8 * t}
 
     bundle_dict = {'max_iterations': 0 if lo_iterations == 0 else 100}
 
