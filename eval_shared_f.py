@@ -109,7 +109,7 @@ def get_result_dict(info, image_triplet, R_gt, t_gt, f1_gt, f2_gt):
 
 
 def eval_experiment(x):
-    iters, experiment, kp1, kp2, d, R_gt, t_gt, K1, K2, t = x
+    iters, experiment, kp1, kp2, d, R_gt, t_gt, K1, K2, t, r = x
     f1_gt = (K1[0, 0] + K1[1, 1]) / 2
     f2_gt = (K2[0, 0] + K2[1, 1]) / 2
 
@@ -122,10 +122,10 @@ def eval_experiment(x):
 
     if iters is None:
         ransac_dict = {'max_iterations': 1000, 'max_epipolar_error': t, 'progressive_sampling': False,
-                       'min_iterations': 1000, 'lo_iterations': lo_iterations, 'max_reproj_error': 8 * t}
+                       'min_iterations': 1000, 'lo_iterations': lo_iterations, 'max_reproj_error': r}
     else:
         ransac_dict = {'max_iterations': iters, 'max_epipolar_error': t, 'progressive_sampling': False,
-                       'min_iterations': iters, 'lo_iterations': lo_iterations, 'max_reproj_error': 8 * t}
+                       'min_iterations': iters, 'lo_iterations': lo_iterations, 'max_reproj_error': r}
 
     ransac_dict['all_permutations'] = 'perm' in experiment
     ransac_dict['use_reldepth'] = 'reldepth' in experiment
