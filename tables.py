@@ -333,7 +333,7 @@ def typeset_latex(destination, cprint=print):
     try:
         cprint('')
         cprint('\\center')
-        cprint(f'{destination}')
+        cprint(f'{destination.replace("_", "-")}')
         cprint('\\end{document}')
 
         subprocess.run([command, destination], check=True)
