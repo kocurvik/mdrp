@@ -7,7 +7,7 @@ from contextlib import contextmanager
 
 import numpy as np
 
-from utils.data import basenames_all, basenames_pt, basenames_eth, R_err_fun, t_err_fun
+from utils.data import basenames_all, basenames_pt, basenames_eth, R_err_fun, t_err_fun, err_fun_pose
 
 
 def get_median_errors(scene, experiments, prefix='calibrated', t='', features='splg', calc_f_err=False):
@@ -38,6 +38,13 @@ def get_median_errors(scene, experiments, prefix='calibrated', t='', features='s
         t_res = np.array([np.sum(t_errs < t) / len(t_errs) for t in range(1, 11)])
         d['median_t_err'] = np.nanmedian(t_errs)
         d['mAA_t'] = np.mean(t_res)
+        
+        pose_errs = np.array([err_fun_pose(x) for x in exp_results[exp]])
+        pose_res = np.array([np.sum(pose_errs < t) / len(pose_errs) for t in range(1, 11)])
+        d['median_pose_err'] = np.nanmedian(pose_errs)
+        d['mAA_pose'] = np.mean(pose_res)
+        
+        
 
         runtimes = [x['info']['runtime'] for x in exp_results[exp]]
         d['mean_runtime'] = np.nanmean(runtimes)
