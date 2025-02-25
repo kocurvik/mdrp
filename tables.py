@@ -341,7 +341,8 @@ def type_table(table_func, prefix='', make_pdf=True, **kwargs):
     if make_pdf:
         if not os.path.exists('pdfs'):
             os.makedirs('pdfs', exist_ok=True)
-        destination = f'pdfs/{prefix}{table_func.__name__}.tex'
+        kwarg_string = '-'.join([x for x in kwargs.values()])
+        destination = f'pdfs/{prefix}{table_func.__name__}{kwarg_string}.tex'
         def cprint(*args):
             with open(destination, 'a') as file:
                 print(*args, file=file)
