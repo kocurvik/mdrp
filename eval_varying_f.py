@@ -26,6 +26,7 @@ def parse_args():
     parser.add_argument('-f', '--first', type=int, default=None)
     parser.add_argument('-i', '--force_inliers', type=float, default=None)
     parser.add_argument('-t', '--threshold', type=float, default=1.0)
+    parser.add_argument('-r', '--reproj_threshold', type=float, default=16.0)
     parser.add_argument('-nw', '--num_workers', type=int, default=1)
     parser.add_argument('-l', '--load', action='store_true', default=False)
     parser.add_argument('-g', '--graph', action='store_true', default=False)
@@ -111,7 +112,7 @@ def get_result_dict_madpose(stats, pose_est, R_gt, t_gt, f1_gt, f2_gt):
 
 
 def eval_experiment(x):
-    iters, experiment, kp1, kp2, d, R_gt, t_gt, K1, K2, t = x
+    iters, experiment, kp1, kp2, d, R_gt, t_gt, K1, K2, t, r = x
     f1_gt = (K1[0, 0] + K1[1, 1]) / 2
     f2_gt = (K2[0, 0] + K2[1, 1]) / 2
 
@@ -119,10 +120,10 @@ def eval_experiment(x):
 
     if iters is None:
         ransac_dict = {'max_iterations': 1000, 'max_epipolar_error': t, 'progressive_sampling': False,
-                       'min_iterations': 1000, 'lo_iterations': lo_iterations, 'max_reproj_error': 8 * t}
+                       'min_iterations': 1000, 'lo_iterations': lo_iterations, 'max_reproj_error': r}
     else:
         ransac_dict = {'max_iterations': iters, 'max_epipolar_error': t, 'progressive_sampling': False,
-                       'min_iterations': iters, 'lo_iterations': lo_iterations, 'max_reproj_error': 8 * t}
+                       'min_iterations': iters, 'lo_iterations': lo_iterations, 'max_reproj_error': r}
 
     bundle_dict = {'max_iterations': 0 if lo_iterations == 0 else 100}
 
@@ -235,6 +236,9 @@ def eval(args):
     if args.threshold != 1.0:
         basename = f'{basename}-{args.threshold}t'
 
+    if args.reproj_threshold != 16.0:
+        basename = f'{basename}-{args.reproj_threshold}r'
+
     if args.graph:
         experiments = []
         depths = [10, 12]
@@ -299,7 +303,7 @@ def eval(args):
                             d = np.ones_like(kp1)
 
                         yield iterations, experiment, np.copy(kp1), np.copy(kp2), \
-                            np.copy(d), R_gt, t_gt, K1, K2, args.threshold
+                            np.copy(d), R_gt, t_gt, K1, K2, args.threshold, args.reproj_threshold
 
         total_length = len(experiments) * len(iterations_list) * len(pairs)
 

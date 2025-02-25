@@ -26,6 +26,7 @@ def parse_args():
     parser.add_argument('-f', '--first', type=int, default=None)
     parser.add_argument('-i', '--force_inliers', type=float, default=None)
     parser.add_argument('-t', '--threshold', type=float, default=1.0)
+    parser.add_argument('-r', '--reproj_threshold', type=float, default=16.0)
     parser.add_argument('-nw', '--num_workers', type=int, default=1)
     parser.add_argument('-l', '--load', action='store_true', default=False)
     parser.add_argument('-g', '--graph', action='store_true', default=False)
@@ -253,6 +254,9 @@ def eval(args):
 
     if args.threshold != 1.0:
         basename = f'{basename}-{args.threshold}t'
+        
+    if args.reproj_threshold != 16.0:
+        basename = f'{basename}-{args.reproj_threshold}r'
 
     if args.graph:
         basename = f'graph-{basename}'
@@ -311,7 +315,7 @@ def eval(args):
                             d = np.ones_like(kp1)
 
                         yield iterations, experiment, np.copy(kp1), np.copy(kp2), \
-                            np.copy(d), R_gt, t_gt, K1, K2, args.threshold
+                            np.copy(d), R_gt, t_gt, K1, K2, args.threshold, args.reproj_threshold
 
         total_length = len(experiments) * len(iterations_list) * len(pairs)
 
