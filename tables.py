@@ -11,7 +11,10 @@ from utils.data import basenames_all, basenames_pt, basenames_eth, R_err_fun, t_
 
 
 def get_median_errors(scene, experiments, prefix='calibrated', t='', features='splg', calc_f_err=False):
-    json_path = f'{prefix}-{scene}_{features}-{t}.json'
+    if len(t) > 0:
+        json_path = f'{prefix}-{scene}_{features}-{t}.json'
+    else:
+        json_path = f'{prefix}-{scene}_{features}.json'
     with open(os.path.join('results', json_path), 'r') as f:
         results = json.load(f)
 
