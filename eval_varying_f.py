@@ -35,8 +35,7 @@ def parse_args():
     parser.add_argument('--graduated', action='store_true', default=False)
     parser.add_argument('--nn', action='store_true', default=False)
     parser.add_argument('--nlo',action='store_true', default=False)
-    if not args.nmad:
-        parser.add_argument('--nmad', action='store_true', default=False)
+    parser.add_argument('--nmad', action='store_true', default=False)
     parser.add_argument('--iters', type=int, default=None)
     parser.add_argument('dataset_path')
 
@@ -207,6 +206,7 @@ def eval(args):
     experiments = []
     depths = range(1, 13)
     mdepths = [1, 2, 6, 10, 12]
+    depths = [1, 2, 6, 10, 12]
 
     if 'mast3r' in basename:
         depths = [1]
@@ -223,7 +223,8 @@ def eval(args):
     experiments.extend([f'3p_ours+{i}' for i in depths])
     experiments.extend([f'3p_ours_reproj+{i}' for i in depths])
     experiments.extend([f'3p_ours_reproj-s+{i}' for i in depths])
-    experiments.extend([f'madpose+{i}' for i in mdepths])
+    if not args.nmad:
+        experiments.extend([f'madpose+{i}' for i in mdepths])
     experiments.append('7p')
 
     if args.nlo:

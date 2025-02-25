@@ -212,8 +212,9 @@ def eval(args):
     basename = os.path.basename(dataset_path).split('.')[0]
 
     experiments = []
-    depths = range(1, 13)
+    # depths = range(1, 13)
     mdepths = [1, 2, 6, 10, 12]
+    depths = [1, 2, 6, 10, 12]
 
     if 'mast3r' in basename:
         depths = [1]
