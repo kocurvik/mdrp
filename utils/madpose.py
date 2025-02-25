@@ -13,6 +13,7 @@ def madpose_opt_from_dict(d):
     options.squared_inlier_thresholds = [d['max_reproj_error'] ** 2, d['max_epipolar_error'] ** 2]
     # weight when scoring for the two types of errors
     options.data_type_weights = [1.0, 1.0]
+    options.use_ours = d['use_ours']
 
     est_config = madpose.EstimatorConfig()
     est_config.min_depth_constraint = True
