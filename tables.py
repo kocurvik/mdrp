@@ -124,11 +124,11 @@ def print_monodepth_rows(depth, methods, method_names, phototourism_means, eth3d
         if depth > 0:
             method = f'{method}+{depth}'
         if use_focal:
-            metrics = ['median_R_err', 'median_t_err', 'median_f_err', 'mAA_R', 'mAA_t', 'mAA_f', 'mean_runtime']
-            incdec = [1, 1, 1, -1, -1, -1,  1, 1, 1, 1, -1, -1, -1, 1]
-        else:
-            metrics = ['median_R_err', 'median_t_err', 'mAA_R', 'mAA_t', 'mean_runtime']
+            metrics = ['median_pose_err', 'median_f_err', 'mAA_pose', 'mAA_f', 'mean_runtime']#['median_R_err', 'median_t_err', 'median_f_err', 'mAA_R', 'mAA_t', 'mAA_f', 'mean_runtime']
             incdec = [1, 1, -1, -1, 1, 1, 1, -1, -1, 1]
+        else:
+            metrics = ['median_pose_err', 'mAA_pose', 'mean_runtime']
+            incdec = [1, -1, 1, 1, -1, 1]
 
         pt_vals = [phototourism_means[method][x] for x in metrics]
         eth_vals = [eth3d_means[method][x] for x in metrics]
@@ -188,8 +188,8 @@ def generate_calib_table(cprint=print, prefix='', **kwargs):
     cprint('\\resizebox{\\textwidth}{!}{')
     cprint('\\begin{tabular}{cccccccccccc}')
     cprint('\\toprule')
-    cprint('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{5}{c}{Phototourism} & \\multicolumn{5}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-7} \\cmidrule(rl){8-12}')
-    cprint('& &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$& $\\tau (ms)\\downarrow$ \\  &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$& $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule')
+    cprint('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{3}{c}{Phototourism} & \\multicolumn{3}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-5} \\cmidrule(rl){6-8}')
+    cprint('& & $\\epsilon_{\\M{pose}}(^\\circ)\\downarrow$ & mAA($\\M{pose}$)$\\uparrow$& $\\tau (ms)\\downarrow$ \\  & $\\epsilon_{\\M{pose}}(^\\circ)\\downarrow$ & mAA($\\M{pose}$)$\\uparrow$& $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule')
 
     print_monodepth_rows(0, baseline_methods, method_names_calib, phototourism_means, eth3d_means, cprint=cprint)
     for i in depth_order:
@@ -236,8 +236,8 @@ def generate_shared_table(cprint=print, prefix='', **kwargs):
     cprint('\\resizebox{\\textwidth}{!}{')
     cprint('\\begin{tabular}{cccccccccccccccc}')
     cprint('\\toprule')
-    cprint('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{7}{c}{Phototourism} & \\multicolumn{7}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-8} \\cmidrule(rl){8-12}')
-    cprint('\\cmidrule(rl){3-9} \\cmidrule(rl){10-16} & &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\  &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule')
+    cprint('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{5}{c}{Phototourism} & \\multicolumn{5}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-7} \\cmidrule(rl){8-12}')
+    cprint('\\cmidrule(rl){3-7} \\cmidrule(rl){8-12} & & $\\epsilon_{\\M {pose}}}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M {pose}$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\  & $\\epsilon_{\\M {pose}}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M {pose}$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule')
 
 
     print_monodepth_rows(0, baseline_methods, method_names_shared, phototourism_means, eth3d_means, use_focal=True, cprint=cprint)
@@ -285,8 +285,8 @@ def generate_varying_table(prefix='', cprint=print, **kwargs):
     cprint('\\resizebox{\\textwidth}{!}{')
     cprint('\\begin{tabular}{cccccccccccccccc}')
     cprint('\\toprule')
-    cprint('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{7}{c}{Phototourism} & \\multicolumn{7}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-8} \\cmidrule(rl){8-12}')
-    cprint('\\cmidrule(rl){3-9} \\cmidrule(rl){10-16} & &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\  &\\ $\\epsilon_{\\M R}(^\\circ)\\downarrow$ & $\\epsilon_{\\M t}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M R$)$\\uparrow$ & mAA($\\M t$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule')
+    cprint('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{5}{c}{Phototourism} & \\multicolumn{5}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-7} \\cmidrule(rl){8-12}')
+    cprint('\\cmidrule(rl){3-7} \\cmidrule(rl){8-12} & & $\\epsilon_{\\M {pose}}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M {pose}$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\  & $\\epsilon_{\\M {pose}}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M {pose}$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule')
 
 
     print_monodepth_rows(0, baseline_methods, method_names_varying, phototourism_means, eth3d_means, use_focal=True, cprint=cprint)
@@ -376,13 +376,13 @@ if __name__ == '__main__':
     # just print normally
     # cprint = print
 
-    type_table(generate_calib_table, make_pdf=True, t='2.0t', features='splg')
-    type_table(generate_shared_table, make_pdf=True, t='2.0t', features='splg')
-    type_table(generate_varying_table, make_pdf=True, t='2.0t', features='splg')
+     type_table(generate_calib_table, make_pdf=True, t='2.0t', features='splg')
+    # type_table(generate_shared_table, make_pdf=True, t='2.0t', features='splg')
+    # type_table(generate_varying_table, make_pdf=True, t='2.0t', features='splg')
 
-    type_table(generate_calib_table, make_pdf=True, t='2.0t', features='roma')
-    type_table(generate_shared_table, make_pdf=True, t='2.0t', features='roma')
-    type_table(generate_varying_table, make_pdf=True, t='2.0t', features='roma')
+    #type_table(generate_calib_table, make_pdf=True, t='2.0t', features='roma')
+    #type_table(generate_shared_table, make_pdf=True, t='2.0t', features='roma')
+    #type_table(generate_varying_table, make_pdf=True, t='2.0t', features='roma')
 
 
     # print("GLO calib")
