@@ -345,7 +345,7 @@ def type_table(table_func, prefix='', make_pdf=True, **kwargs):
     if make_pdf:
         if not os.path.exists('pdfs'):
             os.makedirs('pdfs', exist_ok=True)
-        kwarg_string = '-'.join([x for x in kwargs.values()])
+        kwarg_string = '-'.join([x for x in kwargs.values() if x != ''])
         destination = f'pdfs/{prefix}{table_func.__name__}{kwarg_string}.tex'
         def cprint(*args):
             with open(destination, 'a') as file:
@@ -357,7 +357,7 @@ def type_table(table_func, prefix='', make_pdf=True, **kwargs):
         typeset_latex(destination, cprint=cprint)
     else:
         print(prefix, table_func.__name__)
-        table_func(prefix=prefix, t=t)
+        table_func(prefix=prefix, **kwargs)
 
 if __name__ == '__main__':
     # print("No LO calib")
