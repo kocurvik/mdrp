@@ -32,6 +32,7 @@ def parse_args():
     parser.add_argument('-o', '--overwrite', action='store_true', default=False)
     parser.add_argument('--graduated', action='store_true', default=False)
     parser.add_argument('--nlo', action='store_true', default=False)
+    parser.add_argument('--nmad', action='store_true', default=False)
     parser.add_argument('--iters', type=int, default=None)
     parser.add_argument('dataset_path')
 
@@ -196,7 +197,8 @@ def eval(args):
     experiments.extend([f'p3p+{i}' for i in depths])
     experiments.extend([f'p3p_reproj+{i}' for i in depths])
     experiments.extend([f'p3p_reproj-s+{i}' for i in depths])
-    experiments.extend([f'madpose+{i}' for i in mdepths])
+    if not args.nmad:
+        experiments.extend([f'madpose+{i}' for i in mdepths])
     experiments.append('5p')
 
     if args.nlo:

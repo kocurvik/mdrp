@@ -35,6 +35,8 @@ def parse_args():
     parser.add_argument('--graduated', action='store_true', default=False)
     parser.add_argument('--nn', action='store_true', default=False)
     parser.add_argument('--nlo',action='store_true', default=False)
+    if not args.nmad:
+        parser.add_argument('--nmad', action='store_true', default=False)
     parser.add_argument('--iters', type=int, default=None)
     parser.add_argument('dataset_path')
 
