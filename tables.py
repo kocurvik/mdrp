@@ -331,7 +331,11 @@ def init_latex(destination):
 def typeset_latex(destination, cprint=print):
     command = 'pdflatex --output-directory=pdfs' if os.name == 'nt' else 'tectonic'
     try:
+        cprint('')
+        cprint('\\center')
+        cprint(f'{destination}')
         cprint('\\end{document}')
+
         subprocess.run([command, destination], check=True)
         print("PDF generated successfully!")
     except subprocess.CalledProcessError as e:
