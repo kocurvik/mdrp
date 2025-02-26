@@ -8,6 +8,8 @@ import time
 import os
 import signal
 from time import perf_counter
+import threading
+import multiprocessing as mp
 
 from concurrent.futures import ProcessPoolExecutor, TimeoutError, as_completed
 
@@ -199,43 +201,23 @@ def eval_experiment(x):
     return result_dict
 
 
-def process_in_chunks(fn, data_generator, total_length, chunk_size=100, timeout=20, max_workers=None):
-    results = []
-    processed = 0
+def run_with_timeout(x, timeout=20):
+    result_container = []
+    def target():
+        try:
+            result_container.append(eval_experiment(x))
+        except Exception as e:
+            result_container.append(get_exception_result_dict(x))  # Handle exceptions inside the thread
 
-    # Create progress bar for the entire operation
-    with tqdm(total=total_length) as pbar:
-        while processed < total_length:
-            # Get the next chunk of data
-            chunk = list(islice(data_generator, chunk_size))
-            if not chunk:
-                break
+    thread = threading.Thread(target=target)
+    thread.start()
+    thread.join(timeout)
 
-            # Process the chunk
-            with ProcessPoolExecutor(max_workers=max_workers) as executor:
-                # Submit tasks for this chunk
-                future_to_item = {executor.submit(fn, item): item for item in chunk}
+    if thread.is_alive():
+        return get_exception_result_dict(x)  # Timeout occurred
+    else:
 
-                # Process completed futures
-                for future in as_completed(future_to_item):
-                    # Get the original input item
-                    original_input = future_to_item[future]
-
-                    try:
-                        result = future.result(timeout=timeout)
-                        results.append(result)
-                    except TimeoutError:
-                        # Create a default value based on the original input
-                        print("Process timed out after 20s!")
-                        default_value = get_exception_result_dict(original_input)
-                        results.append(default_value)
-
-                    # Update progress
-                    pbar.update(1)
-                    processed += 1
-
-    return results
-
+        return result_container[0] if result_container else get_exception_result_dict(x)  # Ensure fallback
 
 def eval(args):
     dataset_path = args.dataset_path
@@ -361,14 +343,8 @@ def eval(args):
         if args.num_workers == 1:
             results = [eval_experiment(x) for x in tqdm(gen_data(), total=total_length)]
         else:
-            results = process_in_chunks(
-                fn=eval_experiment,
-                data_generator=gen_data(),
-                total_length=total_length,
-                chunk_size=args.num_workers * 10,  # Adjust chunk size based on your memory constraints
-                timeout=20,
-                max_workers=args.num_workers
-            )
+            pool = Pool(args.num_workers)
+            results = [x for x in pool.imap(eval_experiment, tqdm(gen_data(), total=total_length))]
 
 
         os.makedirs('results', exist_ok=True)
