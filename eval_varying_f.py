@@ -166,10 +166,10 @@ def eval_experiment_wrapper(x, result_queue):
 
     try:
         result = eval_experiment(x)
-        result_queue.put((result, pid))
+        result_queue.put(result)
     except Exception as e:
         print(f"Process {pid}: Error in experiment: {e}")
-        result_queue.put((get_exception_result_dict(x), pid))
+        result_queue.put(get_exception_result_dict(x))
 
 def run_with_timeout(x, timeout=20):
     result_queue = Queue()
@@ -194,7 +194,7 @@ def run_with_timeout(x, timeout=20):
     if not result_queue.empty():
         return result_queue.get()
     else:
-        return get_exception_result_dict(x), process_pid
+        return get_exception_result_dict(x)
 
 
 def eval(args):
