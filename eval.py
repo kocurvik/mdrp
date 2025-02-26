@@ -35,6 +35,8 @@ def parse_args():
     parser.add_argument('--graduated', action='store_true', default=False)
     parser.add_argument('--nlo', action='store_true', default=False)
     parser.add_argument('--nmad', action='store_true', default=False)
+    parser.add_argument('--madours', action='store_true', default=False)
+    parser.add_argument('--madonly', action='store_true', default=False)
     parser.add_argument('--iters', type=int, default=None)
     parser.add_argument('dataset_path')
 
@@ -211,6 +213,16 @@ def eval(args):
     if not args.nmad:
         experiments.extend([f'madpose+{i}' for i in mdepths])
     experiments.append('5p')
+
+    if args.madours:
+        experiments = []
+        # experiments.extend([f'madpose+{i}' for i in mdepths])
+        experiments.extend([f'madpose_ours_scale_shift+{i}' for i in mdepths])
+
+    if args.madonly:
+        experiments = []
+        # experiments.extend([f'madpose+{i}' for i in mdepths])
+        experiments.extend([f'madpose+{i}' for i in mdepths])
 
     if args.nlo:
         experiments = [f'nLO-{x}' for x in experiments]
