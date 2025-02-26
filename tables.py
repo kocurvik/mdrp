@@ -237,7 +237,7 @@ def generate_shared_table(cprint=print, prefix='', **kwargs):
     cprint('\\begin{tabular}{cccccccccccccccc}')
     cprint('\\toprule')
     cprint('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{5}{c}{Phototourism} & \\multicolumn{5}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-7} \\cmidrule(rl){8-12}')
-    cprint('\\cmidrule(rl){3-7} \\cmidrule(rl){8-12} & & $\\epsilon_{\\M {pose}}}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M {pose}$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\  & $\\epsilon_{\\M {pose}}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M {pose}$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule')
+    cprint('\\cmidrule(rl){3-7} \\cmidrule(rl){8-12} & & $\\epsilon_{\\M {pose}}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M {pose}$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\  & $\\epsilon_{\\M {pose}}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M {pose}$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule')
 
 
     print_monodepth_rows(0, baseline_methods, method_names_shared, phototourism_means, eth3d_means, use_focal=True, cprint=cprint)
