@@ -3,8 +3,9 @@ import numpy as np
 basenames_eth = ['courtyard', 'delivery_area', 'electro', 'facade', 'kicker', 'meadow', 'office', 'pipes', 'playground', 'relief_2', 'relief', 'terrace', 'terrains']
 basenames_pt_old = ['british_museum', 'florence_cathedral', 'lincoln_memorial', 'london_bridge', 'milan_cathedral', 'mount_rushmore', 'sagrada_familia', 'stpauls_cathedral']
 basenames_pt = ['florence_cathedral', 'lincoln_memorial', 'london_bridge', 'milan_cathedral', 'sagrada_familia']
-basenames_all = basenames_eth + basenames_pt
-basenames_new = ['ETH','Phototurism','Custom']
+basenames_scannet = ['scannet']
+basenames_all = basenames_eth + basenames_pt + basenames_scannet
+basenames = {'ETH': basenames_eth,'Phototurism': basenames_pt, 'ScanNet': basenames_scannet}
 
 def get_basenames(dataset):
     if dataset == 'pt':
