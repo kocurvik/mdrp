@@ -1,18 +1,11 @@
 import argparse
-import concurrent
 import json
-import multiprocessing
-from itertools import islice
-from multiprocessing import Pool, Process, Queue
+from multiprocessing import Process, Queue
 import time
 import os
 import signal
 from time import perf_counter
 import multiprocessing.pool
-
-
-
-from concurrent.futures import ProcessPoolExecutor, TimeoutError, as_completed
 
 import h5py
 import numpy as np
@@ -22,7 +15,7 @@ import madpose
 from tqdm import tqdm
 
 from utils.data import depth_indices, t_err_fun, R_err_fun
-from utils.eval_utils import print_results_focal
+from utils.eval_utils import print_results_focal, NoDaemonProcessPool, get_exception_result_dict
 from utils.madpose import madpose_opt_from_dict
 
 
@@ -112,41 +105,6 @@ def get_result_dict_madpose(stats, pose_est, R_gt, t_gt, f1_gt, f2_gt):
 
     return out
 
-def get_exception_result_dict(x):
-    iters, experiment, kp1, kp2, d, R_gt, t_gt, K1, K2, t, r = x
-    out = {}
-
-    R_est, t_est = np.eye(3), np.ones(3)
-
-    f1_gt = (K1[0, 0] + K1[1, 1]) / 2
-    f2_gt = (K2[0, 0] + K2[1, 1]) / 2
-    out['f1_gt'] = f1_gt
-    out['f1'] = 1.0
-    out['f2_gt'] = f2_gt
-    out['f2'] = 1.0
-
-    out['R'] = R_est.tolist()
-    out['R_gt'] = R_gt.tolist()
-    out['t'] = t_est.tolist()
-    out['t_gt'] = t_gt.tolist()
-
-    out['R_err'] = R_err_fun(out)
-    out['t_err'] = t_err_fun(out)
-
-    out['f1_err'] = np.abs(out['f1'] - f1_gt) / f1_gt
-    out['f2_err'] = np.abs(out['f2'] - f2_gt) / f2_gt
-    out['f_err'] = np.sqrt(out['f1_err'] * out['f2_err'])
-
-    info = {}
-
-    info['num_inliers'] = 0
-    info['inlier_ratio'] = 0.0
-    info['runtime'] = 20000
-    out['info'] = info
-    out['experiment'] = experiment
-
-    return out
-
 
 def eval_experiment(x):
     iters, experiment, kp1, kp2, d, R_gt, t_gt, K1, K2, t, r = x
@@ -212,64 +170,30 @@ def eval_experiment_wrapper(x, result_queue):
         print(f"Process {pid}: Error in experiment: {e}")
         result_queue.put((get_exception_result_dict(x), pid))
 
-def run_with_timeout(x, timeout=10):
-    """
-    Run eval_experiment in a separate process with timeout.
-    Will forcibly terminate the process if it exceeds the timeout.
-    """
+def run_with_timeout(x, timeout=20):
     result_queue = Queue()
-
-    # Create and start the process
     process = Process(target=eval_experiment_wrapper, args=(x, result_queue))
     process.start()
     process_pid = process.pid
-    # print(f"Started worker process {process_pid} for input {x}")
-
-    # Wait for the process to complete or timeout
     process.join(timeout)
 
-    # Check if the process is still running after the timeout
     if process.is_alive():
         print(f"Process {process_pid} timed out after {timeout} seconds. Terminating...")
-        # Terminate and then kill to make sure it's gone
         process.terminate()
-        # Give it a moment to terminate
         time.sleep(0.1)
         if process.is_alive():
-            # If it's still alive, use a stronger signal
             print(f"Process {process_pid} didn't terminate. Sending SIGKILL...")
             try:
                 os.kill(process.pid, signal.SIGKILL)
             except OSError:
                 pass
-        process.join(1)  # Wait a bit to clean up
+        process.join(1)
         return get_exception_result_dict(x)
 
-    # Process completed within timeout, get the result
     if not result_queue.empty():
         return result_queue.get()
     else:
-        # No result but process ended - likely crashed
-        return None, process_pid
-
-class NoDaemonProcess(multiprocessing.Process):
-    # make 'daemon' attribute always return False
-    @property
-    def daemon(self):
-        return False
-
-    @daemon.setter
-    def daemon(self, val):
-        pass
-
-
-class NoDaemonProcessPool(multiprocessing.pool.Pool):
-
-    def Process(self, *args, **kwds):
-        proc = super(NoDaemonProcessPool, self).Process(*args, **kwds)
-        proc.__class__ = NoDaemonProcess
-
-        return proc
+        return get_exception_result_dict(x), process_pid
 
 
 def eval(args):

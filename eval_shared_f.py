@@ -1,7 +1,9 @@
 import argparse
 import json
+from multiprocessing import Process, Queue
+import time
 import os
-from multiprocessing import Pool
+import signal
 from time import perf_counter
 
 import h5py
@@ -9,15 +11,11 @@ import numpy as np
 import poselib
 import madpose
 # import pykitti
-from matplotlib import pyplot as plt
-from prettytable import PrettyTable
 from tqdm import tqdm
 
 from utils.data import depth_indices, R_err_fun, t_err_fun
-from utils.eval_utils import print_results_focal
-from utils.geometry import rotation_angle, angle, get_camera_dicts, force_inliers
+from utils.eval_utils import print_results_focal, NoDaemonProcessPool, get_exception_result_dict
 from utils.madpose import madpose_opt_from_dict
-from utils.vis import draw_results_pose_auc_10, draw_cumplots, draw_rotation_angle_f_err
 
 
 # from utils.vis import draw_results_pose_auc_10
@@ -170,36 +168,41 @@ def eval_experiment(x):
     return result_dict
 
 
-def print_results(experiments, results, eq_only=False):
-    tab = PrettyTable(['solver', 'median pose err', 'median f err',
-                       'pose mAA', 'f mAA', 'mean time', 'mean inliers'])
-    tab.align["solver"] = "l"
-    tab.float_format = '0.2'
+def eval_experiment_wrapper(x, result_queue):
+    pid = os.getpid()
 
-    for exp in experiments:
-        exp_results = [x for x in results if x['experiment'] == exp]
+    try:
+        result = eval_experiment(x)
+        result_queue.put((result, pid))
+    except Exception as e:
+        print(f"Process {pid}: Error in experiment: {e}")
+        result_queue.put((get_exception_result_dict(x), pid))
 
-        p_errs = np.array([max(r['R_err'], r['t_err']) for r in exp_results])
-        f_errs = np.array([r['f_err'] for r in exp_results])
-        p_errs[np.isnan(p_errs)] = 180
-        f_errs[np.isnan(f_errs)] = 1.0
+def run_with_timeout(x, timeout=20):
+    result_queue = Queue()
+    process = Process(target=eval_experiment_wrapper, args=(x, result_queue))
+    process.start()
+    process_pid = process.pid
+    process.join(timeout)
 
-        p_res = np.array([np.sum(p_errs < t) / len(p_errs) for t in range(1, 11)])
-        f_res = np.array([np.sum(f_errs < t/100) / len(f_errs) for t in range(1, 11)])
+    if process.is_alive():
+        print(f"Process {process_pid} timed out after {timeout} seconds. Terminating...")
+        process.terminate()
+        time.sleep(0.1)
+        if process.is_alive():
+            print(f"Process {process_pid} didn't terminate. Sending SIGKILL...")
+            try:
+                os.kill(process.pid, signal.SIGKILL)
+            except OSError:
+                pass
+        process.join(1)
+        return get_exception_result_dict(x)
 
-        times = np.array([x['info']['runtime'] for x in exp_results])
-        inliers = np.array([x['info']['inlier_ratio'] for x in exp_results])
+    if not result_queue.empty():
+        return result_queue.get()
+    else:
+        return get_exception_result_dict(x), process_pid
 
-        exp_name = exp
-
-
-        tab.add_row([exp_name, np.median(p_errs), np.median(f_errs),
-                     np.mean(p_res), np.mean(f_res),
-                     np.mean(times),
-                     np.mean(inliers)])
-    print(tab)
-    # print('latex')
-    # print(tab.get_formatted_string('latex'))
 
 def eval(args):
     dataset_path = args.dataset_path
@@ -325,7 +328,7 @@ def eval(args):
         if args.num_workers == 1:
             results = [eval_experiment(x) for x in tqdm(gen_data(), total=total_length)]
         else:
-            pool = Pool(args.num_workers)
+            pool = NoDaemonProcessPool(args.num_workers)
             results = [x for x in pool.imap(eval_experiment, tqdm(gen_data(), total=total_length))]
 
         os.makedirs('results', exist_ok=True)
