@@ -202,7 +202,7 @@ def eval(args):
 
     experiments = []
     depths = range(1, 13)
-    mdepths = [12]
+    mdepths = [1, 2, 6, 10, 12]
     depths = [1, 2, 6, 10, 12]
 
     if 'mast3r' in basename:
