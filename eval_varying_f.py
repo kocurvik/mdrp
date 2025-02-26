@@ -323,6 +323,8 @@ def eval(args):
         if args.first is not None:
             pairs = pairs[:args.first]
 
+        pairs = pairs[-100:]
+
         def gen_data():
             for img_name_1, img_name_2 in pairs:
                 for experiment in experiments:
@@ -363,10 +365,10 @@ def eval(args):
         else:
             pool = Pool(args.num_workers)
             # results = [x for x in pool.imap(eval_experiment, tqdm(gen_data(), total=total_length))]
-            iterator = pool.imap(eval_experiment, tqdm(gen_data(), total=total_length))
+            iterator = pool.imap(eval_experiment, gen_data())
 
             results = []
-            for i, item in enumerate(gen_data()):
+            for i, item in tqdm(enumerate(gen_data()), total=total_length):
                 try:
                     # Try to get the next result within the timeout period
                     result = iterator.next(timeout=20)
