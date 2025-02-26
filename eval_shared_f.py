@@ -354,6 +354,7 @@ def eval(args):
 
             if args.overwrite:
                 print("Overwriting old results")
+                prev_results = [x for x in prev_results if not isinstance(x, tuple) and not isinstance(x, list)]
                 prev_results = [x for x in prev_results if x['experiment'] not in experiments]
 
             results.extend(prev_results)
