@@ -384,13 +384,13 @@ if __name__ == '__main__':
     # just print normally
     # cprint = print
 
-     type_table(generate_calib_table, make_pdf=True, t='2.0t', features='splg')
-    # type_table(generate_shared_table, make_pdf=True, t='2.0t', features='splg')
-    # type_table(generate_varying_table, make_pdf=True, t='2.0t', features='splg')
+    type_table(generate_calib_table, make_pdf=True, t='2.0t', features='splg')
+    type_table(generate_shared_table, make_pdf=True, t='2.0t', features='splg')
+    type_table(generate_varying_table, make_pdf=True, t='2.0t', features='splg')
 
-    #type_table(generate_calib_table, make_pdf=True, t='2.0t', features='roma')
-    #type_table(generate_shared_table, make_pdf=True, t='2.0t', features='roma')
-    #type_table(generate_varying_table, make_pdf=True, t='2.0t', features='roma')
+    type_table(generate_calib_table, make_pdf=True, t='2.0t', features='roma')
+    type_table(generate_shared_table, make_pdf=True, t='2.0t', features='roma')
+    type_table(generate_varying_table, make_pdf=True, t='2.0t', features='roma')
 
 
     # print("GLO calib")
