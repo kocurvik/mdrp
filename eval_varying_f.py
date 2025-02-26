@@ -298,7 +298,7 @@ def eval(args):
         pairs = [(pair.split('_o_')[0] + '_o', pair.split('_o_')[1]) for pair in prelim_pairs]
 
         if args.first is not None:
-            pairs = pairs[325:]
+            pairs = pairs[:args.first]
 
         def gen_data():
             for img_name_1, img_name_2 in pairs:
