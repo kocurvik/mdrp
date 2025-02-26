@@ -1,9 +1,15 @@
 import argparse
+import concurrent
 import json
+import multiprocessing
+from itertools import islice
+from multiprocessing import Pool, Process, Queue
+import time
 import os
 import signal
-from multiprocessing import Pool
 from time import perf_counter
+
+from concurrent.futures import ProcessPoolExecutor, TimeoutError, as_completed
 
 import h5py
 import numpy as np
@@ -139,27 +145,6 @@ def get_exception_result_dict(x):
     return out
 
 
-class TimeoutError(Exception):
-    pass
-
-def timeout_handler(signum, frame):
-    raise TimeoutError("Task exceeded time limit")
-
-def eval_with_timeout(x, max_time=20):
-    signal.signal(signal.SIGALRM, timeout_handler)
-    signal.alarm(max_time)
-    pid = os.getpid()
-
-    try:
-        result = eval_experiment(x)
-    except TimeoutError:
-        print(f"Process {pid}: Task with input {x} timed out internally")
-        result = get_exception_result_dict(x)
-    finally:
-        signal.alarm(0)
-
-    return result
-
 def eval_experiment(x):
     iters, experiment, kp1, kp2, d, R_gt, t_gt, K1, K2, t, r = x
     f1_gt = (K1[0, 0] + K1[1, 1]) / 2
@@ -212,6 +197,44 @@ def eval_experiment(x):
     result_dict['experiment'] = experiment
 
     return result_dict
+
+
+def process_in_chunks(fn, data_generator, total_length, chunk_size=100, timeout=20, max_workers=None):
+    results = []
+    processed = 0
+
+    # Create progress bar for the entire operation
+    with tqdm(total=total_length) as pbar:
+        while processed < total_length:
+            # Get the next chunk of data
+            chunk = list(islice(data_generator, chunk_size))
+            if not chunk:
+                break
+
+            # Process the chunk
+            with ProcessPoolExecutor(max_workers=max_workers) as executor:
+                # Submit tasks for this chunk
+                future_to_item = {executor.submit(fn, item): item for item in chunk}
+
+                # Process completed futures
+                for future in as_completed(future_to_item):
+                    # Get the original input item
+                    original_input = future_to_item[future]
+
+                    try:
+                        result = future.result(timeout=timeout)
+                        results.append(result)
+                    except TimeoutError:
+                        # Create a default value based on the original input
+                        print("Process timed out after 20s!")
+                        default_value = get_exception_result_dict(original_input)
+                        results.append(default_value)
+
+                    # Update progress
+                    pbar.update(1)
+                    processed += 1
+
+    return results
 
 
 def eval(args):
@@ -336,10 +359,17 @@ def eval(args):
         print(f"Total runs: {total_length} for {len(pairs)} samples")
 
         if args.num_workers == 1:
-            results = [eval_with_timeout(x) for x in tqdm(gen_data(), total=total_length)]
+            results = [eval_experiment(x) for x in tqdm(gen_data(), total=total_length)]
         else:
-            pool = Pool(args.num_workers)
-            results = [x for x in pool.imap(eval_with_timeout, tqdm(gen_data(), total=total_length))]
+            results = process_in_chunks(
+                fn=eval_experiment,
+                data_generator=gen_data(),
+                total_length=total_length,
+                chunk_size=args.num_workers * 10,  # Adjust chunk size based on your memory constraints
+                timeout=20,
+                max_workers=args.num_workers
+            )
+
 
         os.makedirs('results', exist_ok=True)
 
@@ -371,5 +401,6 @@ def eval(args):
 
 
 if __name__ == '__main__':
+    multiprocessing.set_start_method('spawn', force=True)
     args = parse_args()
     eval(args)
