@@ -26,7 +26,12 @@ def get_median_errors(scene, experiments, prefix='calibrated', t='', features='s
             ...
 
     out = {}
+
+    print("Numbers of results per experiment for ", scene)
+
+
     for exp in experiments:
+        print(f"{exp}: {len(exp_results[exp])}")
         d = {}
 
         R_errs = np.array([R_err_fun(x) for x in exp_results[exp]])
