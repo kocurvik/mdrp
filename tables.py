@@ -29,9 +29,12 @@ def get_median_errors(scene, experiments, prefix='calibrated', t='', features='s
 
     print("Numbers of results per experiment for ", scene)
 
+    median_samples = np.nanmedian([len(exp_results[exp]) for exp in experiments])
 
     for exp in experiments:
-        print(f"{exp}: {len(exp_results[exp])}")
+        n = len(exp_results[exp])
+        if n != median_samples:
+            print(f"Scene: {scene} - experiment: {exp} has only {n} samples while median is {median_samples}")
         d = {}
 
         R_errs = np.array([R_err_fun(x) for x in exp_results[exp]])
