@@ -4,7 +4,7 @@ basenames_eth = ['courtyard', 'delivery_area', 'electro', 'facade', 'kicker', 'm
 basenames_pt_old = ['british_museum', 'florence_cathedral', 'lincoln_memorial', 'london_bridge', 'milan_cathedral', 'mount_rushmore', 'sagrada_familia', 'stpauls_cathedral']
 basenames_pt = ['florence_cathedral', 'lincoln_memorial', 'london_bridge', 'milan_cathedral', 'sagrada_familia']
 basenames_all = basenames_eth + basenames_pt
-
+basenames_new = ['ETH','Phototurism','Custom']
 
 def get_basenames(dataset):
     if dataset == 'pt':
