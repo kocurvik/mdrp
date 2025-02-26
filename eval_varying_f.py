@@ -323,8 +323,6 @@ def eval(args):
         if args.first is not None:
             pairs = pairs[:args.first]
 
-        pairs = pairs[-100:]
-
         def gen_data():
             for img_name_1, img_name_2 in pairs:
                 for experiment in experiments:
