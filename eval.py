@@ -153,6 +153,16 @@ def eval_experiment_wrapper(x, result_queue):
         print(f"Process {pid}: Error in experiment: {e}")
         result_queue.put((get_exception_result_dict(x), pid))
 
+def eval_experiment_wrapper(x, result_queue):
+    pid = os.getpid()
+
+    try:
+        result = eval_experiment(x)
+        result_queue.put(result)
+    except Exception as e:
+        print(f"Process {pid}: Error in experiment: {e}")
+        result_queue.put(get_exception_result_dict(x))
+
 def run_with_timeout(x, timeout=20):
     result_queue = Queue()
     process = Process(target=eval_experiment_wrapper, args=(x, result_queue))
@@ -176,7 +186,7 @@ def run_with_timeout(x, timeout=20):
     if not result_queue.empty():
         return result_queue.get()
     else:
-        return get_exception_result_dict(x), process_pid
+        return get_exception_result_dict(x)
 
 def eval(args):
     dataset_path = args.dataset_path
@@ -288,7 +298,7 @@ def eval(args):
             results = [eval_experiment(x) for x in tqdm(gen_data(), total=total_length)]
         else:
             pool = NoDaemonProcessPool(args.num_workers)
-            results = [x for x in pool.imap(eval_experiment, tqdm(gen_data(), total=total_length))]
+            results = [x for x in pool.imap(run_with_timeout, tqdm(gen_data(), total=total_length))]
 
         os.makedirs('results', exist_ok=True)
 
