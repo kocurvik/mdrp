@@ -182,7 +182,6 @@ def eval_experiment_wrapper(x, result_queue):
 
 def run_with_timeout(x, timeout=20):
     result_queue = Queue()
-    multiprocessing.set_start_method('spawn', force=True)
     process = Process(target=eval_experiment_wrapper, args=(x, result_queue))
     process.start()
     process_pid = process.pid
@@ -265,6 +264,8 @@ def eval(args):
         # experiments.extend([f'3p_reldepth+{i}' for i in depths])
         experiments.append('6p')
 
+    print(experiments)
+
     if args.threshold != 1.0:
         basename = f'{basename}-{args.threshold}t'
         
@@ -337,7 +338,6 @@ def eval(args):
         if args.num_workers == 1:
             results = [eval_experiment(x) for x in tqdm(gen_data(), total=total_length)]
         else:
-            multiprocessing.set_start_method('spawn', force=True)
             pool = NoDaemonProcessPool(args.num_workers)
             results = [x for x in pool.imap(eval_experiment, tqdm(gen_data(), total=total_length))]
 
