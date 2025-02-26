@@ -1,12 +1,18 @@
 import argparse
+import concurrent
 import json
 import multiprocessing
-from multiprocessing import Process, Queue
+from itertools import islice
+from multiprocessing import Pool, Process, Queue
 import time
 import os
 import signal
 from time import perf_counter
-from concurrent.futures import ProcessPoolExecutor as Pool
+import multiprocessing.pool
+
+
+
+from concurrent.futures import ProcessPoolExecutor, TimeoutError, as_completed
 
 import h5py
 import numpy as np
@@ -217,6 +223,7 @@ def run_with_timeout(x, timeout=10):
     process = Process(target=eval_experiment_wrapper, args=(x, result_queue))
     process.start()
     process_pid = process.pid
+    # print(f"Started worker process {process_pid} for input {x}")
 
     # Wait for the process to complete or timeout
     process.join(timeout)
@@ -245,6 +252,24 @@ def run_with_timeout(x, timeout=10):
         # No result but process ended - likely crashed
         return None, process_pid
 
+class NoDaemonProcess(multiprocessing.Process):
+    # make 'daemon' attribute always return False
+    @property
+    def daemon(self):
+        return False
+
+    @daemon.setter
+    def daemon(self, val):
+        pass
+
+
+class NoDaemonProcessPool(multiprocessing.pool.Pool):
+
+    def Process(self, *args, **kwds):
+        proc = super(NoDaemonProcessPool, self).Process(*args, **kwds)
+        proc.__class__ = NoDaemonProcess
+
+        return proc
 
 
 def eval(args):
@@ -371,8 +396,8 @@ def eval(args):
         if args.num_workers == 1:
             results = [eval_experiment(x) for x in tqdm(gen_data(), total=total_length)]
         else:
-            pool = Pool(args.num_workers)
-            results = [x for x in pool.map(run_with_timeout, tqdm(gen_data(), total=total_length))]
+            pool = NoDaemonProcessPool(args.num_workers)
+            results = [x for x in pool.imap(run_with_timeout, tqdm(gen_data(), total=total_length))]
 
 
         os.makedirs('results', exist_ok=True)
