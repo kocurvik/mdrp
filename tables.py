@@ -195,7 +195,7 @@ def generate_calib_table(cprint=print, prefix='', **kwargs):
             scene_errors[scene] = get_median_errors(scene, experiments, prefix='calibrated', **kwargs)
 
     print("Calculating Means")
-    means = {k: get_means(scene_errors, v, experiments) for k, v in basenames.keys()}
+    means = {k: get_means(scene_errors, v, experiments) for k, v in basenames.items()}
 
     cprint('\\resizebox{\\textwidth}{!}{')
     num_columns = 2 + 3 * len(basenames)
@@ -267,7 +267,7 @@ def generate_shared_table(cprint=print, prefix='', **kwargs):
             scene_errors[scene] = get_median_errors(scene, experiments, calc_f_err=True, prefix='shared_focal', **kwargs)
 
     print("Calculating Means")
-    means = {k: get_means(scene_errors, v, experiments) for k, v in basenames.keys()}
+    means = {k: get_means(scene_errors, v, experiments) for k, v in basenames.items()}
 
     cprint('\\resizebox{\\textwidth}{!}{')
     num_columns = 2 + 5 * len(basenames)
@@ -341,7 +341,7 @@ def generate_varying_table(prefix='', cprint=print, **kwargs):
             scene_errors[scene] = get_median_errors(scene, experiments, calc_f_err=True, prefix='varying_focal', **kwargs)
 
     print("Calculating Means")
-    means = {k: get_means(scene_errors, v, experiments) for k, v in basenames.keys()}
+    means = {k: get_means(scene_errors, v, experiments) for k, v in basenames.items()}
 
     cprint('\\resizebox{\\textwidth}{!}{')
     num_columns = 2 + 5 * len(basenames)
