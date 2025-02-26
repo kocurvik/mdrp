@@ -220,6 +220,7 @@ def generate_shared_table(cprint=print, prefix='', **kwargs):
     experiments.extend([f'3p_ours_reproj+{i}' for i in depths])
     experiments.extend([f'3p_ours_reproj-s+{i}' for i in depths])
     experiments.extend([f'madpose+{i}' for i in mdepths])
+    experiments.extend([f'madpose_ours_scale+{i}' for i in mdepths])
     experiments.append('6p')
 
     monodepth_methods = sorted(list(set([x.split('+')[0] for x in experiments]) - {'6p'}))
@@ -268,6 +269,7 @@ def generate_varying_table(prefix='', cprint=print, **kwargs):
     experiments.extend([f'3p_ours_reproj+{i}' for i in depths])
     experiments.extend([f'3p_ours_reproj-s+{i}' for i in depths])
     experiments.extend([f'madpose+{i}' for i in mdepths])
+    experiments.extend([f'madpose_ours_scale+{i}' for i in mdepths])
     experiments.append('7p')
 
     monodepth_methods = sorted(list(set([x.split('+')[0] for x in experiments]) - {'7p'}))
