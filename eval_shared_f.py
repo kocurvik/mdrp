@@ -14,6 +14,7 @@ from prettytable import PrettyTable
 from tqdm import tqdm
 
 from utils.data import depth_indices, R_err_fun, t_err_fun
+from utils.eval_utils import print_results_focal
 from utils.geometry import rotation_angle, angle, get_camera_dicts, force_inliers
 from utils.madpose import madpose_opt_from_dict
 from utils.vis import draw_results_pose_auc_10, draw_cumplots, draw_rotation_angle_f_err
@@ -41,14 +42,6 @@ def parse_args():
     parser.add_argument('dataset_path')
 
     return parser.parse_args()
-
-# def get_pairs(file):
-#     return [tuple(x.split('-')) for x in file.keys() if 'feat' not in x and 'desc' not in x]
-
-def get_pairs(file):
-    with open(file, 'r') as f:
-        pairs = f.readlines()
-    return [tuple(x.strip().split(' ')) for x in pairs]
 
 def get_result_dict_madpose(stats, pose_est, R_gt, t_gt, f1_gt, f2_gt):
     out = {}
@@ -357,7 +350,7 @@ def eval(args):
 
         print("Done")
 
-    print_results(experiments, results)
+    print_results_focal(experiments, results)
     # draw_cumplots(experiments, results)
     # draw_rotation_angle_f_err(experiments, results)
 

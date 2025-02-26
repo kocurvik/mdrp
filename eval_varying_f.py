@@ -1,7 +1,7 @@
 import argparse
 import json
-import multiprocessing
 import os
+import signal
 from multiprocessing import Pool
 from time import perf_counter
 
@@ -10,14 +10,11 @@ import numpy as np
 import poselib
 import madpose
 # import pykitti
-from matplotlib import pyplot as plt
-from prettytable import PrettyTable
 from tqdm import tqdm
 
 from utils.data import depth_indices, t_err_fun, R_err_fun
-from utils.geometry import rotation_angle, angle, get_camera_dicts, force_inliers
+from utils.eval_utils import print_results_focal
 from utils.madpose import madpose_opt_from_dict
-from utils.vis import draw_results_pose_auc_10, draw_cumplots
 
 
 # from utils.vis import draw_results_pose_auc_10
@@ -43,14 +40,6 @@ def parse_args():
     parser.add_argument('dataset_path')
 
     return parser.parse_args()
-
-# def get_pairs(file):
-#     return [tuple(x.split('-')) for x in file.keys() if 'feat' not in x and 'desc' not in x]
-
-def get_pairs(file):
-    with open(file, 'r') as f:
-        pairs = f.readlines()
-    return [tuple(x.strip().split(' ')) for x in pairs]
 
 def get_result_dict(info, image_triplet, R_gt, t_gt, f1_gt, f2_gt):
     out = {}
@@ -150,6 +139,27 @@ def get_exception_result_dict(x):
     return out
 
 
+class TimeoutError(Exception):
+    pass
+
+def timeout_handler(signum, frame):
+    raise TimeoutError("Task exceeded time limit")
+
+def eval_with_timeout(x, max_time=20):
+    signal.signal(signal.SIGALRM, timeout_handler)
+    signal.alarm(max_time)
+    pid = os.getpid()
+
+    try:
+        result = eval_experiment(x)
+    except TimeoutError:
+        print(f"Process {pid}: Task with input {x} timed out internally")
+        result = get_exception_result_dict(x)
+    finally:
+        signal.alarm(0)
+
+    return result
+
 def eval_experiment(x):
     iters, experiment, kp1, kp2, d, R_gt, t_gt, K1, K2, t, r = x
     f1_gt = (K1[0, 0] + K1[1, 1]) / 2
@@ -204,46 +214,13 @@ def eval_experiment(x):
     return result_dict
 
 
-def print_results(experiments, results, eq_only=False):
-    tab = PrettyTable(['solver', 'median pose err', 'median f err',
-                       'pose mAA', 'f mAA', 'mean time', 'mean inliers'])
-    tab.align["solver"] = "l"
-    tab.float_format = '0.2'
-
-    for exp in experiments:
-        exp_results = [x for x in results if x['experiment'] == exp]
-
-        p_errs = np.array([max(r['R_err'], r['t_err']) for r in exp_results])
-        f_errs = np.array([r['f_err'] for r in exp_results])
-
-        p_errs[np.isnan(p_errs)] = 180
-        f_errs[np.isnan(f_errs)] = 1.0
-
-        p_res = np.array([np.sum(p_errs < t) / len(p_errs) for t in range(1, 11)])
-        f_res = np.array([np.sum(f_errs < t/100) / len(f_errs) for t in range(1, 11)])
-
-        times = np.array([x['info']['runtime'] for x in exp_results])
-        inliers = np.array([x['info']['inlier_ratio'] for x in exp_results])
-
-        exp_name = exp
-
-
-        tab.add_row([exp_name, np.median(p_errs), np.median(f_errs),
-                     np.mean(p_res), np.mean(f_res),
-                     np.mean(times),
-                     np.mean(inliers)])
-    print(tab)
-    # print('latex')
-    # print(tab.get_formatted_string('latex'))
-
-
 def eval(args):
     dataset_path = args.dataset_path
     basename = os.path.basename(dataset_path).split('.')[0]
 
     experiments = []
     depths = range(1, 13)
-    mdepths = [1, 2, 6, 10, 12]
+    mdepths = [12]
     depths = [1, 2, 6, 10, 12]
 
     if 'mast3r' in basename:
@@ -321,7 +298,7 @@ def eval(args):
         pairs = [(pair.split('_o_')[0] + '_o', pair.split('_o_')[1]) for pair in prelim_pairs]
 
         if args.first is not None:
-            pairs = pairs[:args.first]
+            pairs = pairs[325:]
 
         def gen_data():
             for img_name_1, img_name_2 in pairs:
@@ -359,24 +336,10 @@ def eval(args):
         print(f"Total runs: {total_length} for {len(pairs)} samples")
 
         if args.num_workers == 1:
-            results = [eval_experiment(x) for x in tqdm(gen_data(), total=total_length)]
+            results = [eval_with_timeout(x) for x in tqdm(gen_data(), total=total_length)]
         else:
             pool = Pool(args.num_workers)
-            # results = [x for x in pool.imap(eval_experiment, tqdm(gen_data(), total=total_length))]
-            iterator = pool.imap(eval_experiment, gen_data())
-
-            results = []
-            for i, item in tqdm(enumerate(gen_data()), total=total_length):
-                try:
-                    # Try to get the next result within the timeout period
-                    result = iterator.next(timeout=20)
-                    results.append(result)
-                except multiprocessing.TimeoutError:
-                    print(f"Task {i} timed out!")
-                    results.append(get_exception_result_dict(item))
-
-            pool.close()
-            pool.join()
+            results = [x for x in pool.imap(eval_with_timeout, tqdm(gen_data(), total=total_length))]
 
         os.makedirs('results', exist_ok=True)
 
@@ -400,7 +363,7 @@ def eval(args):
 
         print("Done")
 
-    print_results(experiments, results)
+    print_results_focal(experiments, results)
     # draw_cumplots(experiments, results)
     #
     # if args.graph:

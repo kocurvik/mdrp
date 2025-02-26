@@ -9,10 +9,10 @@ import numpy as np
 import poselib
 import madpose
 # import pykitti
-from prettytable import PrettyTable
 from tqdm import tqdm
 
 from utils.data import depth_indices, R_err_fun, t_err_fun, get_valid_depth_mask
+from utils.eval_utils import print_results
 from utils.madpose import madpose_opt_from_dict
 from utils.vis import draw_results_pose_auc_10, draw_cumplots
 
@@ -37,14 +37,6 @@ def parse_args():
     parser.add_argument('dataset_path')
 
     return parser.parse_args()
-
-# def get_pairs(file):
-#     return [tuple(x.split('-')) for x in file.keys() if 'feat' not in x and 'desc' not in x]
-
-def get_pairs(file):
-    with open(file, 'r') as f:
-        pairs = f.readlines()
-    return [tuple(x.strip().split(' ')) for x in pairs]
 
 def get_result_dict(info, pose_est, R_gt, t_gt):
     out = {}
@@ -147,35 +139,6 @@ def eval_experiment(x):
     result_dict['experiment'] = experiment
 
     return result_dict
-
-
-def print_results(experiments, results, eq_only=False):
-    tab = PrettyTable(['solver', 'median pose err', 'pose mAA', 'mean time', 'mean inliers'])
-    tab.align["solver"] = "l"
-    tab.float_format = '0.2'
-
-    for exp in experiments:
-        exp_results = [x for x in results if x['experiment'] == exp]
-
-        p_errs = np.array([max(r['R_err'], r['t_err']) for r in exp_results])
-        p_errs[np.isnan(p_errs)] = 180
-
-        p_res = np.array([np.sum(p_errs < t) / len(p_errs) for t in range(1, 11)])
-
-        times = np.array([x['info']['runtime'] for x in exp_results])
-        inliers = np.array([x['info']['inlier_ratio'] for x in exp_results])
-
-        exp_name = exp
-
-
-        tab.add_row([exp_name, np.median(p_errs), np.mean(p_res),
-                     np.mean(times),
-                     np.mean(inliers)])
-    print(tab)
-
-    print('latex')
-
-    print(tab.get_formatted_string('latex'))
 
 
 def eval(args):
