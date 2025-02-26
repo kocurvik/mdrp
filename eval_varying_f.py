@@ -36,6 +36,7 @@ def parse_args():
     parser.add_argument('--nn', action='store_true', default=False)
     parser.add_argument('--nlo',action='store_true', default=False)
     parser.add_argument('--nmad', action='store_true', default=False)
+    parser.add_argument('--madonly', action='store_true', default=False)
     parser.add_argument('--madours', action='store_true', default=False)
     parser.add_argument('--iters', type=int, default=None)
     parser.add_argument('dataset_path')
@@ -112,6 +113,36 @@ def get_result_dict_madpose(stats, pose_est, R_gt, t_gt, f1_gt, f2_gt):
 
     return out
 
+def get_exception_result_dict_madpose(R_gt, t_gt, f1_gt, f2_gt):
+    out = {}
+
+    R_est, t_est = np.eye(3), np.ones(3)
+
+    out['f1_gt'] = f1_gt
+    out['f1'] = 1.0
+    out['f2_gt'] = f2_gt
+    out['f2'] = 1.0
+
+    out['R'] = R_est.tolist()
+    out['R_gt'] = R_gt.tolist()
+    out['t'] = t_est.tolist()
+    out['t_gt'] = t_gt.tolist()
+
+    out['R_err'] = R_err_fun(out)
+    out['t_err'] = t_err_fun(out)
+
+    out['f1_err'] = np.abs(out['f1'] - f1_gt) / f1_gt
+    out['f2_err'] = np.abs(out['f2'] - f2_gt) / f2_gt
+    out['f_err'] = np.sqrt(out['f1_err'] * out['f2_err'])
+
+    info = {}
+
+    info['num_inliers'] = 0
+    info['inlier_ratio'] = 0.0
+    out['info'] = info
+
+    return out
+
 
 def eval_experiment(x):
     iters, experiment, kp1, kp2, d, R_gt, t_gt, K1, K2, t, r = x
@@ -147,12 +178,15 @@ def eval_experiment(x):
     if 'madpose' in experiment:
         opt, est_config = madpose_opt_from_dict(ransac_dict)
         start = perf_counter()
-        pose, info = madpose.HybridEstimatePoseScaleOffsetTwoFocal(kp1, kp2, d[:, 0], d[:, 1],
-                                                                   [d[:, 0].min(), d[:, 1].min()],
-                                                                   np.array([0.0, 0.0]), np.array([0.0, 0.0]),
-                                                                   opt, est_config)
+        try:
+            pose, info = madpose.HybridEstimatePoseScaleOffsetTwoFocal(kp1, kp2, d[:, 0], d[:, 1],
+                                                                       [d[:, 0].min(), d[:, 1].min()],
+                                                                       np.array([0.0, 0.0]), np.array([0.0, 0.0]),
+                                                                       opt, est_config)
+            result_dict = get_result_dict_madpose(info, pose, R_gt, t_gt, f1_gt, f2_gt)
+        except Exception:
+            result_dict = get_exception_result_dict_madpose(R_gt, t_gt, f1_gt, f2_gt)
 
-        result_dict = get_result_dict_madpose(info, pose, R_gt, t_gt, f1_gt, f2_gt)
         result_dict['info']['runtime'] = 1000 * (perf_counter() - start)
         result_dict['experiment'] = experiment
     else:
@@ -228,9 +262,12 @@ def eval(args):
         experiments.extend([f'madpose+{i}' for i in mdepths])
     experiments.append('7p')
 
+    if args.madonly:
+        experiments = []
+        experiments.extend([f'madpose+{i}' for i in mdepths])
+
     if args.madours:
         experiments = []
-        # experiments.extend([f'madpose+{i}' for i in mdepths])
         experiments.extend([f'madpose_ours_scale+{i}' for i in mdepths])
 
     if args.nlo:
