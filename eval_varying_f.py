@@ -1,17 +1,12 @@
 import argparse
-import concurrent
 import json
 import multiprocessing
-from itertools import islice
-from multiprocessing import Pool, Process, Queue
+from multiprocessing import Process, Queue
 import time
 import os
 import signal
 from time import perf_counter
-import threading
-import multiprocessing as mp
-
-from concurrent.futures import ProcessPoolExecutor, TimeoutError, as_completed
+from concurrent.futures import ProcessPoolExecutor as Pool
 
 import h5py
 import numpy as np
@@ -201,23 +196,56 @@ def eval_experiment(x):
     return result_dict
 
 
-def run_with_timeout(x, timeout=20):
-    result_container = []
-    def target():
-        try:
-            result_container.append(eval_experiment(x))
-        except Exception as e:
-            result_container.append(get_exception_result_dict(x))  # Handle exceptions inside the thread
+def eval_experiment_wrapper(x, result_queue):
+    pid = os.getpid()
 
-    thread = threading.Thread(target=target)
-    thread.start()
-    thread.join(timeout)
+    try:
+        result = eval_experiment(x)
+        result_queue.put((result, pid))
+    except Exception as e:
+        print(f"Process {pid}: Error in experiment: {e}")
+        result_queue.put((get_exception_result_dict(x), pid))
 
-    if thread.is_alive():
-        return get_exception_result_dict(x)  # Timeout occurred
+def run_with_timeout(x, timeout=10):
+    """
+    Run eval_experiment in a separate process with timeout.
+    Will forcibly terminate the process if it exceeds the timeout.
+    """
+    result_queue = Queue()
+
+    # Create and start the process
+    process = Process(target=eval_experiment_wrapper, args=(x, result_queue))
+    process.start()
+    process_pid = process.pid
+
+    # Wait for the process to complete or timeout
+    process.join(timeout)
+
+    # Check if the process is still running after the timeout
+    if process.is_alive():
+        print(f"Process {process_pid} timed out after {timeout} seconds. Terminating...")
+        # Terminate and then kill to make sure it's gone
+        process.terminate()
+        # Give it a moment to terminate
+        time.sleep(0.1)
+        if process.is_alive():
+            # If it's still alive, use a stronger signal
+            print(f"Process {process_pid} didn't terminate. Sending SIGKILL...")
+            try:
+                os.kill(process.pid, signal.SIGKILL)
+            except OSError:
+                pass
+        process.join(1)  # Wait a bit to clean up
+        return get_exception_result_dict(x)
+
+    # Process completed within timeout, get the result
+    if not result_queue.empty():
+        return result_queue.get()
     else:
+        # No result but process ended - likely crashed
+        return None, process_pid
 
-        return result_container[0] if result_container else get_exception_result_dict(x)  # Ensure fallback
+
 
 def eval(args):
     dataset_path = args.dataset_path
@@ -344,7 +372,7 @@ def eval(args):
             results = [eval_experiment(x) for x in tqdm(gen_data(), total=total_length)]
         else:
             pool = Pool(args.num_workers)
-            results = [x for x in pool.imap(eval_experiment, tqdm(gen_data(), total=total_length))]
+            results = [x for x in pool.map(run_with_timeout, tqdm(gen_data(), total=total_length))]
 
 
         os.makedirs('results', exist_ok=True)
