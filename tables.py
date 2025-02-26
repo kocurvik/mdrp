@@ -431,8 +431,8 @@ def typeset_latex(destination, cprint=print):
         cprint(f'{destination.replace("_", "-")}')
         cprint('\\end{document}')
 
-        # subprocess.run([command, destination], check=True)
-        # print("PDF generated successfully!")
+        subprocess.run([command, destination], check=True)
+        print("PDF generated successfully!")
     except subprocess.CalledProcessError as e:
         print(f"Error during LaTeX compilation: {e}")
 
