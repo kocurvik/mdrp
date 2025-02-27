@@ -109,7 +109,7 @@ def get_experiments(prefix, depths=None):
         experiments.append('5p')
         return experiments
 
-    if prefix == 'shared_focal':
+    if 'shared' in prefix:
         experiments.extend([f'3p_reldepth+{i}' for i in depths])
         experiments.extend([f'4p_ours_scale_shift+{i}' for i in depths])
         experiments.extend([f'4p_ours_scale_shift_reproj+{i}' for i in depths])
@@ -124,7 +124,7 @@ def get_experiments(prefix, depths=None):
         experiments.extend([f'madpose_ours_scale+{i}' for i in mdepths])
         experiments.append('6p')
 
-    if prefix == 'varying_focal':
+    if 'varying' in prefix:
         experiments.extend([f'4p4d+{i}' for i in depths])
         experiments.extend([f'4p_ours_scale_shift+{i}' for i in depths])
         experiments.extend([f'4p_ours_scale_shift_reproj+{i}' for i in depths])
