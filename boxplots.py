@@ -130,22 +130,22 @@ def generate_dataset_boxplots(prefix, features, dataset, scenes):
     experiments = get_experiments(prefix)
 
 
-    print("Loading for ", '{prefix}{dataset}-2.0t-{features}')
+    print("Loading for ", f'{prefix}{dataset}-2.0t-{features}')
 
     all_pose_errs = {exp: [] for exp in experiments}
     all_f_errs = {exp: [] for exp in experiments}
 
+    for scene in scenes:
+        out_pose_errs, out_f_errs = get_errors(scene, experiments, prefix=prefix, features=features, t='2.0t', calc_f_err='calibrated'!=prefix)
+
+        for exp in experiments:
+            all_pose_errs[exp].extend(out_pose_errs[exp])
+            if prefix != 'calibrated':
+                all_f_errs[exp].extend(out_f_errs[exp])
+
     for depth in [1, 2, 6, 10, 12]:
         experiments = get_experiments(prefix, depths=[depth])
         title = f'{prefix}{dataset}-2.0t-{features}+{depth}'
-        for scene in scenes:
-            out_pose_errs, out_f_errs = get_errors(scene, experiments, prefix=prefix, features=features, t='2.0t', calc_f_err='calibrated'!=prefix)
-
-            for exp in experiments:
-                all_pose_errs[exp].extend(out_pose_errs[exp])
-                if prefix != 'calibrated':
-                    all_f_errs[exp].extend(out_f_errs[exp])
-
         generate_error_boxplot(experiments, all_pose_errs, title=title, ylabel='Pose Error (deg)', ylim=None,
                                save_path = f'figs/boxplots/{title}-pose.png')
 
