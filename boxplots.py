@@ -82,6 +82,7 @@ def generate_error_boxplot(experiments, error_data, title="Error Distribution Ac
 
     # Create a figure and axis
     fig, ax = plt.subplots(figsize=figsize)
+    ax.set_yscale('log')
 
     # Extract data in the order of experiments list
     data_to_plot = [error_data[exp] for exp in experiments]
@@ -110,7 +111,7 @@ def generate_error_boxplot(experiments, error_data, title="Error Distribution Ac
         max_whisker = max(top_whiskers)
 
         # Set y limits from 0 to 20% higher than the highest whisker
-        ax.set_ylim(0, max_whisker * 1.2)
+        ax.set_ylim(1e-4, max_whisker * 1.2)
     else:
         ax.set_ylim(ylim)
 
@@ -125,15 +126,18 @@ def generate_error_boxplot(experiments, error_data, title="Error Distribution Ac
 
 
 def generate_dataset_boxplots(prefix, features, dataset, scenes):
+
+    experiments = get_experiments(prefix)
+
+
+    print("Loading for ", '{prefix}{dataset}-2.0t-{features}')
+
+    all_pose_errs = {exp: [] for exp in experiments}
+    all_f_errs = {exp: [] for exp in experiments}
+
     for depth in [1, 2, 6, 10, 12]:
         experiments = get_experiments(prefix, depths=[depth])
-
         title = f'{prefix}{dataset}-2.0t-{features}+{depth}'
-        print("Loading for ", title)
-
-        all_pose_errs = {exp: [] for exp in experiments}
-        all_f_errs = {exp: [] for exp in experiments}
-
         for scene in scenes:
             out_pose_errs, out_f_errs = get_errors(scene, experiments, prefix=prefix, features=features, t='2.0t', calc_f_err='calibrated'!=prefix)
 
