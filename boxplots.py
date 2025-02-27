@@ -150,6 +150,7 @@ def generate_dataset_boxplots(prefix, features, dataset, scenes):
             generate_error_boxplot(experiments, all_f_errs, title=title, ylabel='Focal Error', ylim=None,
                                    save_path=f'figs/boxplots/{title}-focal.png')
 
+        plt.close()
 
 def generate_boxplots():
     for dataset, scenes in basenames.items():
