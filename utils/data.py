@@ -86,3 +86,52 @@ def t_err_fun(r):
 
 def err_fun_pose(r):
     return max(R_err_fun(r), t_err_fun(r))
+
+
+def get_experiments(prefix):
+    experiments = []
+    mdepths = [1, 2, 6, 10, 12]
+    depths = [1, 2, 6, 10, 12]
+
+    if prefix == 'calib':
+        experiments.extend([f'3p_reldepth+{i}' for i in depths])
+        experiments.extend([f'3p_ours_shift_scale+{i}' for i in depths])
+        experiments.extend([f'3p_ours_shift_scale_reproj+{i}' for i in depths])
+        experiments.extend([f'3p_ours_shift_scale_reproj-s+{i}' for i in depths])
+        experiments.extend([f'p3p+{i}' for i in depths])
+        experiments.extend([f'p3p_reproj+{i}' for i in depths])
+        experiments.extend([f'p3p_reproj-s+{i}' for i in depths])
+        experiments.extend([f'madpose+{i}' for i in mdepths])
+        experiments.extend([f'madpose_ours_scale_shift+{i}' for i in mdepths])
+        experiments.append('5p')
+        return experiments
+
+    if prefix == 'shared_focal':
+        experiments.extend([f'3p_reldepth+{i}' for i in depths])
+        experiments.extend([f'4p_ours_scale_shift+{i}' for i in depths])
+        experiments.extend([f'4p_ours_scale_shift_reproj+{i}' for i in depths])
+        experiments.extend([f'4p_ours_scale_shift_reproj-s+{i}' for i in depths])
+        experiments.extend([f'3p_ours_scale+{i}' for i in depths])
+        experiments.extend([f'3p_ours_scale_reproj+{i}' for i in depths])
+        experiments.extend([f'3p_ours_scale_reproj-s+{i}' for i in depths])
+        experiments.extend([f'3p_ours+{i}' for i in depths])
+        experiments.extend([f'3p_ours_reproj+{i}' for i in depths])
+        experiments.extend([f'3p_ours_reproj-s+{i}' for i in depths])
+        experiments.extend([f'madpose+{i}' for i in mdepths])
+        experiments.extend([f'madpose_ours_scale+{i}' for i in mdepths])
+        experiments.append('6p')
+
+    if prefix == 'varying_focal':
+        experiments.extend([f'4p4d+{i}' for i in depths])
+        experiments.extend([f'4p_ours_scale_shift+{i}' for i in depths])
+        experiments.extend([f'4p_ours_scale_shift_reproj+{i}' for i in depths])
+        experiments.extend([f'4p_ours_scale_shift_reproj-s+{i}' for i in depths])
+        experiments.extend([f'3p_ours_scale+{i}' for i in depths])
+        experiments.extend([f'3p_ours_scale_reproj+{i}' for i in depths])
+        experiments.extend([f'3p_ours_scale_reproj-s+{i}' for i in depths])
+        experiments.extend([f'3p_ours+{i}' for i in depths])
+        experiments.extend([f'3p_ours_reproj+{i}' for i in depths])
+        experiments.extend([f'3p_ours_reproj-s+{i}' for i in depths])
+        experiments.extend([f'madpose+{i}' for i in mdepths])
+        experiments.extend([f'madpose_ours_scale+{i}' for i in mdepths])
+        experiments.append('7p')

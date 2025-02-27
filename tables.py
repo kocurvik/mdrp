@@ -1,13 +1,13 @@
 import json
 import os
 import subprocess
-from contextlib import contextmanager
 
 # from pylatex import Document, Section, Subsection, Command, Tabular, MultiColumn, MultiRow, NoEscape
 
 import numpy as np
 
-from utils.data import basenames_all, basenames_pt, basenames_eth, basenames, R_err_fun, t_err_fun, err_fun_pose
+from utils.data import basenames, R_err_fun, t_err_fun, err_fun_pose, \
+    get_experiments
 
 
 def get_median_errors(scene, experiments, prefix='calibrated', t='', features='splg', calc_f_err=False):
@@ -167,19 +167,7 @@ def generate_calib_table(cprint=print, prefix='', **kwargs):
     # experiments.extend([f'p3p+{i}' for i in range(1, 13)])
     # experiments.append('5p')
 
-    experiments = []
-    mdepths = [1, 2, 6, 10, 12]
-    depths = [1, 2, 6, 10, 12]
-    experiments.extend([f'3p_reldepth+{i}' for i in depths])
-    experiments.extend([f'3p_ours_shift_scale+{i}' for i in depths])
-    experiments.extend([f'3p_ours_shift_scale_reproj+{i}' for i in depths])
-    experiments.extend([f'3p_ours_shift_scale_reproj-s+{i}' for i in depths])
-    experiments.extend([f'p3p+{i}' for i in depths])
-    experiments.extend([f'p3p_reproj+{i}' for i in depths])
-    experiments.extend([f'p3p_reproj-s+{i}' for i in depths])
-    experiments.extend([f'madpose+{i}' for i in mdepths])
-    experiments.extend([f'madpose_ours_scale_shift+{i}' for i in mdepths])
-    experiments.append('5p')
+    experiments = get_experiments('calib')
 
     monodepth_methods = sorted(list(set([x.split('+')[0] for x in experiments]) - {'5p'}))
     baseline_methods = ['5p']
@@ -236,22 +224,7 @@ def generate_calib_table(cprint=print, prefix='', **kwargs):
 
 def generate_shared_table(cprint=print, prefix='', **kwargs):
     # depths = range(1, 13)
-    mdepths = [1, 2, 6, 10, 12]
-    depths = [1, 2, 6, 10, 12]
-    experiments = []
-    experiments.extend([f'3p_reldepth+{i}' for i in depths])
-    experiments.extend([f'4p_ours_scale_shift+{i}' for i in depths])
-    experiments.extend([f'4p_ours_scale_shift_reproj+{i}' for i in depths])
-    experiments.extend([f'4p_ours_scale_shift_reproj-s+{i}' for i in depths])
-    experiments.extend([f'3p_ours_scale+{i}' for i in depths])
-    experiments.extend([f'3p_ours_scale_reproj+{i}' for i in depths])
-    experiments.extend([f'3p_ours_scale_reproj-s+{i}' for i in depths])
-    experiments.extend([f'3p_ours+{i}' for i in depths])
-    experiments.extend([f'3p_ours_reproj+{i}' for i in depths])
-    experiments.extend([f'3p_ours_reproj-s+{i}' for i in depths])
-    experiments.extend([f'madpose+{i}' for i in mdepths])
-    experiments.extend([f'madpose_ours_scale+{i}' for i in mdepths])
-    experiments.append('6p')
+    experiments = get_experiments('shared_focal')
 
     monodepth_methods = sorted(list(set([x.split('+')[0] for x in experiments]) - {'6p'}))
     baseline_methods = ['6p']
@@ -309,23 +282,7 @@ def generate_shared_table(cprint=print, prefix='', **kwargs):
 
 
 def generate_varying_table(prefix='', cprint=print, **kwargs):
-    experiments = []
-    # depths = range(1, 13)
-    mdepths = [1, 2, 6, 10, 12]
-    depths = [1, 2, 6, 10, 12]
-    experiments.extend([f'4p4d+{i}' for i in depths])
-    experiments.extend([f'4p_ours_scale_shift+{i}' for i in depths])
-    experiments.extend([f'4p_ours_scale_shift_reproj+{i}' for i in depths])
-    experiments.extend([f'4p_ours_scale_shift_reproj-s+{i}' for i in depths])
-    experiments.extend([f'3p_ours_scale+{i}' for i in depths])
-    experiments.extend([f'3p_ours_scale_reproj+{i}' for i in depths])
-    experiments.extend([f'3p_ours_scale_reproj-s+{i}' for i in depths])
-    experiments.extend([f'3p_ours+{i}' for i in depths])
-    experiments.extend([f'3p_ours_reproj+{i}' for i in depths])
-    experiments.extend([f'3p_ours_reproj-s+{i}' for i in depths])
-    experiments.extend([f'madpose+{i}' for i in mdepths])
-    experiments.extend([f'madpose_ours_scale+{i}' for i in mdepths])
-    experiments.append('7p')
+    experiments = get_experiments('varying_focal')
 
     monodepth_methods = sorted(list(set([x.split('+')[0] for x in experiments]) - {'7p'}))
     baseline_methods = ['7p']
