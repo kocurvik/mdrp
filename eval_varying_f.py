@@ -221,12 +221,18 @@ def eval(args):
     experiments.extend([f'3p_ours+{i}' for i in depths])
     experiments.extend([f'3p_ours_reproj+{i}' for i in depths])
     experiments.extend([f'3p_ours_reproj-s+{i}' for i in depths])
+    experiments.extend([f'mad_poselib_shift_scale+{i}' for i in depths])
+    experiments.extend([f'mad_poselib_shift_scale_reproj+{i}' for i in depths])
+    experiments.extend([f'mad_poselib_shift_scale_reproj-s+{i}' for i in depths])
     if not args.nmad:
         experiments.extend([f'madpose+{i}' for i in mdepths])
     experiments.append('7p')
 
     if args.faster:
         experiments = []
+        experiments.extend([f'mad_poselib_shift_scale+{i}' for i in depths])
+        experiments.extend([f'mad_poselib_shift_scale_reproj+{i}' for i in depths])
+        experiments.extend([f'mad_poselib_shift_scale_reproj-s+{i}' for i in depths])
         experiments.extend([f'4p_ours_scale_shift+{i}' for i in depths])
         experiments.extend([f'4p_ours_scale_shift_reproj+{i}' for i in depths])
         experiments.extend([f'4p_ours_scale_shift_reproj-s+{i}' for i in depths])

@@ -33,6 +33,7 @@ def parse_args():
     parser.add_argument('-a', '--append', action='store_true', default=False)
     parser.add_argument('-o', '--overwrite', action='store_true', default=False)
     parser.add_argument('--graduated', action='store_true', default=False)
+    parser.add_argument('--faster', action='store_true', default=False)
     parser.add_argument('--nlo', action='store_true', default=False)
     parser.add_argument('--nmad', action='store_true', default=False)
     parser.add_argument('--madours', action='store_true', default=False)
@@ -207,12 +208,24 @@ def eval(args):
     experiments.extend([f'3p_ours_shift_scale+{i}' for i in depths])
     experiments.extend([f'3p_ours_shift_scale_reproj+{i}' for i in depths])
     experiments.extend([f'3p_ours_shift_scale_reproj-s+{i}' for i in depths])
+    experiments.extend([f'mad_poselib_shift_scale+{i}' for i in depths])
+    experiments.extend([f'mad_poselib_shift_scale_reproj+{i}' for i in depths])
+    experiments.extend([f'mad_poselib_shift_scale_reproj-s+{i}' for i in depths])
     experiments.extend([f'p3p+{i}' for i in depths])
     experiments.extend([f'p3p_reproj+{i}' for i in depths])
     experiments.extend([f'p3p_reproj-s+{i}' for i in depths])
     if not args.nmad:
         experiments.extend([f'madpose+{i}' for i in mdepths])
     experiments.append('5p')
+
+    if args.faster:
+        experiments = []
+        experiments.extend([f'3p_ours_shift_scale+{i}' for i in depths])
+        experiments.extend([f'3p_ours_shift_scale_reproj+{i}' for i in depths])
+        experiments.extend([f'3p_ours_shift_scale_reproj-s+{i}' for i in depths])
+        experiments.extend([f'mad_poselib_shift_scale+{i}' for i in depths])
+        experiments.extend([f'mad_poselib_shift_scale_reproj+{i}' for i in depths])
+        experiments.extend([f'mad_poselib_shift_scale_reproj-s+{i}' for i in depths])
 
     if args.madours:
         experiments = []
