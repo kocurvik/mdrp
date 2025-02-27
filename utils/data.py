@@ -107,7 +107,6 @@ def get_experiments(prefix, depths=None):
         experiments.extend([f'madpose+{i}' for i in mdepths])
         experiments.extend([f'madpose_ours_scale_shift+{i}' for i in mdepths])
         experiments.append('5p')
-        return experiments
 
     if 'shared' in prefix:
         experiments.extend([f'3p_reldepth+{i}' for i in depths])
@@ -138,3 +137,5 @@ def get_experiments(prefix, depths=None):
         experiments.extend([f'madpose+{i}' for i in mdepths])
         experiments.extend([f'madpose_ours_scale+{i}' for i in mdepths])
         experiments.append('7p')
+
+    return experiments
