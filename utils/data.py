@@ -93,7 +93,7 @@ def get_experiments(prefix):
     mdepths = [1, 2, 6, 10, 12]
     depths = [1, 2, 6, 10, 12]
 
-    if prefix == 'calib':
+    if 'calib' in prefix:
         experiments.extend([f'3p_reldepth+{i}' for i in depths])
         experiments.extend([f'3p_ours_shift_scale+{i}' for i in depths])
         experiments.extend([f'3p_ours_shift_scale_reproj+{i}' for i in depths])
