@@ -63,7 +63,8 @@ def generate_error_boxplot(experiments, error_data, title="Error Distribution Ac
     ylabel : str, optional
         Label for the y-axis.
     ylim : tuple, optional
-        Limits for the y-axis in the form (ymin, ymax).
+        Limits for the y-axis in the form (ymin, ymax). If None, min will be 0 and max will be
+        20% higher than the highest whisker.
     figsize : tuple, optional
         Figure size in inches (width, height).
     save_path : str, optional
@@ -98,8 +99,19 @@ def generate_error_boxplot(experiments, error_data, title="Error Distribution Ac
     ax.set_ylabel(ylabel, fontsize=12)
     ax.set_xticklabels(experiments, rotation=45, ha='right', fontsize=10)
 
-    # Set y-axis limits if provided
-    if ylim is not None:
+    # Set y-axis limits - either user-specified or automatic
+    if ylim is None:
+        # Get the top whisker value from the boxplot
+        # In matplotlib, boxplot returns a dict with 'whiskers' key containing Line2D objects
+        # Whiskers come in pairs, with even indices (0, 2, 4...) being bottom whiskers
+        # and odd indices (1, 3, 5...) being top whiskers
+        whiskers = boxplot['whiskers']
+        top_whiskers = [whiskers[i].get_ydata()[1] for i in range(1, len(whiskers), 2)]
+        max_whisker = max(top_whiskers)
+
+        # Set y limits from 0 to 20% higher than the highest whisker
+        ax.set_ylim(0, max_whisker * 1.2)
+    else:
         ax.set_ylim(ylim)
 
     # Adjust layout
@@ -130,12 +142,14 @@ def generate_dataset_boxplots(prefix, features, dataset, scenes):
                 if prefix != 'calibrated':
                     all_f_errs[exp].extend(out_f_errs[exp])
 
-        generate_error_boxplot(experiments, all_pose_errs, title=title, ylabel='Pose Error (deg)', ylim=(0, 30))
-        plt.savefig(f'figs/boxplots/{title}-pose.png')
+        generate_error_boxplot(experiments, all_pose_errs, title=title, ylabel='Pose Error (deg)', ylim=None,
+                               save_path = f'figs/boxplots/{title}-pose.png')
+
 
         if prefix != 'calibrated':
-            generate_error_boxplot(experiments, all_f_errs, title=title, ylabel='Focal Error', ylim=(0, 0.3))
-            plt.savefig(f'figs/boxplots/{title}-focal.png')
+            generate_error_boxplot(experiments, all_f_errs, title=title, ylabel='Focal Error', ylim=None,
+                                   save_path=f'figs/boxplots/{title}-focal.png')
+
 
 
 
