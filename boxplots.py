@@ -123,13 +123,13 @@ def generate_dataset_boxplots(prefix, features, dataset, scenes):
 
         for exp in experiments:
             all_pose_errs[exp].extend(out_pose_errs[exp])
-            if prefix != 'calib':
+            if prefix != 'calibrated':
                 all_f_errs[exp].extend(out_f_errs[exp])
 
     generate_error_boxplot(experiments, all_pose_errs, title=title, ylabel='Pose Error (deg)', ylim=(0, 30))
     plt.savefig(f'figs/boxplots/{title}-pose.png')
 
-    if prefix != 'calib':
+    if prefix != 'calibrated':
         generate_error_boxplot(experiments, all_f_errs, title=title, ylabel='Focal Error', ylim=(0, 0.3))
         plt.savefig(f'figs/boxplots/{title}-focal.png')
 
@@ -137,7 +137,7 @@ def generate_dataset_boxplots(prefix, features, dataset, scenes):
 
 def generate_boxplots():
     for dataset, scenes in basenames.items():
-        for prefix in ['calib', 'shared_focal', 'varying_focal']:
+        for prefix in ['calibrated', 'shared_focal', 'varying_focal']:
             for features in ['splg', 'roma']:
                 generate_dataset_boxplots(prefix, features, dataset, scenes)
 
