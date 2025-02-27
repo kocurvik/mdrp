@@ -12,6 +12,8 @@ def get_errors(scene, experiments, prefix='calibrated', t='', features='splg', c
         json_path = f'{prefix}-{scene}_{features}-{t}.json'
     else:
         json_path = f'{prefix}-{scene}_{features}.json'
+
+    print("Loading: ", json_path)
     with open(os.path.join('results', json_path), 'r') as f:
         results = json.load(f)
 
@@ -111,27 +113,29 @@ def generate_error_boxplot(experiments, error_data, title="Error Distribution Ac
 
 
 def generate_dataset_boxplots(prefix, features, dataset, scenes):
-    experiments = get_experiments(prefix)
+    for depth in [1, 2, 6, 10, 12]:
+        experiments = get_experiments(prefix, depths=[depth])
 
-    title = f'{prefix}{dataset}-2.0t-{features}'
+        title = f'{prefix}{dataset}-2.0t-{features}+{depth}'
+        print("Loading for ", title)
 
-    all_pose_errs = {exp: [] for exp in experiments}
-    all_f_errs = {exp: [] for exp in experiments}
+        all_pose_errs = {exp: [] for exp in experiments}
+        all_f_errs = {exp: [] for exp in experiments}
 
-    for scene in scenes:
-        out_pose_errs, out_f_errs = get_errors(scene, experiments, prefix=prefix, features=features, t='2.0t')
+        for scene in scenes:
+            out_pose_errs, out_f_errs = get_errors(scene, experiments, prefix=prefix, features=features, t='2.0t')
 
-        for exp in experiments:
-            all_pose_errs[exp].extend(out_pose_errs[exp])
-            if prefix != 'calibrated':
-                all_f_errs[exp].extend(out_f_errs[exp])
+            for exp in experiments:
+                all_pose_errs[exp].extend(out_pose_errs[exp])
+                if prefix != 'calibrated':
+                    all_f_errs[exp].extend(out_f_errs[exp])
 
-    generate_error_boxplot(experiments, all_pose_errs, title=title, ylabel='Pose Error (deg)', ylim=(0, 30))
-    plt.savefig(f'figs/boxplots/{title}-pose.png')
+        generate_error_boxplot(experiments, all_pose_errs, title=title, ylabel='Pose Error (deg)', ylim=(0, 30))
+        plt.savefig(f'figs/boxplots/{title}-pose.png')
 
-    if prefix != 'calibrated':
-        generate_error_boxplot(experiments, all_f_errs, title=title, ylabel='Focal Error', ylim=(0, 0.3))
-        plt.savefig(f'figs/boxplots/{title}-focal.png')
+        if prefix != 'calibrated':
+            generate_error_boxplot(experiments, all_f_errs, title=title, ylabel='Focal Error', ylim=(0, 0.3))
+            plt.savefig(f'figs/boxplots/{title}-focal.png')
 
 
 

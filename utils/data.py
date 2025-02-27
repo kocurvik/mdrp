@@ -88,10 +88,13 @@ def err_fun_pose(r):
     return max(R_err_fun(r), t_err_fun(r))
 
 
-def get_experiments(prefix):
+def get_experiments(prefix, depths=None):
     experiments = []
-    mdepths = [1, 2, 6, 10, 12]
-    depths = [1, 2, 6, 10, 12]
+    if depths is None:
+        mdepths = [1, 2, 6, 10, 12]
+        depths = [1, 2, 6, 10, 12]
+    else:
+        mdepths = depths
 
     if 'calib' in prefix:
         experiments.extend([f'3p_reldepth+{i}' for i in depths])
