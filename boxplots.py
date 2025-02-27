@@ -135,7 +135,7 @@ def generate_dataset_boxplots(prefix, features, dataset, scenes):
         all_f_errs = {exp: [] for exp in experiments}
 
         for scene in scenes:
-            out_pose_errs, out_f_errs = get_errors(scene, experiments, prefix=prefix, features=features, t='2.0t')
+            out_pose_errs, out_f_errs = get_errors(scene, experiments, prefix=prefix, features=features, t='2.0t', calc_f_err='calibrated'!=prefix)
 
             for exp in experiments:
                 all_pose_errs[exp].extend(out_pose_errs[exp])
@@ -149,8 +149,6 @@ def generate_dataset_boxplots(prefix, features, dataset, scenes):
         if prefix != 'calibrated':
             generate_error_boxplot(experiments, all_f_errs, title=title, ylabel='Focal Error', ylim=None,
                                    save_path=f'figs/boxplots/{title}-focal.png')
-
-
 
 
 def generate_boxplots():
