@@ -323,7 +323,7 @@ def eval(args):
             pool = NoDaemonProcessPool(args.num_workers)
             results = [x for x in pool.imap(run_with_timeout, tqdm(gen_data(), total=total_length))]
 
-        os.makedirs('results', exist_ok=True)
+        # os.makedirs('results', exist_ok=True)
 
         if args.append:
             print(f"Appending from: {json_path}")
