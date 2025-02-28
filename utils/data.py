@@ -93,11 +93,12 @@ def get_experiments(prefix, depths=None, master=False):
     if depths is None:
         mdepths = [1, 2, 6, 10, 12]
         depths = [1, 2, 6, 10, 12]
-    elif master:
-        depths = [1]
-        mdepths = [1]
     else:
         mdepths = depths
+
+    if master:
+        depths = [1]
+        mdepths = [1]
 
     if 'calib' in prefix:
         experiments.extend([f'3p_reldepth+{i}' for i in depths])
@@ -151,6 +152,6 @@ def get_experiments(prefix, depths=None, master=False):
         experiments.append('7p')
 
     if master:
-        experiments.append('mast3r')
+        experiments.append('mast3r+1')
 
     return experiments
