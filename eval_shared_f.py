@@ -259,16 +259,6 @@ def eval(args):
         experiments.extend([f'4p_ours_scale_shift_reproj+{i}' for i in depths])
         experiments.extend([f'4p_ours_scale_shift_reproj-s+{i}' for i in depths])
 
-    if args.graph:
-        experiments = []
-        depths = [10, 12]
-        experiments.extend([f'4p_monodepth_reproj+{i}' for i in [1, 10, 12]])
-        experiments.extend([f'3p_monodepth_p3p_reproj+{i}' for i in [1, 10, 12]])
-        # experiments = [f'4p_monodepth_eigen+{i}' for i in depths]
-        # experiments.extend([f'4p_monodepth_gb+{i}' for i in depths])
-        # experiments.extend([f'3p_reldepth+{i}' for i in depths])
-        experiments.append('6p')
-
     print(experiments)
 
     if args.threshold != 1.0:

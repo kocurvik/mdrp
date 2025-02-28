@@ -261,17 +261,6 @@ def eval(args):
         basename = f'{basename}-{args.reproj_threshold}r'
 
     if args.graph:
-        experiments = []
-        depths = [10, 12]
-        experiments.extend([f'4p4d+{i}' for i in depths])
-        experiments.extend([f'4p_reproj+{i}' for i in depths])
-        experiments.extend([f'4p_reproj_shift+{i}' for i in depths])
-        experiments.extend([f'3p_p3p_reproj+{i}' for i in depths])
-        # experiments.extend([f'4p_eigen+{i}' for i in range(1, 13)])
-        # experiments.extend([f'4p_gj+{i}' for i in range(1, 13)])
-        experiments.append('7p')
-
-    if args.graph:
         basename = f'{basename}-graph'
         iterations_list = [10, 20, 50, 100, 200, 500, 1000]
     else:

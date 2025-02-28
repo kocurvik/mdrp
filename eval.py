@@ -242,15 +242,6 @@ def eval(args):
     if args.graduated:
         experiments = [f'GLO-{x}' for x in experiments]
 
-    if args.graph:
-        experiments = []
-        depths = [2, 6, 10, 11, 12]
-        # experiments = [f'3p_monodepth+{i}' for i in depths]
-        experiments = [f'3p_monodepth_p3p+{i}' for i in depths]
-        # experiments.extend([f'3p_reldepth+{i}' for i in depths])
-        # experiments.extend([f'p3p+{i}' for i in depths])
-        # experiments.append('5p')
-
     if args.threshold != 1.0:
         basename = f'{basename}-{args.threshold}t'
         
