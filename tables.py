@@ -164,13 +164,13 @@ def print_monodepth_rows(depth, methods, method_names, means, use_focal=False, c
     cprint('\\hline')
 
 
-def generate_calib_table(cprint=print, prefix='', **kwargs):
+def generate_calib_table(cprint=print, prefix='', master=False, **kwargs):
     # experiments = [f'3p_monodepth+{i}' for i in range(1, 13)]
     # experiments.extend([f'3p_reldepth+{i}' for i in range(1, 13)])
     # experiments.extend([f'p3p+{i}' for i in range(1, 13)])
     # experiments.append('5p')
 
-    experiments = get_experiments('calib')
+    experiments = get_experiments('calib', master=master)
 
     monodepth_methods = sorted(list(set([x.split('+')[0] for x in experiments]) - {'5p'}))
     baseline_methods = ['5p']
@@ -221,8 +221,11 @@ def generate_calib_table(cprint=print, prefix='', **kwargs):
 
     print_monodepth_rows(0, baseline_methods, method_names_calib, means, cprint=cprint)
 
-    for i in depth_order:
-        print_monodepth_rows(i, monodepth_methods, method_names_calib, means, cprint=cprint)
+    if master:
+        print_monodepth_rows(1, monodepth_methods, method_names_calib, means, cprint=cprint, master=True)
+    else:
+        for i in depth_order:
+            print_monodepth_rows(i, monodepth_methods, method_names_calib, means, cprint=cprint)
     cprint('\\end{tabular}}')
 
 
