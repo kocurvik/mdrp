@@ -202,7 +202,7 @@ if __name__ == '__main__':
         basename = f'{basename}-{args.reproj_threshold}r'
 
     min_samples = 6 if args.shared else 7
-    master_results = load_master_results(args.dataset_path, os.path.join('mast3r_results', args.master_result_path),
+    master_results = load_master_results(args.dataset_path, os.path.join(args.master_result_path),
                                          min_samples)
 
     if args.shared:
@@ -221,4 +221,9 @@ if __name__ == '__main__':
 
     experiments = sorted(list(set([x['experiment'] for x in results])))
     print_results_focal(experiments, results)
+
+    with open(json_path, 'w') as f:
+        json.dump(results, f)
+
+    print("Wrote results to:", json_path)
 
