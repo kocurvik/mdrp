@@ -5,7 +5,7 @@ basenames_pt_old = ['british_museum', 'florence_cathedral', 'lincoln_memorial', 
 basenames_pt = ['florence_cathedral', 'lincoln_memorial', 'london_bridge', 'milan_cathedral', 'sagrada_familia']
 basenames_scannet = ['scannet']
 basenames_all = basenames_eth + basenames_pt + basenames_scannet
-basenames = {'ETH': basenames_eth,'Phototurism': basenames_pt, 'ScanNet': basenames_scannet}
+basenames = {'ETH': basenames_eth,'Phototourism': basenames_pt, 'ScanNet': basenames_scannet}
 
 def get_basenames(dataset):
     if dataset == 'pt':
