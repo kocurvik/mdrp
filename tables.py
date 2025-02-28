@@ -126,7 +126,7 @@ depth_names = {0: '-',
 depth_order = [1, 2, 6, 10, 12]
 
 
-def print_monodepth_rows(depth, methods, method_names, means, use_focal=False, cprint=print):
+def print_monodepth_rows(depth, methods, method_names, means, use_focal=False, cprint=print, master=False):
     num_rows = []
     for method in methods:
         if depth > 0:
@@ -155,7 +155,10 @@ def print_monodepth_rows(depth, methods, method_names, means, use_focal=False, c
             text_rows[idxs[0]][j] = '\\textbf{' + text_rows[idxs[0]][j] + '}'
             text_rows[idxs[1]][j] = '\\underline{' + text_rows[idxs[1]][j] + '}'
 
-    cprint('\\multirow{', len(methods), '}{*}{', depth_names[depth], '}')
+    if master:
+        cprint('\\multirow{', len(methods), '}{*}{Mast3r}')
+    else:
+        cprint('\\multirow{', len(methods), '}{*}{', depth_names[depth], '}')
     for i, method in enumerate(methods):
         cprint(f'& {method_names[method]} & {"&".join(text_rows[i])} \\\\')
     cprint('\\hline')
@@ -217,14 +220,15 @@ def generate_calib_table(cprint=print, prefix='', **kwargs):
     # cprint('& & $\\epsilon_{\\M{pose}}(^\\circ)\\downarrow$ & mAA($\\M{pose}$)$\\uparrow$& $\\tau (ms)\\downarrow$ \\  & $\\epsilon_{\\M{pose}}(^\\circ)\\downarrow$ & mAA($\\M{pose}$)$\\uparrow$& $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule')
 
     print_monodepth_rows(0, baseline_methods, method_names_calib, means, cprint=cprint)
+
     for i in depth_order:
         print_monodepth_rows(i, monodepth_methods, method_names_calib, means, cprint=cprint)
     cprint('\\end{tabular}}')
 
 
-def generate_shared_table(cprint=print, prefix='', **kwargs):
+def generate_shared_table(cprint=print, prefix='', master=False, **kwargs):
     # depths = range(1, 13)
-    experiments = get_experiments('shared_focal')
+    experiments = get_experiments('shared_focal', master=master)
 
     monodepth_methods = sorted(list(set([x.split('+')[0] for x in experiments]) - {'6p'}))
     baseline_methods = ['6p']
@@ -275,14 +279,18 @@ def generate_shared_table(cprint=print, prefix='', **kwargs):
 
     print_monodepth_rows(0, baseline_methods, method_names_shared, means, use_focal=True,
                          cprint=cprint)
-    for i in depth_order:
-        print_monodepth_rows(i, monodepth_methods, method_names_shared, means, use_focal=True,
-                             cprint=cprint)
+    if master:
+        print_monodepth_rows(1, monodepth_methods, method_names_shared, means, use_focal=True,
+                             cprint=cprint, master=True)
+    else:
+        for i in depth_order:
+            print_monodepth_rows(i, monodepth_methods, method_names_shared, means, use_focal=True,
+                                 cprint=cprint)
     cprint('\\end{tabular}}')
 
 
-def generate_varying_table(prefix='', cprint=print, **kwargs):
-    experiments = get_experiments('varying_focal')
+def generate_varying_table(prefix='', cprint=print, master=False, **kwargs):
+    experiments = get_experiments('varying_focal', master=master)
 
     monodepth_methods = sorted(list(set([x.split('+')[0] for x in experiments]) - {'7p'}))
     baseline_methods = ['7p']
@@ -332,8 +340,11 @@ def generate_varying_table(prefix='', cprint=print, **kwargs):
 
     print_monodepth_rows(0, baseline_methods, method_names_varying, means, use_focal=True,
                          cprint=cprint)
-    for i in depth_order:
-        print_monodepth_rows(i, monodepth_methods, method_names_varying, means, use_focal=True, cprint=cprint)
+    if master:
+        print_monodepth_rows(1, monodepth_methods, method_names_varying, means, use_focal=True, cprint=cprint, master=True)
+    else:
+        for i in depth_order:
+            print_monodepth_rows(i, monodepth_methods, method_names_varying, means, use_focal=True, cprint=cprint)
     cprint('\\end{tabular}}')
 
 
@@ -421,15 +432,21 @@ if __name__ == '__main__':
     # just print normally
     # cprint = print
 
-    type_table(generate_calib_table, make_pdf=True, t='2.0t', features='splg')
-    type_table(generate_shared_table, make_pdf=True, t='2.0t', features='splg')
-    type_table(generate_varying_table, make_pdf=True, t='2.0t', features='splg')
+    # type_table(generate_calib_table, make_pdf=True, t='2.0t', features='splg')
+    # type_table(generate_shared_table, make_pdf=True, t='2.0t', features='splg')
+    # type_table(generate_varying_table, make_pdf=True, t='2.0t', features='splg')
 
-    type_table(generate_calib_table, make_pdf=True, t='2.0t', features='roma')
-    type_table(generate_shared_table, make_pdf=True, t='2.0t', features='roma')
-    type_table(generate_varying_table, make_pdf=True, t='2.0t', features='roma')
+    # type_table(generate_calib_table, make_pdf=True, t='2.0t', features='roma')
+    # type_table(generate_shared_table, make_pdf=True, t='2.0t', features='roma')
+    # type_table(generate_varying_table, make_pdf=True, t='2.0t', features='roma')
 
-    # print("GLO calib")
+    basenames.pop('eth', None)
+    basenames.pop('pt', None)
+    type_table(generate_shared_table, master=True, make_pdf=True, t='2.0t', features='mast3r')
+    type_table(generate_varying_table, master=True, make_pdf=True, t='2.0t', features='mast3r')
+
+
+# print("GLO calib")
     # generate_calib_table('GLO-')
     # print("LO shared focal")
     # generate_shared_table()

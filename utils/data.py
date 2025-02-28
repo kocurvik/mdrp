@@ -88,11 +88,14 @@ def err_fun_pose(r):
     return max(R_err_fun(r), t_err_fun(r))
 
 
-def get_experiments(prefix, depths=None):
+def get_experiments(prefix, depths=None, master=False):
     experiments = []
     if depths is None:
         mdepths = [1, 2, 6, 10, 12]
         depths = [1, 2, 6, 10, 12]
+    elif master:
+        depths = [1]
+        mdepths = [1]
     else:
         mdepths = depths
 
@@ -146,5 +149,8 @@ def get_experiments(prefix, depths=None):
         experiments.extend([f'madpose+{i}' for i in mdepths])
         experiments.extend([f'madpose_ours_scale+{i}' for i in mdepths])
         experiments.append('7p')
+
+    if master:
+        experiments.append('mast3r')
 
     return experiments

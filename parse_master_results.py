@@ -187,7 +187,7 @@ def load_master_results(dataset_path, dir, min_cor=7):
 
         info = {'runtime': 1000 * runtime, 'inlier_ratio': 1.0}
         rd = get_result_dict(info, R, t, f1, f2, R_gt, t_gt, f1_gt, f2_gt)
-        rd['experiment'] = 'mast3r'
+        rd['experiment'] = 'mast3r+1'
         results.append(rd)
 
     return results
