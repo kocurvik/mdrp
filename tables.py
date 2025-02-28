@@ -80,7 +80,7 @@ def get_means(scene_errors, scenes, experiments):
 class smart_dict(dict):
     @staticmethod
     def __missing__(key):
-        if 'madpose' not in key and 'reproj' not in key:
+        if 'madpose' not in key and 'reproj' not in key and 'mast3r' not in key:
             return key.replace('_', '-') + '-sampson'
         return key.replace('_', '-')
 
