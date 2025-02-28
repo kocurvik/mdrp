@@ -104,6 +104,7 @@ def eval_experiment(x):
     ransac_dict['use_p3p'] = 'p3p' in experiment
 
     ransac_dict['use_ours'] = 'ours' in experiment
+    ransac_dict['use_madpose'] = 'mad_poselib' in experiment
     ransac_dict['solver_shift'] = 'shift' in experiment
     ransac_dict['solver_scale'] = 'scale' in experiment
 
@@ -220,9 +221,6 @@ def eval(args):
 
     if args.faster:
         experiments = []
-        experiments.extend([f'3p_ours_shift_scale+{i}' for i in depths])
-        experiments.extend([f'3p_ours_shift_scale_reproj+{i}' for i in depths])
-        experiments.extend([f'3p_ours_shift_scale_reproj-s+{i}' for i in depths])
         experiments.extend([f'mad_poselib_shift_scale+{i}' for i in depths])
         experiments.extend([f'mad_poselib_shift_scale_reproj+{i}' for i in depths])
         experiments.extend([f'mad_poselib_shift_scale_reproj-s+{i}' for i in depths])
