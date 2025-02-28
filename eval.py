@@ -217,6 +217,7 @@ def eval(args):
     experiments.extend([f'p3p_reproj-s+{i}' for i in depths])
     if not args.nmad:
         experiments.extend([f'madpose+{i}' for i in mdepths])
+        experiments.extend([f'madpose_ours_scale_shift+{i}' for i in mdepths])
     experiments.append('5p')
 
     if args.faster:

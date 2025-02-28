@@ -236,6 +236,7 @@ def eval(args):
     experiments.extend([f'mad_poselib_shift_scale_reproj-s+{i}' for i in depths])
     if not args.nmad:
         experiments.extend([f'madpose+{i}' for i in mdepths])
+        experiments.extend([f'madpose_ours_scale+{i}' for i in mdepths])
     experiments.append('6p')
 
     if args.madours:
