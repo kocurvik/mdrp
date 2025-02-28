@@ -9,12 +9,15 @@ from scipy.spatial.transform import Rotation
 
 from utils.data import R_err_fun, t_err_fun
 
+from utils.eval_utils import print_results_focal
 
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-t', '--threshold', type=float, default=1.0)
     parser.add_argument('-r', '--reproj_threshold', type=float, default=16.0)
+    parser.add_argument('-s', '--shared', default=False, action='store_true')
     parser.add_argument('dataset_path')
+    parser.add_argument('master_result_path')
 
     return parser.parse_args()
 
@@ -187,9 +190,15 @@ if __name__ == '__main__':
     if args.reproj_threshold != 16.0:
         basename = f'{basename}-{args.reproj_threshold}r'
 
-    var_results = load_master_results(args.dataset_path, 'results/scannet_var', 7)
+    min_samples = 6 if args.shared else 7
+    master_results = load_master_results(args.dataset_path, os.path.join('mast3r_results', args.master_result_path),
+                                         min_samples)
 
-    json_string = f'varying_focal-{basename}.json'
+    if args.shared:
+        json_string = f'shared_focal-{basename}.json'
+    else:
+        json_string = f'varying_focal-{basename}.json'
+
     json_path = os.path.join('results', json_string)
 
     print("Loading: ", json_string)
@@ -197,29 +206,8 @@ if __name__ == '__main__':
         results = json.load(f)
 
     results = [x for x in results if x['experiment'] != 'mast3r']
-    results.extend(var_results)
+    results.extend(master_results)
 
     experiments = sorted(list(set([x['experiment'] for x in results])))
-    from utils.eval_utils import print_results_focal
-
-    print_results_focal(experiments, results)
-
-
-
-    var_results = load_master_results(args.dataset_path, 'results/scannet_equal', 6)
-
-    json_string = f'shared_focal-{basename}.json'
-    json_path = os.path.join('results', json_string)
-
-    print("Loading: ", json_string)
-    with open(json_path, 'r') as f:
-        results = json.load(f)
-
-    results = [x for x in results if x['experiment'] != 'mast3r']
-    results.extend(var_results)
-
-    experiments = sorted(list(set([x['experiment'] for x in results])))
-    from eval_varying_f import print_results_focal
-
     print_results_focal(experiments, results)
 
