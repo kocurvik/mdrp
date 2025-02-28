@@ -405,7 +405,7 @@ def typeset_latex(destination, cprint=print):
         print(f"Error during LaTeX compilation: {e}")
 
 
-def type_table(table_func, prefix='', make_pdf=True, **kwargs):
+def type_table(table_func, prefix='', make_pdf=True, master=False, **kwargs):
     if make_pdf:
         if not os.path.exists('pdfs'):
             os.makedirs('pdfs', exist_ok=True)
@@ -418,7 +418,7 @@ def type_table(table_func, prefix='', make_pdf=True, **kwargs):
 
         init_latex(destination)
         print(prefix, table_func.__name__)
-        table_func(prefix=prefix, cprint=cprint, **kwargs)
+        table_func(prefix=prefix, cprint=cprint, master=master, **kwargs)
         typeset_latex(destination, cprint=cprint)
     else:
         print(prefix, table_func.__name__)
