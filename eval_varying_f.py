@@ -34,6 +34,7 @@ def parse_args():
     parser.add_argument('-o', '--overwrite', action='store_true', default=False)
     parser.add_argument('--graduated', action='store_true', default=False)
     parser.add_argument('--faster', action='store_true', default=False)
+    parser.add_argument('--ppbug', action='store_true', default=False)
     parser.add_argument('--nn', action='store_true', default=False)
     parser.add_argument('--nlo',action='store_true', default=False)
     parser.add_argument('--nmad', action='store_true', default=False)
@@ -313,8 +314,12 @@ def eval(args):
                         if len(data) < 7:
                             continue
 
-                        kp1 = data[:, :2] - pp1
-                        kp2 = data[:, 2:4] - pp2
+                        if args.ppbug:
+                            kp1 = data[:, :2] - pp1 / 2
+                            kp2 = data[:, 2:4] - pp2 / 2
+                        else:
+                            kp1 = data[:, :2] - pp1
+                            kp2 = data[:, 2:4] - pp2
 
                         if '+' in experiment:
                             depth = int(experiment.split('+')[1])
