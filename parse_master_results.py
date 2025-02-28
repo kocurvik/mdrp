@@ -169,9 +169,17 @@ def load_master_results(dataset_path, dir, min_cor=7):
         if len(data) < min_cor:
             continue
 
-        pose_file = os.path.join(dir, 'pose', f'{img_name_1.split("_o")[0]}_frame{img_name_2.split("_o")[0].split("frame")[1]}.txt')
+        if "_o" in img_name_1:
+            pose_file = os.path.join(dir, 'pose', f'{img_name_1.split("_o")[0]}_frame{img_name_2.split("_o")[0].split("frame")[1]}.txt')
+            calib_file = os.path.join(dir, 'camera',
+                                  f'{img_name_1.split("_o")[0]}_frame{img_name_2.split("_o")[0].split("frame")[1]}.txt')
+        else:
+            pose_file = os.path.join(dir, 'pose',
+                                     f'{img_name_1}_{img_name_2}.txt')
+            calib_file = os.path.join(dir, 'camera',
+                                      f'{img_name_1}_{img_name_2}.txt')
+
         R, t = extract_relative_pose(pose_file)
-        calib_file = os.path.join(dir, 'camera', f'{img_name_1.split("_o")[0]}_frame{img_name_2.split("_o")[0].split("frame")[1]}.txt')
         f1, f2 = extract_focal(calib_file)
 
         info = {'runtime': 1000 * runtime, 'inlier_ratio': 1.0}
