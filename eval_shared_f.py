@@ -33,7 +33,7 @@ def parse_args():
     parser.add_argument('-a', '--append', action='store_true', default=False)
     parser.add_argument('-o', '--overwrite', action='store_true', default=False)
     parser.add_argument('--graduated', action='store_true', default=False)
-    parser.add_argument('--faster', action='store_true', default=False)
+    parser.add_argument('--fix', action='store_true', default=False)
     parser.add_argument('--nlo',action='store_true', default=False)
     parser.add_argument('--nmad', action='store_true', default=False)
     parser.add_argument('--madours', action='store_true', default=False)
@@ -253,11 +253,11 @@ def eval(args):
     if args.nn:
         experiments = [f'NN-{x}' for x in experiments]
 
-    if args.faster:
+    if args.fix:
         experiments = []
-        experiments.extend([f'mad_poselib_shift_scale+{i}' for i in depths])
-        experiments.extend([f'mad_poselib_shift_scale_reproj+{i}' for i in depths])
-        experiments.extend([f'mad_poselib_shift_scale_reproj-s+{i}' for i in depths])
+        experiments.extend([f'4p_ours_scale_shift+{i}' for i in depths])
+        experiments.extend([f'4p_ours_scale_shift_reproj+{i}' for i in depths])
+        experiments.extend([f'4p_ours_scale_shift_reproj-s+{i}' for i in depths])
 
     if args.graph:
         experiments = []
