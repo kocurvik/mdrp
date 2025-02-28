@@ -440,8 +440,8 @@ if __name__ == '__main__':
     # type_table(generate_shared_table, make_pdf=True, t='2.0t', features='roma')
     # type_table(generate_varying_table, make_pdf=True, t='2.0t', features='roma')
 
-    basenames.pop('eth', None)
-    basenames.pop('pt', None)
+    basenames.pop('ETH', None)
+    basenames.pop('PhotoTourism', None)
     type_table(generate_shared_table, master=True, make_pdf=True, t='2.0t', features='mast3r')
     type_table(generate_varying_table, master=True, make_pdf=True, t='2.0t', features='mast3r')
 
