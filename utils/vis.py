@@ -27,26 +27,24 @@ plt.rcParams.update({'figure.autolayout': True})
 # plt.rcParams['mathtext.bf'] = 'Times New Roman:bold'
 
 def get_colors_styles(experiments):
-    # base_experiments = list(sorted(list(set([x.split(' ')[0] for x in experiments]))))
+    def get_base_exp_name(x):
+        x.replace('-reproj-s', '-reproj').replace('-reproj', '')
+
+    base_experiments = [get_base_exp_name(x) for x in experiments]
     # base_experiments = experiments
-    # colors = {exp: sns.color_palette().as_hex()[i] for i, exp in enumerate(base_experiments)}
-    colors = {exp: sns.color_palette("hls", len(experiments)).as_hex()[i] for i, exp in enumerate(experiments)}
+    base_colors = {exp: sns.color_palette("hls", len(base_experiments)).as_hex()[i] for i, exp in enumerate(base_experiments)}
+    colors = {exp: base_colors[get_base_exp_name(exp)] for exp in experiments}
 
     print(colors)
 
     styles = {}
     for exp in experiments:
-        # if len(exp.split(' ')) == 1:
-        #     styles[exp] = 'solid'
-        # else:
-        #     suffix = ' '.join(exp.split(' ')[1:])
-        #     if 'ENM' in suffix:
-        #         styles[exp] = 'dotted'
-        #     else:
-        #         styles[exp] = 'solid'
-        # styles[exp] = 'dotted' if 'ENM' in exp else 'solid'
-        styles[exp] = 'solid'
-
+        if 'reproj' not in exp:
+            styles[exp] = 'solid'
+        elif 'reproj-s' in exp:
+            styles[exp] = 'dotted'
+        else:
+            styles[exp] = 'dashed'
     return colors, styles
 
 def draw_results(results, experiments, iterations_list, title=''):
