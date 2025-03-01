@@ -23,8 +23,13 @@ def get_median_errors(scene, experiments, prefix='calibrated', t='', features='s
     else:
         graph_json_path = f'{prefix}-graph-{scene}_{features}{t_string}.json'
         
-    with open(os.path.join('results_new', json_path), 'r') as f:
-        results = json.load(f)
+    results = []
+
+    try:
+        with open(os.path.join('results_new', json_path), 'r') as f:
+            results.extend(json.load(f))
+    except Exception:
+        print(f"{json_path} not found! not adding it!")
 
     try:
         with open(os.path.join('results_new', graph_json_path)) as f:
@@ -33,7 +38,8 @@ def get_median_errors(scene, experiments, prefix='calibrated', t='', features='s
     except Exception:
         print(f"{graph_json_path} not found! not adding it!")
         
-
+    if len(results) == 0:
+        print("No data loaded!")
 
     exp_results = {exp: [] for exp in experiments}
     for r in results:
@@ -45,11 +51,13 @@ def get_median_errors(scene, experiments, prefix='calibrated', t='', features='s
     out = {}
 
     median_samples = np.nanmedian([len(exp_results[exp]) for exp in experiments])
+    if median_samples == 0:
+        print("Median samples val is 0")
 
     for exp in experiments:
         n = len(exp_results[exp])
         if n != median_samples:
-            print(f"Scene: {scene} - experiment: {exp} has only {n} samples while median is {median_samples}")
+            print(f"Scene: {scene} - experiment: {exp} has {n} samples while median is {median_samples}")
         d = {}
 
         R_errs = np.array([R_err_fun(x) for x in exp_results[exp]])
