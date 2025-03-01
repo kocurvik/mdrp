@@ -283,7 +283,10 @@ def generate_graphs(dataset, results_type, all=True, basenames = None, prefix=''
     aucs = {}
     rts = {}
     for basename in basenames:
-        json_path = os.path.join('results', f'{results_type}-graph-{basename}_{features}{t}.json')
+        if 'varying' in results_type:
+            json_path = os.path.join('results', f'{results_type}-{basename}_{features}{t}-graph.json')
+        else:
+            json_path = os.path.join('results', f'{results_type}-graph-{basename}_{features}{t}.json')
         print(f'json_path: {json_path}')
         with open(json_path, 'r') as f:
             results = [x for x in json.load(f) if x['experiment'] in experiments]
@@ -301,12 +304,12 @@ def generate_graphs(dataset, results_type, all=True, basenames = None, prefix=''
         draw_results_pose_auc_10(all_results, experiments, iterations_list, title=prefix + title)
 
 if __name__ == '__main__':
-    generate_graphs('ScanNet', 'calibrated', all=True)
-    generate_graphs('ETH', 'calibrated', all=True)
-    generate_graphs('Phototourism', 'calibrated', all=True)
-
-    generate_graphs('ScanNet', 'shared_focal', all=True)
-    generate_graphs('ETH', 'shared_focal', all=True)
+    # generate_graphs('ScanNet', 'calibrated', all=True)
+    # generate_graphs('ETH', 'calibrated', all=True)
+    # generate_graphs('Phototourism', 'calibrated', all=True)
+    #
+    # generate_graphs('ScanNet', 'shared_focal', all=True)
+    # generate_graphs('ETH', 'shared_focal', all=True)
 
     generate_graphs('ScanNet', 'varying_focal', all=True)
     generate_graphs('Phototourism', 'varying_focal', all=True)
