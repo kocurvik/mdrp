@@ -103,6 +103,7 @@ def get_result_dict_madpose(stats, pose_est, R_gt, t_gt, f1_gt, f2_gt):
 
     info['num_inliers'] = stats.best_num_inliers
     info['inlier_ratio'] = stats.inlier_ratios[0]
+    info['iterations'] = stats.num_iterations
     out['info'] = info
 
     return out
@@ -240,6 +241,7 @@ def eval(args):
     if args.madonly:
         experiments = []
         experiments.extend([f'madpose+{i}' for i in mdepths])
+        experiments.extend([f'madpose_ours_scale+{i}' for i in mdepths])
 
     if args.madours:
         experiments = []
