@@ -267,7 +267,8 @@ def draw_rotation_angle_f_err(experiments, results):
     plt.xlabel('k error')
     plt.ylabel('Portion of samples')
 
-def generate_graphs(dataset, results_type, all=True, basenames = None, prefix='', features='splg', ylim=None, colors=None):
+def generate_graphs(dataset, results_type, all=True, basenames = None, prefix='', t='-2.0t',
+                    features='splg', ylim=None, colors=None):
     if basenames is None:
         basenames = get_basenames(dataset)
 
@@ -280,7 +281,7 @@ def generate_graphs(dataset, results_type, all=True, basenames = None, prefix=''
     aucs = {}
     rts = {}
     for basename in basenames:
-        json_path = os.path.join('results', f'{results_type}-{basename}-{features}.json')
+        json_path = os.path.join('results', f'{results_type}-{basename}_{features}{t}-graph.json')
         print(f'json_path: {json_path}')
         with open(json_path, 'r') as f:
             results = [x for x in json.load(f) if x['experiment'] in experiments]
@@ -298,13 +299,13 @@ def generate_graphs(dataset, results_type, all=True, basenames = None, prefix=''
         draw_results_pose_auc_10(all_results, experiments, iterations_list, title=prefix + title)
 
 if __name__ == '__main__':
-    generate_graphs('ScanNet', 'calibrated-graph', all=True)
-    generate_graphs('ETH', 'calibrated-graph', all=True)
-    generate_graphs('Phototourism', 'calibrated-graph', all=True)
+    generate_graphs('ScanNet', 'calibrated', all=True)
+    generate_graphs('ETH', 'calibrated', all=True)
+    generate_graphs('Phototourism', 'calibrated', all=True)
 
-    generate_graphs('ScanNet', 'shared_focal-graph', all=True)
-    generate_graphs('ETH', 'shared_focal-graph', all=True)
+    generate_graphs('ScanNet', 'shared_focal', all=True)
+    generate_graphs('ETH', 'shared_focal', all=True)
 
-    generate_graphs('ScanNet', 'varying_focal-graph', all=True)
-    generate_graphs('Phototourism', 'varying_focal-graph', all=True)
+    generate_graphs('ScanNet', 'varying_focal', all=True)
+    generate_graphs('Phototourism', 'varying_focal', all=True)
 
