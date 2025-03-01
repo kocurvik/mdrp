@@ -8,7 +8,7 @@ from matplotlib import rc
 import seaborn as sns
 from tqdm import tqdm
 
-from utils.data import get_basenames, err_fun_pose
+from utils.data import get_basenames, err_fun_pose, get_experiments
 from utils.geometry import rotation_angle
 
 large_size = 24
@@ -271,19 +271,10 @@ def generate_graphs(dataset, results_type, all=True, basenames = None, prefix=''
     if basenames is None:
         basenames = get_basenames(dataset)
 
-    depths = [10, 12]
-    if 'calib' in results_type:
-        experiments = [f'3p_monodepth+{i}' for i in depths]
-        # experiments.extend([f'3p_reldepth+{i}' for i in depths])
-        experiments.extend([f'p3p+{i}' for i in depths])
-        experiments.append('5p')
-    if 'shared' in results_type:
-        experiments = [f'4p_monodepth_eigen+{i}' for i in depths]
-        experiments.extend([f'4p_monodepth_gb+{i}' for i in depths])
-        experiments.extend([f'3p_reldepth+{i}' for i in depths])
-        experiments.append('6p')
+    depths = [12]
+    experiments = get_experiments(results_type, depths=depths)
 
-    iterations_list = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000]
+    iterations_list = [10, 20, 50, 100, 200, 500, 1000]
 
     all_results = []
     aucs = {}
@@ -293,21 +284,27 @@ def generate_graphs(dataset, results_type, all=True, basenames = None, prefix=''
         print(f'json_path: {json_path}')
         with open(json_path, 'r') as f:
             results = [x for x in json.load(f) if x['experiment'] in experiments]
-            aucs[basename], rts[basename] = draw_results_pose_auc_10(results, experiments, iterations_list,
-                                                      title=f'{prefix}{dataset}_{basename}_{results_type}',
-                                                      err_fun=t_err_fun)
+            # aucs[basename], rts[basename] = draw_results_pose_auc_10(results, experiments, iterations_list,
+            #                                           title=f'{prefix}{dataset}_{basename}_{results_type}',
+            #                                           err_fun=t_err_fun)
             # draw_results_pose_auc_10(results, experiments, iterations_list,
             #                          f'maxerr_{dataset}_{basename}_{results_type}', err_fun=err_fun_max)
-            # if all:
-            #    all_results.extend(results)
+            if all:
+               all_results.extend(results)
 
     if all:
         title = f'{dataset}_{results_type}'
-        draw_results_pose_auc_10_mm(aucs, rts, experiments, title=prefix + title)
+        # draw_results_pose_auc_10_mm(aucs, rts, experiments, title=prefix + title)
+        draw_results_pose_auc_10(all_results, experiments, iterations_list, title=prefix + title)
 
 if __name__ == '__main__':
-    # generate_graphs('eth', 'calibrated-graph', all=True)
-    generate_graphs('eth', 'calibrated-graph', all=True)
-    generate_graphs('pt', 'calibrated-graph', all=True)
-    # generate_graphs('eth', 'shared_focal-graph', all=True)
-    # generate_graphs('pt', 'shared_focal-graph', all=True)
+    generate_graphs('ScanNet', 'calibrated-graph', all=True)
+    generate_graphs('ETH', 'calibrated-graph', all=True)
+    generate_graphs('Phototourism', 'calibrated-graph', all=True)
+
+    generate_graphs('ScanNet', 'shared_focal-graph', all=True)
+    generate_graphs('ETH', 'shared_focal-graph', all=True)
+
+    generate_graphs('ScanNet', 'varying_focal-graph', all=True)
+    generate_graphs('Phototourism', 'varying_focal-graph', all=True)
+

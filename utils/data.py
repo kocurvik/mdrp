@@ -8,12 +8,7 @@ basenames_all = basenames_eth + basenames_pt + basenames_scannet
 basenames = {'ETH': basenames_eth,'Phototourism': basenames_pt, 'ScanNet': basenames_scannet}
 
 def get_basenames(dataset):
-    if dataset == 'pt':
-        return basenames_pt
-    elif dataset == 'eth':
-        return basenames_eth
-    elif dataset == 'all':
-        return basenames_all
+    return basenames[dataset]
 
 
 def get_valid_depth_mask(d):
