@@ -185,7 +185,7 @@ def load_master_results(dataset_path, dir, min_cor=7):
             R, t = extract_relative_pose(pose_file)
             f1, f2 = extract_focal(calib_file)
 
-        info = {'runtime': 1000 * runtime, 'inlier_ratio': 1.0}
+        info = {'runtime': 1000 * runtime, 'inlier_ratio': 1.0, 'iterations': 500}
         rd = get_result_dict(info, R, t, f1, f2, R_gt, t_gt, f1_gt, f2_gt)
         rd['experiment'] = 'mast3r+1'
         results.append(rd)
@@ -212,12 +212,15 @@ if __name__ == '__main__':
 
     json_path = os.path.join('results_new', json_string)
 
-    print("Loading: ", json_string)
-    with open(json_path, 'r') as f:
-        results = json.load(f)
+    try:
+        print("Loading: ", json_string)
+        with open(json_path, 'r') as f:
+            results = json.load(f)
 
-    results = [x for x in results if x['experiment'] != 'mast3r']
-    results.extend(master_results)
+        results = [x for x in results if x['experiment'] != 'mast3r']
+        results.extend(master_results)
+    except Exception as e:
+        print(e)
 
     experiments = sorted(list(set([x['experiment'] for x in results])))
     print_results_focal(experiments, results)
