@@ -7,16 +7,28 @@ import subprocess
 import numpy as np
 
 from utils.data import basenames, R_err_fun, t_err_fun, err_fun_pose, \
-    get_experiments
+    get_experiments, basenames_eth
 
 
 def get_median_errors(scene, experiments, prefix='calibrated', t='', features='splg', calc_f_err=False):
     if len(t) > 0:
-        json_path = f'{prefix}-{scene}_{features}-{t}.json'
+        t_string = f'-{t}'
     else:
-        json_path = f'{prefix}-{scene}_{features}.json'
+        t_string = ''
+
+    json_path = f'{prefix}-{scene}_{features}{t_string}.json'
+    if 'varying' in prefix:
+        graph_json_path = f'prefix-{scene}_{features}{t_string}-graph.json'
+    else:
+        graph_json_path = f'prefix-graph-{scene}_{features}{t_string}.json'
+        
     with open(os.path.join('results', json_path), 'r') as f:
         results = json.load(f)
+        
+    with open(os.path.join('results_new', graph_json_path)):
+        graph_results = [x for x in json.load(f) if x['info']['iterations'] == 1000]
+        
+    results.extend(graph_results)
 
     exp_results = {exp: [] for exp in experiments}
     for r in results:
@@ -445,7 +457,9 @@ if __name__ == '__main__':
 
     basenames.pop('ETH', None)
     type_table(generate_varying_table, master=True, make_pdf=True, t='2.0t', features='mast3r')
+
     basenames.pop('Phototourism', None)
+    basenames['ETH'] = basenames_eth
     type_table(generate_shared_table, master=True, make_pdf=True, t='2.0t', features='mast3r')
 
 
