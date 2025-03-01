@@ -210,7 +210,7 @@ if __name__ == '__main__':
     else:
         json_string = f'varying_focal-{basename}.json'
 
-    json_path = os.path.join('results', json_string)
+    json_path = os.path.join('results_new', json_string)
 
     print("Loading: ", json_string)
     with open(json_path, 'r') as f:
