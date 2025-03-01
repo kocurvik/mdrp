@@ -28,9 +28,10 @@ plt.rcParams.update({'figure.autolayout': True})
 
 def get_colors_styles(experiments):
     def get_base_exp_name(x):
-        x.replace('-reproj-s', '-reproj').replace('-reproj', '')
+        return x.replace('-reproj-s', '-reproj').replace('-reproj', '')
 
-    base_experiments = [get_base_exp_name(x) for x in experiments]
+    base_experiments = list(set([get_base_exp_name(x) for x in experiments]))
+    print(base_experiments)
     # base_experiments = experiments
     base_colors = {exp: sns.color_palette("hls", len(base_experiments)).as_hex()[i] for i, exp in enumerate(base_experiments)}
     colors = {exp: base_colors[get_base_exp_name(exp)] for exp in experiments}
@@ -302,12 +303,12 @@ def generate_graphs(dataset, results_type, all=True, basenames = None, prefix=''
         draw_results_pose_auc_10(all_results, experiments, iterations_list, title=prefix + title)
 
 if __name__ == '__main__':
-    # generate_graphs('ScanNet', 'calibrated', all=True)
-    # generate_graphs('ETH', 'calibrated', all=True)
-    # generate_graphs('Phototourism', 'calibrated', all=True)
-    #
-    # generate_graphs('ScanNet', 'shared_focal', all=True)
-    # generate_graphs('ETH', 'shared_focal', all=True)
+    generate_graphs('ScanNet', 'calibrated', all=True)
+    generate_graphs('ETH', 'calibrated', all=True)
+    generate_graphs('Phototourism', 'calibrated', all=True)
+
+    generate_graphs('ScanNet', 'shared_focal', all=True)
+    generate_graphs('ETH', 'shared_focal', all=True)
 
     generate_graphs('ScanNet', 'varying_focal', all=True)
     generate_graphs('Phototourism', 'varying_focal', all=True)
