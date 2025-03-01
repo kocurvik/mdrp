@@ -69,7 +69,8 @@ def get_result_dict_madpose(stats, pose_est, R_gt, t_gt, f1_gt, f2_gt):
 
     info['num_inliers'] = stats.best_num_inliers
     info['inlier_ratio'] = stats.inlier_ratios[0]
-    info['iterations'] = stats.num_iterations
+    info['iterations'] = stats.num_iterations_total
+    info['iterations_per_solver'] = stats.num_iterations_per_solver
 
     out['info'] = info
 
