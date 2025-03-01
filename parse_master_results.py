@@ -221,6 +221,7 @@ if __name__ == '__main__':
         results.extend(master_results)
     except Exception as e:
         print(e)
+        results = master_results
 
     experiments = sorted(list(set([x['experiment'] for x in results])))
     print_results_focal(experiments, results)
