@@ -17,6 +17,7 @@ def get_median_errors(scene, experiments, prefix='calibrated', t='', features='s
         t_string = ''
 
     json_path = f'{prefix}-{scene}_{features}{t_string}.json'
+
     if 'varying' in prefix:
         graph_json_path = f'{prefix}-{scene}_{features}{t_string}-graph.json'
     else:
@@ -26,7 +27,7 @@ def get_median_errors(scene, experiments, prefix='calibrated', t='', features='s
         results = json.load(f)
 
     try:
-        with open(os.path.join('results_new', graph_json_path)):
+        with open(os.path.join('results_new', graph_json_path)) as f:
             graph_results = [x for x in json.load(f) if x['info']['iterations'] == 1000]
         results.extend(graph_results)
     except Exception:
