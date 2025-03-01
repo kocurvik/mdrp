@@ -28,15 +28,17 @@ def get_median_errors(scene, experiments, prefix='calibrated', t='', features='s
     try:
         with open(os.path.join('results_new', json_path), 'r') as f:
             results.extend(json.load(f))
-    except Exception:
+    except Exception as e:
         print(f"{json_path} not found! not adding it!")
+        print(e)
 
     try:
         with open(os.path.join('results_new', graph_json_path)) as f:
-            graph_results = [x for x in json.load(f) if x['info']['iterations'] == 1000]
+            graph_results = [x for x in json.load(f) if x['info'].get('iterations', 0) == 1000]
         results.extend(graph_results)
-    except Exception:
+    except Exception as e:
         print(f"{graph_json_path} not found! not adding it!")
+        print(e)
         
     if len(results) == 0:
         print("No data loaded!")
