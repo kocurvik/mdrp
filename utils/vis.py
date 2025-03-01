@@ -92,6 +92,7 @@ def draw_results_pose_auc_10(results, experiments, iterations_list, err_fun=err_
     rts = {}
 
     for experiment in tqdm(experiments):
+        print(experiment)
         experiment_results = [x for x in results if x['experiment'] == experiment]
 
         xs = []
