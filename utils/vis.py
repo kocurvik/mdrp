@@ -281,7 +281,7 @@ def generate_graphs(dataset, results_type, all=True, basenames = None, prefix=''
     aucs = {}
     rts = {}
     for basename in basenames:
-        json_path = os.path.join('results', f'{results_type}-{basename}_{features}{t}-graph.json')
+        json_path = os.path.join('results', f'{results_type}-graph-{basename}_{features}{t}.json')
         print(f'json_path: {json_path}')
         with open(json_path, 'r') as f:
             results = [x for x in json.load(f) if x['experiment'] in experiments]
