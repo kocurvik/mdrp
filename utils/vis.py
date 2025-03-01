@@ -274,7 +274,7 @@ def generate_graphs(dataset, results_type, all=True, basenames = None, prefix=''
         basenames = get_basenames(dataset)
 
     depths = [12]
-    experiments = get_experiments(results_type, depths=depths)
+    experiments = get_experiments(results_type, depths=depths, nmad=True)
 
     iterations_list = [10, 20, 50, 100, 200, 500, 1000]
 
