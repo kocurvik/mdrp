@@ -83,7 +83,7 @@ def err_fun_pose(r):
     return max(R_err_fun(r), t_err_fun(r))
 
 
-def get_experiments(prefix, depths=None, master=False):
+def get_experiments(prefix, depths=None, master=False, nmad=False):
     experiments = []
     if depths is None:
         mdepths = [1, 2, 6, 10, 12]
@@ -106,8 +106,9 @@ def get_experiments(prefix, depths=None, master=False):
         experiments.extend([f'mad_poselib_shift_scale+{i}' for i in depths])
         experiments.extend([f'mad_poselib_shift_scale_reproj+{i}' for i in depths])
         experiments.extend([f'mad_poselib_shift_scale_reproj-s+{i}' for i in depths])
-        experiments.extend([f'madpose+{i}' for i in mdepths])
-        experiments.extend([f'madpose_ours_scale_shift+{i}' for i in mdepths])
+        if not nmad:
+            experiments.extend([f'madpose+{i}' for i in mdepths])
+            experiments.extend([f'madpose_ours_scale_shift+{i}' for i in mdepths])
         experiments.append('5p')
 
     if 'shared' in prefix:
@@ -124,8 +125,9 @@ def get_experiments(prefix, depths=None, master=False):
         experiments.extend([f'mad_poselib_shift_scale+{i}' for i in depths])
         experiments.extend([f'mad_poselib_shift_scale_reproj+{i}' for i in depths])
         experiments.extend([f'mad_poselib_shift_scale_reproj-s+{i}' for i in depths])
-        experiments.extend([f'madpose+{i}' for i in mdepths])
-        experiments.extend([f'madpose_ours_scale+{i}' for i in mdepths])
+        if not nmad:
+            experiments.extend([f'madpose+{i}' for i in mdepths])
+            experiments.extend([f'madpose_ours_scale+{i}' for i in mdepths])
         experiments.append('6p')
 
     if 'varying' in prefix:
@@ -142,8 +144,9 @@ def get_experiments(prefix, depths=None, master=False):
         experiments.extend([f'mad_poselib_shift_scale+{i}' for i in depths])
         experiments.extend([f'mad_poselib_shift_scale_reproj+{i}' for i in depths])
         experiments.extend([f'mad_poselib_shift_scale_reproj-s+{i}' for i in depths])
-        experiments.extend([f'madpose+{i}' for i in mdepths])
-        experiments.extend([f'madpose_ours_scale+{i}' for i in mdepths])
+        if not nmad:
+            experiments.extend([f'madpose+{i}' for i in mdepths])
+            experiments.extend([f'madpose_ours_scale+{i}' for i in mdepths])
         experiments.append('7p')
 
     if master:
