@@ -277,7 +277,7 @@ def eval(args):
         iterations_list = [args.iters]
 
     json_string = f'shared_focal-{basename}.json'
-    json_path = os.path.join('results', json_string)
+    json_path = os.path.join('results_new', json_string)
 
     if args.load:
         print("Loading: ", json_string)
