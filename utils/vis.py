@@ -130,7 +130,7 @@ def draw_results_pose_auc_10(results, experiments, iterations_list, err_fun=err_
         # plt.savefig(f'figs/{title}_pose.pdf', bbox_inches='tight', pad_inches=0)
         plt.savefig(f'figs/{title}_pose.pdf')#, bbox_inches='tight', pad_inches=0)
 
-        plt.legend()
+        plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
         plt.savefig(f'figs/{title}_pose.png', bbox_inches='tight', pad_inches=0.1)
         print(f'saved pose: {title}')
 
