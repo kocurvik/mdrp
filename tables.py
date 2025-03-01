@@ -22,7 +22,7 @@ def get_median_errors(scene, experiments, prefix='calibrated', t='', features='s
     else:
         graph_json_path = f'{prefix}-graph-{scene}_{features}{t_string}.json'
         
-    with open(os.path.join('results', json_path), 'r') as f:
+    with open(os.path.join('results_new', json_path), 'r') as f:
         results = json.load(f)
 
     try:
