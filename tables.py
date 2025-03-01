@@ -18,17 +18,21 @@ def get_median_errors(scene, experiments, prefix='calibrated', t='', features='s
 
     json_path = f'{prefix}-{scene}_{features}{t_string}.json'
     if 'varying' in prefix:
-        graph_json_path = f'prefix-{scene}_{features}{t_string}-graph.json'
+        graph_json_path = f'{prefix}-{scene}_{features}{t_string}-graph.json'
     else:
-        graph_json_path = f'prefix-graph-{scene}_{features}{t_string}.json'
+        graph_json_path = f'{prefix}-graph-{scene}_{features}{t_string}.json'
         
     with open(os.path.join('results', json_path), 'r') as f:
         results = json.load(f)
+
+    try:
+        with open(os.path.join('results_new', graph_json_path)):
+            graph_results = [x for x in json.load(f) if x['info']['iterations'] == 1000]
+        results.extend(graph_results)
+    except Exception:
+        print(f"{graph_json_path} not found! not adding it!")
         
-    with open(os.path.join('results_new', graph_json_path)):
-        graph_results = [x for x in json.load(f) if x['info']['iterations'] == 1000]
-        
-    results.extend(graph_results)
+
 
     exp_results = {exp: [] for exp in experiments}
     for r in results:
