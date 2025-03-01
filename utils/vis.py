@@ -84,7 +84,7 @@ def draw_results(results, experiments, iterations_list, title=''):
 
 
 def draw_results_pose_auc_10(results, experiments, iterations_list, err_fun=err_fun_pose, title=None):
-    fig = plt.figure(frameon=True)
+    fig = plt.figure(figsize=(12,6), frameon=True)
 
     colors, styles = get_colors_styles(experiments)
 
