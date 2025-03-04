@@ -38,6 +38,7 @@ def parse_args():
     parser.add_argument('--nmad', action='store_true', default=False)
     parser.add_argument('--madours', action='store_true', default=False)
     parser.add_argument('--madonly', action='store_true', default=False)
+    parser.add_argument('--ppbug', action='store_true', default=False)
     parser.add_argument('--iters', type=int, default=None)
     parser.add_argument('dataset_path')
 
@@ -286,6 +287,10 @@ def eval(args):
 
                         K1 = np.array(H5_file[f'K_{img_name_1}'])
                         K2 = np.array(H5_file[f'K_{img_name_2}'])
+
+                        if args.ppbug:
+                            K1[:2, 2] /= 2
+                            K2[:2, 2] /= 2
 
                         data = np.array(H5_file[f'corr_{img_name_1}_{img_name_2}'])
                         kp1 = data[:, :2]
