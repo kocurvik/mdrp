@@ -6,16 +6,14 @@ import subprocess
 
 import numpy as np
 
+from utils.tables import depth_names, method_opts, method_names_calib, method_names_shared, method_names_varying, \
+    init_latex, feature_names
 from utils.data import basenames, R_err_fun, t_err_fun, err_fun_pose, \
     get_experiments, basenames_eth
-from utils.tables import get_median_errors, get_means, method_names_calib, depth_names, method_opts, feature_names, \
-    depth_order
+from utils.tables import get_median_errors, get_means
 
-
-# method_names_calib.update({f'nLO-{k}': v for k, v in method_names_calib.items()})
-# method_names_calib.update({f'GLO-{k}': v for k, v in method_names_calib.items()})
-# method_names_calib.update({f'NN-{k}': v for k, v in method_names_calib.items()})
-# method_names_calib = {}
+# depth_order = [1, 2, 3, 4, 5, 6, 7, 12, 8, 11, 9, 10]
+depth_order = [1, 2, 6, 10, 12]
 
 def print_monodepth_rows(depth, methods, method_names, means, use_focal=False, cprint=print, master=False):
     num_rows = []
@@ -30,7 +28,7 @@ def print_monodepth_rows(depth, methods, method_names, means, use_focal=False, c
             metrics = ['median_pose_err', 'mAA_pose', 'mean_runtime']
             incdec = [1, -1, 1]
 
-        incdec *= len(basenames)
+        incdec *= len(means)
 
         vals = []
         for dataset in means.keys():
@@ -47,94 +45,82 @@ def print_monodepth_rows(depth, methods, method_names, means, use_focal=False, c
             text_rows[idxs[1]][j] = '\\underline{' + text_rows[idxs[1]][j] + '}'
 
     if master:
-        cprint('& \\multirow{', len(methods), '}{*}{Mast3r~\\cite{leroy2024grounding}}')
+        cprint('\\multirow{', len(methods), '}{*}{Mast3r~\\cite{leroy2024grounding}}')
     else:
-        cprint('& \\multirow{', len(methods), '}{*}{', depth_names[depth], '}')
+        cprint('\\multirow{', len(methods), '}{*}{', depth_names[depth], '}')
     for i, method in enumerate(methods):
-        if i != 0:
-            cprint('&')
         cprint(f'& {method_names[method]} & {method_opts(method)} & {"&".join(text_rows[i])} \\\\')
 
+
 def generate_calib_table(cprint=print, prefix='', master=False, **kwargs):
-    # experiments = [f'3p_monodepth+{i}' for i in range(1, 13)]
-    # experiments.extend([f'3p_reldepth+{i}' for i in range(1, 13)])
-    # experiments.extend([f'p3p+{i}' for i in range(1, 13)])
-    # experiments.append('5p')
+    experiments = get_experiments('calib', master=False)
+    experiments = [x for x in experiments if 'reproj' not in x and 'mast3r' not in x]
+
+    monodepth_methods = list(method_names_calib.keys())[1:]
+    baseline_methods = ['5p']
+
+    experiments = [f'{prefix}{x}' for x in experiments]
+    monodepth_methods = [f'{prefix}{x}' for x in monodepth_methods]
+    baseline_methods = [f'{prefix}{x}' for x in baseline_methods]
+
+    means = get_all_means(experiments,  ['splg', 'roma'], kwargs)
+
+    num_supercols = len(means)
 
     cprint('\\resizebox{\\linewidth}{!}{')
-    num_columns = 4 + 3 * len(basenames)
-    # Generate the column alignment string for \begin{tabular}
-    column_alignment = 'cclc' + 'c' * len(basenames) * 3
-    # Create the base part of the table
+    column_alignment = 'clc' + 'c' * num_supercols * 3
     cprint('\\begin{tabular}{' + column_alignment + '}')
-    # Start the table with a top rule
     cprint('\\toprule')
-    # Initialize the first part of the header row dynamically
-    header_row = '\\multirow{2.5}{*}{{Matches}} & \\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{{Solver}} & \\multirow{2.5}{*}{{Opt}} '
+    header_row = ' \\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{{Solver}} & \\multirow{2.5}{*}{{Opt.}} '
     cmidrule_parts = []
-    for i, part in enumerate(basenames.keys()):
-        header_row += '& \\multicolumn{3}{c}{' + str(part) + '}'
-        cmidrule_parts.append('\\cmidrule(rl){' + str(3 * i + 5) + '-' + str(3 * i + 7) + '}')
-    # Add the second row header for each part (the column names)
-    # column_names = '& & & & $\\epsilon_{\\M {pose}}(^\\circ)\\downarrow$ & mAA($\\M {pose}$)$\\uparrow$ & $\\tau (ms)\\downarrow$ '
-    column_names = '& & & & $\\epsilon(^\\circ)\\downarrow$ & mAA$\\uparrow$ & $\\tau (ms)\\downarrow$ '
-    for i in range(len(basenames) - 1):
-        # column_names += ' & $\\epsilon_{\\M {pose}}(^\\circ)\\downarrow$ & mAA($\\M {pose}$)$\\uparrow$ & $\\tau (ms)\\downarrow$ '
+    for i, part in enumerate(means.keys()):
+        header_row += '& \\multicolumn{3}{c}{' + str(feature_names[part.split('-')[1]] ) + '}'
+        cmidrule_parts.append('\\cmidrule(rl){' + str(3 * i + 4) + '-' + str(3 * i + 6) + '}')
+
+    column_names = '& & & $\\epsilon(^\\circ)\\downarrow$ & mAA$\\uparrow$ & $\\tau (ms)\\downarrow$ '
+    for i in range(num_supercols - 1):
         column_names += ' & $\\epsilon(^\\circ)\\downarrow$ & mAA $\\uparrow$ & $\\tau (ms)\\downarrow$ '
-    # Print the first and second header rows
+
     cprint(header_row + '\\\\')
     cprint(' '.join(cmidrule_parts))
     cprint(column_names + '\\\\')
     cprint('\\midrule')
 
-    # table head
-    # cprint('\\resizebox{\\linewidth}{!}{')
-    # cprint('\\begin{tabular}{cccccccccccc}')
-    # cprint('\\toprule')
-    # cprint('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{3}{c}{Phototourism} & \\multicolumn{3}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-5} \\cmidrule(rl){6-8}')
-    # cprint('& & $\\epsilon_{\\M{pose}}(^\\circ)\\downarrow$ & mAA($\\M{pose}$)$\\uparrow$& $\\tau (ms)\\downarrow$ \\  & $\\epsilon_{\\M{pose}}(^\\circ)\\downarrow$ & mAA($\\M{pose}$)$\\uparrow$& $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule')
+    print_monodepth_rows(0, baseline_methods, method_names_calib, means, cprint=cprint)
+    cprint('\\hline')
+    for i in depth_order:
+        print_monodepth_rows(i, monodepth_methods, method_names_calib, means, cprint=cprint)
+        cprint('\\hline')
 
-    for features in ['splg', 'roma', 'mast3r']:
-        master = 'mast3r' == features
-        experiments = get_experiments('calib', master=master)
-        experiments = [x for x in experiments if 'reproj' not in x and 'mast3r' not in x]
+    experiments.append('mast3r+1')
+    means_master = get_all_means(experiments,  ['mast3r'], kwargs)
+    cprint('\\multicolumn{', str(3 + 3*num_supercols) ,'}{c}{\\begin{tabular}{clcccc}\\hline')
 
-        # monodepth_methods = sorted(list(set([x.split('+')[0] for x in experiments]) - {'5p'}))
-        monodepth_methods = list(method_names_calib.keys())[1:]
-        baseline_methods = ['5p']
+    cprint('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{{Solver}} & \\multirow{2.5}{*}{{Opt.}} '
+           '& \\multicolumn{3}{c}{Mast3r~\\cite{leroy2024grounding}} \\\\ \\cmidrule{4-6}')
+    cprint('&&& $\\epsilon(^\\circ)\\downarrow$ & mAA $\\uparrow$ & $\\tau (ms)\\downarrow$ \\\\ \\cmidrule{1-6}')
 
-        experiments = [f'{prefix}{x}' for x in experiments]
-        monodepth_methods = [f'{prefix}{x}' for x in monodepth_methods]
-        baseline_methods = [f'{prefix}{x}' for x in baseline_methods]
+    print_monodepth_rows(0, baseline_methods, method_names_calib, means_master, cprint=cprint, master=False)
+    cprint('\\cmidrule{1-6}')
+    print_monodepth_rows(1, monodepth_methods, method_names_calib, means_master, cprint=cprint, master=True)
+    cprint('\\cmidrule{1-6}')
+    cprint('\end{tabular}}')
+    cprint('\\end{tabular}}')
 
+
+def get_all_means(experiments, features, kwargs):
+    means = {}
+    for feats in features:
         scene_errors = {}
         for scene_list in basenames.values():
             for scene in scene_list:
                 print(f"Loading: {scene}")
-                scene_errors[scene] = get_median_errors(scene, experiments, features=features, prefix='calibrated', **kwargs)
+                scene_errors[f"{scene}"] = get_median_errors(scene, experiments, features=feats, prefix='calibrated',
+                                                             **kwargs)
 
         print("Calculating Means")
-        means = {k: get_means(scene_errors, v, experiments) for k, v in basenames.items()}
-
-        if master:
-            total_rows = len(baseline_methods) + len(monodepth_methods)
-        else:
-            total_rows = len(baseline_methods) + len(depth_order) * len(monodepth_methods)
-
-        cprint('\\multirow{', str(total_rows), '}{*}{', feature_names[features], '}')
-
-        print_monodepth_rows(0, baseline_methods, method_names_calib, means, cprint=cprint)
-        cprint('\\cmidrule(rl){2-', str(len(basenames) * 3 + 4), '}')
-
-        if master:
-            print_monodepth_rows(1, monodepth_methods, method_names_calib, means, cprint=cprint, master=True)
-        else:
-            for i in depth_order:
-                print_monodepth_rows(i, monodepth_methods, method_names_calib, means, cprint=cprint)
-                if i!= depth_order[-1]:
-                    cprint('\\cmidrule(rl){2-', str(len(basenames) * 3 + 4), '}')
-        cprint('\\hline')
-    cprint('\\end{tabular}}')
+        means.update({f'{k}-{feats}': get_means(scene_errors, v, experiments) for k, v in basenames.items()})
+    return means
 
 
 def generate_shared_table(cprint=print, prefix='', master=False, **kwargs):
@@ -152,7 +138,8 @@ def generate_shared_table(cprint=print, prefix='', master=False, **kwargs):
     for scene_list in basenames.values():
         for scene in scene_list:
             print(f"Loading: {scene}")
-            scene_errors[scene] = get_median_errors(scene, experiments, calc_f_err=True, prefix='shared_focal', **kwargs)
+            scene_errors[scene] = get_median_errors(scene, experiments, calc_f_err=True, prefix='shared_focal',
+                                                    **kwargs)
 
     print("Calculating Means")
     means = {k: get_means(scene_errors, v, experiments) for k, v in basenames.items()}
@@ -240,13 +227,12 @@ def generate_varying_table(prefix='', cprint=print, master=False, **kwargs):
     # cprint('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{Method} & \\multicolumn{5}{c}{Phototourism} & \\multicolumn{5}{c}{ETH3D}  \\\\ \\cmidrule(rl){3-7} \\cmidrule(rl){8-12}')
     # cprint('\\cmidrule(rl){3-7} \\cmidrule(rl){8-12} & & $\\epsilon_{\\M {pose}}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M {pose}$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\  & $\\epsilon_{\\M {pose}}(^\\circ)\\downarrow$ & $\\epsilon_{f}\\downarrow$ & mAA($\\M {pose}$)$\\uparrow$ & mAA($f$)$\\uparrow$ & $\\tau (ms)\\downarrow$ \\ \\\\ \\midrule')
 
-
-
     scene_errors = {}
     for scene_list in basenames.values():
         for scene in scene_list:
             print(f"Loading: {scene}")
-            scene_errors[scene] = get_median_errors(scene, experiments, calc_f_err=True, prefix='varying_focal', **kwargs)
+            scene_errors[scene] = get_median_errors(scene, experiments, calc_f_err=True, prefix='varying_focal',
+                                                    **kwargs)
 
     print("Calculating Means")
     means = {k: get_means(scene_errors, v, experiments) for k, v in basenames.items()}
@@ -254,7 +240,8 @@ def generate_varying_table(prefix='', cprint=print, master=False, **kwargs):
     print_monodepth_rows(0, baseline_methods, method_names_varying, means, use_focal=True,
                          cprint=cprint)
     if master:
-        print_monodepth_rows(1, monodepth_methods, method_names_varying, means, use_focal=True, cprint=cprint, master=True)
+        print_monodepth_rows(1, monodepth_methods, method_names_varying, means, use_focal=True, cprint=cprint,
+                             master=True)
     else:
         for i in depth_order:
             print_monodepth_rows(i, monodepth_methods, method_names_varying, means, use_focal=True, cprint=cprint)
@@ -280,7 +267,7 @@ def type_table(table_func, prefix='', make_pdf=True, master=False, **kwargs):
         if not os.path.exists('pdfs'):
             os.makedirs('pdfs', exist_ok=True)
         kwarg_string = '-'.join([x for x in kwargs.values() if len(x) > 0])
-        destination = f'pdfs/{prefix}{table_func.__name__}{kwarg_string}.tex'
+        destination = f'pdfs/sideways-{prefix}{table_func.__name__}{kwarg_string}.tex'
 
         def cprint(*args):
             with open(destination, 'a') as file:
@@ -300,8 +287,8 @@ if __name__ == '__main__':
     # cprint = print
 
     # basenames.pop('ETH', None)
-    # basenames.pop('Phototourism', None)
-    # basenames.pop('ScanNet', None)
+    basenames.pop('Phototourism', None)
+    basenames.pop('ScanNet', None)
     type_table(generate_calib_table, make_pdf=True, t='2.0t')
     # type_table(generate_shared_table, make_pdf=True, t='2.0t', features='splg')
     # type_table(generate_varying_table, make_pdf=True, t='2.0t', features='splg')
@@ -323,20 +310,18 @@ if __name__ == '__main__':
     type_table(generate_shared_table, master=True, make_pdf=True, t='2.0t', features='mast3r_moge')
     type_table(generate_varying_table, master=True, make_pdf=True, t='2.0t', features='mast3r_moge')
 
-
-
 # print("GLO calib")
-    # generate_calib_table('GLO-')
-    # print("LO shared focal")
-    # generate_shared_table()
-    # print("GLO shared focal")
-    # generate_shared_table('GLO-')
-    # print("NN shared focal")
-    # generate_shared_table('NN-')
+# generate_calib_table('GLO-')
+# print("LO shared focal")
+# generate_shared_table()
+# print("GLO shared focal")
+# generate_shared_table('GLO-')
+# print("NN shared focal")
+# generate_shared_table('NN-')
 
-    # print("LO varying focal")
-    # generate_varying_table()
-    # print("LO varying focal")
-    # generate_varying_table(lo=True)
-    # print("NN varying focal")
-    # generate_varying_table('NN-')
+# print("LO varying focal")
+# generate_varying_table()
+# print("LO varying focal")
+# generate_varying_table(lo=True)
+# print("NN varying focal")
+# generate_varying_table('NN-')
