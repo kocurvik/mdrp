@@ -80,7 +80,7 @@ def generate_calib_table(cprint=print, prefix='', master=False, **kwargs):
         experiments = [x for x in experiments if 'reproj' not in x and 'mast3r' not in x]
 
         # monodepth_methods = sorted(list(set([x.split('+')[0] for x in experiments]) - {'5p'}))
-        monodepth_methods = list(method_names_calib.keys())[1:]
+        monodepth_methods = list(method_names_calib.keys())[1:-1]
         baseline_methods = ['5p']
 
         experiments = [f'{prefix}{x}' for x in experiments]
@@ -140,10 +140,14 @@ def generate_shared_table(cprint=print, prefix='', master=False, **kwargs):
     for features in ['roma', 'mast3r']:
         master = 'mast3r' == features
         experiments = get_experiments('shared', master=master)
-        experiments = [x for x in experiments if 'reproj' not in x and 'mast3r' not in x]
+        experiments = [x for x in experiments if 'reproj' not in x]
 
         # monodepth_methods = sorted(list(set([x.split('+')[0] for x in experiments]) - {'5p'}))
-        monodepth_methods = list(method_names_shared.keys())[1:]
+        if master:
+            monodepth_methods = list(method_names_shared.keys())[1:]
+        else:
+            monodepth_methods = list(method_names_shared.keys())[1:-1]
+
         baseline_methods = ['6p']
 
         experiments = [f'{prefix}{x}' for x in experiments]
@@ -202,10 +206,14 @@ def generate_varying_table(prefix='', cprint=print, master=False, **kwargs):
     # for features in ['roma', 'mast3r']:
         master = 'mast3r' == features
         experiments = get_experiments('varying', master=master)
-        experiments = [x for x in experiments if 'reproj' not in x and 'mast3r' not in x]
+        experiments = [x for x in experiments if 'reproj' not in x]
 
         # monodepth_methods = sorted(list(set([x.split('+')[0] for x in experiments]) - {'5p'}))
-        monodepth_methods = list(method_names_varying.keys())[1:]
+        if master:
+            monodepth_methods = list(method_names_shared.keys())[1:]
+        else:
+            monodepth_methods = list(method_names_shared.keys())[1:-1]
+
         baseline_methods = ['7p']
 
         experiments = [f'{prefix}{x}' for x in experiments]
@@ -283,11 +291,11 @@ if __name__ == '__main__':
     # cprint = print
 
     # basenames.pop('ETH', None)
-    # basenames.pop('Phototourism', None)
-    # basenames.pop('ScanNet', None)
+    basenames.pop('Phototourism', None)
+    basenames.pop('ScanNet', None)
     # type_table(generate_calib_table, make_pdf=True, t='2.0t')
-    # type_table(generate_shared_table, make_pdf=True, t='2.0t')
-    type_table(generate_varying_table, make_pdf=True, t='2.0t')
+    type_table(generate_shared_table, make_pdf=True, t='2.0t')
+    # type_table(generate_varying_table, make_pdf=True, t='2.0t')
     #
     # type_table(generate_calib_table, make_pdf=True, t='2.0t', features='roma')
     # type_table(generate_shared_table, make_pdf=True, t='2.0t', features='roma')

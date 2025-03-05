@@ -56,7 +56,8 @@ def generate_calib_table(cprint=print, prefix='', master=False, **kwargs):
     experiments = get_experiments('calib', master=False)
     experiments = [x for x in experiments if 'reproj' not in x and 'mast3r' not in x]
 
-    monodepth_methods = list(method_names_calib.keys())[1:]
+    monodepth_methods = ['3p_reldepth', 'p3p', 'mad_poselib_shift_scale', '3p_ours_shift_scale', 'madpose',
+                         'madpose_ours_scale_shift']
     baseline_methods = ['5p']
 
     experiments = [f'{prefix}{x}' for x in experiments]
@@ -92,9 +93,11 @@ def generate_calib_table(cprint=print, prefix='', master=False, **kwargs):
         print_monodepth_rows(i, monodepth_methods, method_names_calib, means, cprint=cprint)
         cprint('\\hline')
 
-    experiments.append('mast3r+1')
-    means_master = get_all_means(experiments,  ['mast3r'], kwargs)
-    cprint('\\multicolumn{', str(3 + 3*num_supercols) ,'}{c}{\\begin{tabular}{clcccc}\\hline')
+    # experiments.append('mast3r+1')
+    # monodepth_methods.append('mast3r')
+    means_master = get_all_means(experiments, ['mast3r'], kwargs)
+    cprint('\\\\')
+    cprint('\\multicolumn{', str(3 + 3*num_supercols), '}{c}{\\begin{tabular}{clcccc}\\hline')
 
     cprint('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{{Solver}} & \\multirow{2.5}{*}{{Opt.}} '
            '& \\multicolumn{3}{c}{Mast3r~\\cite{leroy2024grounding}} \\\\ \\cmidrule{4-6}')
@@ -104,7 +107,7 @@ def generate_calib_table(cprint=print, prefix='', master=False, **kwargs):
     cprint('\\cmidrule{1-6}')
     print_monodepth_rows(1, monodepth_methods, method_names_calib, means_master, cprint=cprint, master=True)
     cprint('\\cmidrule{1-6}')
-    cprint('\end{tabular}}')
+    cprint('\\end{tabular}}')
     cprint('\\end{tabular}}')
 
 

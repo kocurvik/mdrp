@@ -155,7 +155,8 @@ method_names_calib = {'5p': '5PT~\\cite{nister2004efficient}',
                       'mad_poselib_shift_scale': '3PT$_{suv}$(M)~\\cite{yu2025relative}',
                       '3p_ours_shift_scale': '3PT$_{suv}$~(\\textbf{ours})',
                       'madpose': '3PT$_{suv}$(M)~\\cite{yu2025relative}',
-                      'madpose_ours_scale_shift': '3PT$_{suv}$~(\\textbf{ours})'}
+                      'madpose_ours_scale_shift': '3PT$_{suv}$~(\\textbf{ours})',
+                      'mast3r': '-'}
 
 method_names_calib = smart_dict(method_names_calib)
 
@@ -167,6 +168,7 @@ method_names_shared = {'6p': '6PT~\\cite{hartley2012efficient}',
                        # '3p_ours': '3PT$_{100}$f(\\textbf{ours})',
                        'madpose': '4PT$_{suv}f$(M)~\\cite{yu2025relative}',
                        'madpose_ours_scale': '3PT$_{s00}f$(\\textbf{ours})',
+                       'mast3r': '-'
                        }
 # method_names_shared.update({f'nLO-{k}': v for k, v in method_names_shared.items()})
 # method_names_shared.update({f'GLO-{k}': v for k, v in method_names_shared.items()})
@@ -182,6 +184,7 @@ method_names_varying = {'7p': '7PT~\\cite{hartley2003multiple}',
                         # '3p_ours': '3PT$_{100}$f_{1,2}(\\textbf{ours})',
                         'madpose': '4PT$_{suv}f_{1,2}$(M)~\\cite{yu2025relative}',
                         'madpose_ours_scale': '3PT$_{s00}f_{1,2}$(\\textbf{ours})',
+                        'mast3r': '-'
                        }
 # method_names_varying.update({f'nLO-{k}': v for k, v in method_names_varying.items()})
 # method_names_varying.update({f'GLO-{k}': v for k, v in method_names_varying.items()})
@@ -219,7 +222,7 @@ def method_opts(method):
     if 'madpose' in method:
         return 'H~\\cite{yu2025relative}'
     if 'mast3r' in method:
-        return 'M~\\cite{mast3r}'
+        return 'M~\\cite{leroy2024grounding}'
 
 
 feature_names = {'splg': 'SP+LG~\\cite{detone2018superpoint, lindenberger2023lightglue}',
