@@ -210,9 +210,9 @@ def generate_varying_table(prefix='', cprint=print, master=False, **kwargs):
 
         # monodepth_methods = sorted(list(set([x.split('+')[0] for x in experiments]) - {'5p'}))
         if master:
-            monodepth_methods = list(method_names_shared.keys())[1:]
+            monodepth_methods = list(method_names_varying.keys())[1:]
         else:
-            monodepth_methods = list(method_names_shared.keys())[1:-1]
+            monodepth_methods = list(method_names_varying.keys())[1:-1]
 
         baseline_methods = ['7p']
 
@@ -294,8 +294,8 @@ if __name__ == '__main__':
     basenames.pop('Phototourism', None)
     basenames.pop('ScanNet', None)
     # type_table(generate_calib_table, make_pdf=True, t='2.0t')
-    type_table(generate_shared_table, make_pdf=True, t='2.0t')
-    # type_table(generate_varying_table, make_pdf=True, t='2.0t')
+    # type_table(generate_shared_table, make_pdf=True, t='2.0t')
+    type_table(generate_varying_table, make_pdf=True, t='2.0t')
     #
     # type_table(generate_calib_table, make_pdf=True, t='2.0t', features='roma')
     # type_table(generate_shared_table, make_pdf=True, t='2.0t', features='roma')
