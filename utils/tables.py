@@ -121,7 +121,7 @@ def get_median_errors(scene, experiments, prefix='calibrated', t='', features='s
             f_errs = np.array([x['f_err'] for x in exp_results[exp]])
             f_res = np.array([np.sum(f_errs * 100 < t) / len(f_errs) for t in range(1, 11)])
             d['median_f_err'] = np.nanmedian(f_errs)
-            d['mAA_f'] = np.mean(f_res)
+            d['mAA_f'] = 100 * np.mean(f_res)
 
         out[exp] = d
 
@@ -159,20 +159,34 @@ method_names_calib = {'5p': '5PT~\\cite{nister2004efficient}',
 
 method_names_calib = smart_dict(method_names_calib)
 
-method_names_shared = {'6p': '6PT', '3p_reldepth': '3p3d', '4p_monodepth_gb': '4PT$_{suv}f$(GB)',
-                       '4p_monodepth_eigen': '4PT$_{suv}f$(Eigen)'}
-method_names_shared.update({f'nLO-{k}': v for k, v in method_names_shared.items()})
-method_names_shared.update({f'GLO-{k}': v for k, v in method_names_shared.items()})
-method_names_shared.update({f'NN-{k}': v for k, v in method_names_shared.items()})
-method_names_shared = {}
+method_names_shared = {'6p': '6PT~\\cite{hartley2012efficient}',
+                       '3p_reldepth': '3p3d~\\cite{dingfundamental}',
+                       'mad_poselib_shift_scale': '4PT$_{suv}f$(M)~\\cite{yu2025relative}',
+                       '4p_ours_scale_shift': '4PT$_{suv}f$(\\textbf{ours})',
+                       '3p_ours_scale': '3PT$_{s00}f$(\\textbf{ours})',
+                       # '3p_ours': '3PT$_{100}$f(\\textbf{ours})',
+                       'madpose': '4PT$_{suv}f$(M)~\\cite{yu2025relative}',
+                       'madpose_ours_scale': '3PT$_{s00}f$(\\textbf{ours})',
+                       }
+# method_names_shared.update({f'nLO-{k}': v for k, v in method_names_shared.items()})
+# method_names_shared.update({f'GLO-{k}': v for k, v in method_names_shared.items()})
+# method_names_shared.update({f'NN-{k}': v for k, v in method_names_shared.items()})
 method_names_shared = smart_dict(method_names_shared)
 
-method_names_varying = {'7p': '7PT', '4p4d': '4p4d', '4p_eigen': '4PT$_{suv}f_1f_2$(Eigen)',
-                        '4p_gj': '4PT$_{suv}f_1f_2$(GJ)'}
-method_names_varying.update({f'nLO-{k}': v for k, v in method_names_varying.items()})
-method_names_varying.update({f'GLO-{k}': v for k, v in method_names_varying.items()})
-method_names_varying.update({f'NN-{k}': v for k, v in method_names_varying.items()})
-method_names_varying = {}
+
+method_names_varying = {'7p': '7PT~\\cite{hartley2003multiple}',
+                        '4p4d': '4p4d~\\cite{dingfundamental}',
+                        'mad_poselib_shift_scale': '4PT$_{suv}f_{1,2}$(M)~\\cite{yu2025relative}',
+                        '4p_ours_scale_shift': '4PT$_{suv}f_{1,2}$(\\textbf{ours})',
+                        '3p_ours_scale': '3PT$_{s00}f_{1,2}$(\\textbf{ours})',
+                        # '3p_ours': '3PT$_{100}$f_{1,2}(\\textbf{ours})',
+                        'madpose': '4PT$_{suv}f_{1,2}$(M)~\\cite{yu2025relative}',
+                        'madpose_ours_scale': '3PT$_{s00}f_{1,2}$(\\textbf{ours})',
+                       }
+# method_names_varying.update({f'nLO-{k}': v for k, v in method_names_varying.items()})
+# method_names_varying.update({f'GLO-{k}': v for k, v in method_names_varying.items()})
+# method_names_varying.update({f'NN-{k}': v for k, v in method_names_varying.items()})
+# method_names_varying = {}
 method_names_varying = smart_dict(method_names_varying)
 
 depth_names = {0: '-',
