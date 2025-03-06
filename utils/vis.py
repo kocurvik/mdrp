@@ -11,8 +11,8 @@ from tqdm import tqdm
 from utils.data import get_basenames, err_fun_pose, get_experiments
 from utils.geometry import rotation_angle
 
-large_size = 24
-small_size = 20
+large_size = 18
+small_size = 16
 
 plt.rcParams.update({'figure.autolayout': True})
 
@@ -50,6 +50,29 @@ def get_colors_styles(experiments):
 
 def get_colors_styles_fixed(results_type):
     c = sns.color_palette()
+    if 'calib' in results_type:
+        colors = {
+            '5p': c[5],
+            '3p_reldepth': c[3],
+            'p3p': c[6],
+            'mad_poselib_shift_scale': c[2],
+            '3p_ours_shift_scale': c[1],
+            'madpose': c[2],
+            'madpose_ours_scale_shift': c[1],
+            'mast3r': c[4]
+        }
+
+        styles = {
+            '5p': 'solid',
+            '3p_reldepth': 'solid',
+            'p3p': 'solid',
+            'mad_poselib_shift_scale': 'solid',
+            '3p_ours_shift_scale': 'solid',
+            'madpose': 'dashed',
+            'madpose_ours_scale_shift': 'dashed',
+            'mast3r': 'dotted'
+        }
+        return colors, styles
 
     if 'shared' in results_type:
         colors = {
@@ -380,15 +403,17 @@ def draw_rotation_angle_f_err(experiments, results):
     plt.ylabel('Portion of samples')
 
 
-def generate_graphs(dataset, results_type, t='-2.0t', features='splg', depth=12, master=False, ylim=None):
+def generate_graphs(dataset, results_type, t='-2.0t', features='splg', depth=12, master=False, ylim=None, xlim=None):
     basenames = get_basenames(dataset)
 
 
     depths = [depth]
-    experiments = get_experiments(results_type, depths=depths, nmad='ScanNet' not in dataset)
+    experiments = get_experiments(results_type, depths=depths, nmad=True)
     experiments = [x for x in experiments if 'reproj' not in x]
 
+
     colors, styles = get_colors_styles_fixed(results_type)
+    # colors, styles = None, None
 
     if master:
         experiments.append('mast3r')
@@ -418,7 +443,7 @@ def generate_graphs(dataset, results_type, t='-2.0t', features='splg', depth=12,
 
         calc_maa(b, experiments, iterations_list, results, fs, xs, ys)
 
-    draw_all(experiments, fs, xs, ys, title=f'{results_type}-{dataset}-{features}', colors=colors, styles=styles)
+    draw_all(experiments, fs, xs, ys, title=f'{results_type}-{dataset}-{features}', colors=colors, styles=styles, ylim=ylim, xlim=xlim)
 
 
 
@@ -433,9 +458,12 @@ def calc_maa(b, experiments, iterations_list, results, fs, xs, ys):
             errs[np.isnan(errs)] = 180.0
             AUC10 = 100 * np.mean(np.array([np.sum(errs < t) / len(errs) for t in range(1, 11)]))
 
-            ferrs = np.array([out['f_err'] for out in iter_results])
-            ferrs[np.isnan(ferrs)] = 1.0
-            fAUC10 = 100 * np.mean(np.array([np.sum(ferrs < t / 100) / len(errs) for t in range(1, 11)]))
+            try:
+                ferrs = np.array([out['f_err'] for out in iter_results])
+                ferrs[np.isnan(ferrs)] = 1.0
+                fAUC10 = 100 * np.mean(np.array([np.sum(ferrs < t / 100) / len(errs) for t in range(1, 11)]))
+            except Exception:
+                fAUC10 = 0.0
 
             xs[b, i, j] = mean_runtime
             ys[b, i, j] = AUC10
@@ -499,7 +527,7 @@ def generate_eth_roma():
     colors, styles = get_colors_styles_fixed('shared')
     draw_all(all_experiments, fs, xs, ys, title='eth_shared_roma', colors=colors, styles=styles, ylim=[80, 88])
 
-def draw_all(experiments, fs, xs, ys, title=None, colors=None, styles=None, ylim=None, ylimf=None):
+def draw_all(experiments, fs, xs, ys, title=None, colors=None, styles=None, ylim=None, ylimf=None, xlim=None):
     fig = plt.figure(figsize=(8, 6), frameon=True)
     for i, experiment in enumerate(experiments):
         if colors is not None:
@@ -508,7 +536,8 @@ def draw_all(experiments, fs, xs, ys, title=None, colors=None, styles=None, ylim
         else:
             plt.semilogx(np.mean(xs[:, i, :], axis=0), np.mean(ys[:, i, :], axis=0), label=experiment, marker='*')
 
-    # plt.xlim([15, 330])
+    if xlim is not None:
+        plt.xlim(xlim)
     if ylim is not None:
         plt.ylim(ylim)
     # plt.gca().yaxis.set_major_formatter(StrMethodFormatter('{x:,.2f}'))
@@ -558,14 +587,15 @@ if __name__ == '__main__':
     for features in ['roma']:
     # for features in ['mast3r_moge']:
         # for depth in [1, 2, 6, 10, 12]:
-        for depth in [12]:
-            # generate_graphs('ScanNet', 'calibrated', all=True, features=features, depth=depth)
-            # generate_graphs('ETH', 'calibrated', all=True, features=features, depth=depth)
-            # generate_graphs('Phototourism', 'calibrated', all=True, features=features, depth=depth)
+        for depth in [10]:
+            ...
+            # generate_graphs('ScanNet', 'calibrated', features=features, depth=depth)
+            # generate_graphs('ETH', 'calibrated', features=features, depth=depth)
+            # generate_graphs('Phototourism', 'calibrated', features=features, depth=depth)
         
             # generate_graphs('ScanNet', 'shared_focal', features=features, depth=depth, master=True)
             # generate_graphs('ETH', 'shared_focal', features=features, depth=depth)
         
-            # generate_graphs('ScanNet', 'varying_focal', features=features, depth=depth, master=True)
-            generate_graphs('Phototourism', 'varying_focal', features=features, depth=depth)
+            # generate_graphs('ScanNet', 'varying_focal', features=features, depth=depth, master=False)
+            generate_graphs('Phototourism', 'varying_focal', features=features, depth=depth, xlim=[9.5, 108])
 
