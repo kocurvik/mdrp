@@ -48,6 +48,58 @@ def get_colors_styles(experiments):
             styles[exp] = 'dashed'
     return colors, styles
 
+def get_colors_styles_fixed(results_type):
+    c = sns.color_palette()
+
+    if 'shared' in results_type:
+        colors = {
+            '3p_ours_scale': c[0],
+            'madpose_ours_scale': c[0],
+            '4p_ours_scale_shift': c[1],
+            'mad_poselib_shift_scale': c[2],
+            'madpose': c[2],
+            '3p_reldepth': c[3],
+            'mast3r': c[4],
+            '6p': c[5],
+        }
+
+        styles = {
+            '3p_ours_scale': 'solid',
+            'madpose_ours_scale': 'dashed',
+            '4p_ours_scale_shift': 'solid',
+            'mad_poselib_shift_scale': 'solid',
+            'madpose': 'dashed',
+            '3p_reldepth': 'solid',
+            'mast3r': 'dotted',
+            '6p': 'solid',
+        }
+        return colors, styles
+
+    if 'varying' in results_type:
+        colors = {
+            'madpose_ours_scale': c[0],
+            '3p_ours_scale': c[0],
+            '4p_ours_scale_shift': c[1],
+            'mad_poselib_shift_scale': c[2],
+            'madpose': c[2],
+            '4p4d': c[3],
+            '7p': c[5],
+            'mast3r': c[4]
+        }
+
+        styles = {
+            'madpose_ours_scale': 'dashed',
+            '3p_ours_scale': 'solid',
+            '4p_ours_scale_shift': 'solid',
+            'mad_poselib_shift_scale': 'solid',
+            'madpose': 'dashed',
+            '4p4d': 'solid',
+            '7p': 'solid',
+            'mast3r': 'dotted'
+        }
+        return colors, styles
+
+
 def draw_results(results, experiments, iterations_list, title=''):
     plt.figure()
 
@@ -98,7 +150,7 @@ def draw_results_pose_auc_10(results, experiments, iterations_list, err_fun=err_
         ys = []
 
         for iterations in iterations_list:
-            iter_results = [x for x in experiment_results if x['info']['iterations'] == iterations]
+            iter_results = [x for x in experiment_results if x['info'].get('iterations', None) == iterations]
             mean_runtime = np.mean([x['info']['runtime'] for x in iter_results])
             errs = np.array([err_fun(out) for out in iter_results])
             # errs = np.array([0.5 * (out['t_12_err'] + out['t_13_err']) for out in iter_results])
@@ -116,6 +168,7 @@ def draw_results_pose_auc_10(results, experiments, iterations_list, err_fun=err_
         # colors = {exp: sns.color_palette("hls", len(experiments))[i] for i, exp in enumerate(experiments)}
 
         plt.semilogx(xs, ys, label=experiment, marker='*', color=colors[experiment], linestyle=styles[experiment])
+        # plt.plot(xs, ys, label=experiment, marker='*', color=colors[experiment], linestyle=styles[experiment])
 
     # plt.xlim(xlim)
     # plt.gca().yaxis.set_major_formatter(StrMethodFormatter('{x:,.2f}'))
@@ -132,6 +185,64 @@ def draw_results_pose_auc_10(results, experiments, iterations_list, err_fun=err_
         plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
         plt.title(title)
         plt.savefig(f'figs/{title}_pose.png', bbox_inches='tight', pad_inches=0.1)
+        print(f'saved pose: {title}')
+
+    else:
+        plt.legend()
+        plt.show()
+
+    return aucs, rts
+
+def draw_results_focal_auc_10(results, experiments, iterations_list, title=None):
+    fig = plt.figure(figsize=(12,6), frameon=True)
+
+    colors, styles = get_colors_styles(experiments)
+
+    aucs = {}
+    rts = {}
+
+    for experiment in tqdm(experiments):
+        print(experiment)
+        experiment_results = [x for x in results if x['experiment'] == experiment]
+
+        xs = []
+        ys = []
+
+        for iterations in iterations_list:
+            iter_results = [x for x in experiment_results if x['info'].get('iterations', None) == iterations]
+            mean_runtime = np.mean([x['info']['runtime'] for x in iter_results])
+            errs = np.array([out['f_err'] for out in iter_results])
+            # errs = np.array([0.5 * (out['t_12_err'] + out['t_13_err']) for out in iter_results])
+            errs[np.isnan(errs)] = 1.0
+            AUC10 = np.mean(np.array([np.sum(errs < t / 100) / len(errs) for t in range(1, 11)]))
+            # AUC10 = np.mean([x['info']['inlier_ratio'] for x in iter_results])
+
+            xs.append(mean_runtime)
+            ys.append(AUC10)
+
+        aucs[experiment] = np.array(ys)
+        rts[experiment] = np.array(xs)
+
+
+        # colors = {exp: sns.color_palette("hls", len(experiments))[i] for i, exp in enumerate(experiments)}
+
+        plt.semilogx(xs, ys, label=experiment, marker='*', color=colors[experiment], linestyle=styles[experiment])
+
+    # plt.xlim(xlim)
+    # plt.gca().yaxis.set_major_formatter(StrMethodFormatter('{x:,.2f}'))
+    plt.xlabel('Mean runtime (ms)', fontsize=large_size)
+    plt.ylabel('AUC@0.1-$f$', fontsize=large_size)
+    plt.tick_params(axis='x', which='major', labelsize=small_size)
+    plt.tick_params(axis='y', which='major', labelsize=small_size)
+    if title is not None:
+        # plt.legend()
+        # plt.title(title)
+        # plt.savefig(f'figs/{title}_pose.pdf', bbox_inches='tight', pad_inches=0)
+        plt.savefig(f'figs/{title}_focal.pdf')#, bbox_inches='tight', pad_inches=0)
+
+        plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
+        plt.title(title)
+        plt.savefig(f'figs/{title}_focal.png', bbox_inches='tight', pad_inches=0.1)
         print(f'saved pose: {title}')
 
     else:
@@ -268,20 +379,27 @@ def draw_rotation_angle_f_err(experiments, results):
     plt.xlabel('k error')
     plt.ylabel('Portion of samples')
 
-def generate_graphs(dataset, results_type, all=True, basenames = None, prefix='', t='-2.0t',
-                    features='splg', ylim=None, colors=None):
-    if basenames is None:
-        basenames = get_basenames(dataset)
 
-    depths = [12]
+def generate_graphs(dataset, results_type, t='-2.0t', features='splg', depth=12, master=False, ylim=None):
+    basenames = get_basenames(dataset)
+
+
+    depths = [depth]
     experiments = get_experiments(results_type, depths=depths, nmad='ScanNet' not in dataset)
+    experiments = [x for x in experiments if 'reproj' not in x]
 
-    iterations_list = [10, 20, 50, 100, 200, 500, 1000]
+    colors, styles = get_colors_styles_fixed(results_type)
 
-    all_results = []
-    aucs = {}
-    rts = {}
-    for basename in basenames:
+    if master:
+        experiments.append('mast3r')
+
+    iterations_list = [50, 100, 200, 500, 1000]
+
+    xs = np.empty([len(basenames), len(experiments), len(iterations_list)])
+    ys = np.empty([len(basenames), len(experiments), len(iterations_list)])
+    fs = np.empty([len(basenames), len(experiments), len(iterations_list)])
+
+    for b, basename in enumerate(basenames):
         if 'varying' in results_type:
             json_path = os.path.join('results_new', f'{results_type}-{basename}_{features}{t}-graph.json')
         else:
@@ -289,27 +407,165 @@ def generate_graphs(dataset, results_type, all=True, basenames = None, prefix=''
         print(f'json_path: {json_path}')
         with open(json_path, 'r') as f:
             results = [x for x in json.load(f) if x['experiment'] in experiments]
-            # aucs[basename], rts[basename] = draw_results_pose_auc_10(results, experiments, iterations_list,
-            #                                           title=f'{prefix}{dataset}_{basename}_{results_type}',
-            #                                           err_fun=t_err_fun)
-            # draw_results_pose_auc_10(results, experiments, iterations_list,
-            #                          f'maxerr_{dataset}_{basename}_{results_type}', err_fun=err_fun_max)
-            if all:
-               all_results.extend(results)
 
-    if all:
-        title = f'{dataset}_{results_type}-{features}'
-        # draw_results_pose_auc_10_mm(aucs, rts, experiments, title=prefix + title)
-        draw_results_pose_auc_10(all_results, experiments, iterations_list, title=prefix + title)
+        if master:
+            master_json_path = os.path.join('results_new', f'{results_type}-mast3rgraph-{basename}.json')
+            with open(master_json_path, 'r') as f:
+                # master_results = json.load(f)
+                master_results = [x for x in json.load(f) if x['experiment'] == 'mast3r']
+
+            results.extend(master_results)
+
+        calc_maa(b, experiments, iterations_list, results, fs, xs, ys)
+
+    draw_all(experiments, fs, xs, ys, title=f'{results_type}-{dataset}-{features}', colors=colors, styles=styles)
+
+
+
+def calc_maa(b, experiments, iterations_list, results, fs, xs, ys):
+    for i, experiment in enumerate(experiments):
+        experiment_results = [x for x in results if x['experiment'] == experiment]
+
+        for j, iterations in enumerate(iterations_list):
+            iter_results = [x for x in experiment_results if x['info'].get('iterations', None) == iterations]
+            mean_runtime = np.mean([x['info']['runtime'] for x in iter_results])
+            errs = np.array([err_fun_pose(out) for out in iter_results])
+            errs[np.isnan(errs)] = 180.0
+            AUC10 = 100 * np.mean(np.array([np.sum(errs < t) / len(errs) for t in range(1, 11)]))
+
+            ferrs = np.array([out['f_err'] for out in iter_results])
+            ferrs[np.isnan(ferrs)] = 1.0
+            fAUC10 = 100 * np.mean(np.array([np.sum(ferrs < t / 100) / len(errs) for t in range(1, 11)]))
+
+            xs[b, i, j] = mean_runtime
+            ys[b, i, j] = AUC10
+            fs[b, i, j] = fAUC10
+
+
+def generate_eth_roma():
+    basenames = get_basenames('ETH')
+
+    experiments = []
+    experiments.append('3p_ours_scale+12')
+    # experiments.append('3p_ours+12')
+    experiments.append('3p_reldepth+12')
+    experiments.append('mad_poselib_shift_scale+12')
+    experiments.append('6p')
+
+    slow_experiments = []
+    slow_experiments.append('madpose_ours_scale+12')
+    slow_experiments.append('madpose+12')
+    slow_experiments.append('mast3r+1')
+
+    all_experiments = experiments + slow_experiments
+
+    iterations_list = [50, 100, 200, 500, 1000]
+
+    xs = np.empty([len(basenames), len(all_experiments), len(iterations_list)])
+    ys = np.empty([len(basenames), len(all_experiments), len(iterations_list)])
+    fs = np.empty([len(basenames), len(all_experiments), len(iterations_list)])
+
+    for b, basename in enumerate(basenames):
+        all_results = []
+        json_path = os.path.join('results_new', f'shared_focal-graph-{basename}_roma-2.0t.json')
+        print(f'json_path: {json_path}')
+        with open(json_path, 'r') as f:
+            results = [x for x in json.load(f) if x['experiment'] in experiments or x['experiment'] in slow_experiments]
+        all_results.extend(results)
+
+        json_path = os.path.join('results_new', f'shared_focal-{basename}_roma-2.0t.json')
+        print(f'json_path: {json_path}')
+        with open(json_path, 'r') as f:
+            results = [x for x in json.load(f) if x['experiment'] in ['madpose+12', 'madpose_ours_scale+12']]
+        all_results.extend(results)
+
+        json_path = os.path.join('results_new', f'shared_focal-{basename}_mast3r-2.0t.json')
+        print(f'json_path: {json_path}')
+        with open(json_path, 'r') as f:
+            results = [x for x in json.load(f) if x['experiment'] == 'mast3r+1']
+        all_results.extend(results)
+
+        json_path = os.path.join('results_new', 'mast3r_extended', f'{basename}.json')
+        print(f'json_path: {json_path}')
+        with open(json_path, 'r') as f:
+            results = [x for x in json.load(f) if x['experiment'] == 'mast3r']
+        for x in results:
+            x['experiment'] = 'mast3r+1'
+
+        all_results.extend(results)
+
+        calc_maa(b, all_experiments, iterations_list, all_results, fs, xs, ys)
+
+    colors, styles = get_colors_styles_fixed('shared')
+    draw_all(all_experiments, fs, xs, ys, title='eth_shared_roma', colors=colors, styles=styles, ylim=[80, 88])
+
+def draw_all(experiments, fs, xs, ys, title=None, colors=None, styles=None, ylim=None, ylimf=None):
+    fig = plt.figure(figsize=(8, 6), frameon=True)
+    for i, experiment in enumerate(experiments):
+        if colors is not None:
+            experiment = experiment.split('+')[0]
+            plt.semilogx(np.mean(xs[:, i, :], axis=0), np.mean(ys[:, i, :], axis=0), label=experiment, marker='*', color=colors[experiment], linestyle=styles[experiment])
+        else:
+            plt.semilogx(np.mean(xs[:, i, :], axis=0), np.mean(ys[:, i, :], axis=0), label=experiment, marker='*')
+
+    # plt.xlim([15, 330])
+    if ylim is not None:
+        plt.ylim(ylim)
+    # plt.gca().yaxis.set_major_formatter(StrMethodFormatter('{x:,.2f}'))
+    plt.xlabel('$\\tau$ (ms)', fontsize=large_size)
+    plt.ylabel('mAA', fontsize=large_size)
+    plt.tick_params(axis='x', which='major', labelsize=small_size)
+    plt.tick_params(axis='y', which='major', labelsize=small_size)
+    if title is not None:
+        plt.savefig(f'figs/{title}_pose.pdf')  # , bbox_inches='tight', pad_inches=0)
+
+        plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
+        plt.title(title)
+        plt.savefig(f'figs/{title}_pose.png', bbox_inches='tight', pad_inches=0.0)
+        print(f'saved pose: {title}')
+
+    else:
+        plt.legend()
+        plt.show()
+
+    fig = plt.figure(figsize=(8, 6), frameon=True)
+    for i, experiment in enumerate(experiments):
+        plt.semilogx(np.mean(xs[:, i, :], axis=0), np.mean(fs[:, i, :], axis=0), label=experiment, marker='*')
+
+    # plt.xlim([15, 330])
+    if ylimf is not None:
+        plt.ylim(ylimf)
+    # plt.gca().yaxis.set_major_formatter(StrMethodFormatter('{x:,.2f}'))
+    plt.xlabel('$\\tau$ (ms)', fontsize=large_size)
+    plt.ylabel('mAA$_f$', fontsize=large_size)
+    plt.tick_params(axis='x', which='major', labelsize=small_size)
+    plt.tick_params(axis='y', which='major', labelsize=small_size)
+    if title is not None:
+        plt.savefig(f'figs/{title}_focal.pdf')  # , bbox_inches='tight', pad_inches=0)
+
+        plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
+        plt.title(title)
+        plt.savefig(f'figs/{title}_focal.png', bbox_inches='tight', pad_inches=0.0)
+        print(f'saved pose: {title}')
+    else:
+        plt.legend()
+        plt.show()
+
 
 if __name__ == '__main__':
-    generate_graphs('ScanNet', 'calibrated', all=True)
-    generate_graphs('ETH', 'calibrated', all=True)
-    generate_graphs('Phototourism', 'calibrated', all=True)
-
-    generate_graphs('ScanNet', 'shared_focal', all=True)
-    generate_graphs('ETH', 'shared_focal', all=True)
-
-    generate_graphs('ScanNet', 'varying_focal', all=True)
-    generate_graphs('Phototourism', 'varying_focal', all=True)
+    # generate_eth_roma()
+    
+    for features in ['roma']:
+    # for features in ['mast3r_moge']:
+        # for depth in [1, 2, 6, 10, 12]:
+        for depth in [12]:
+            # generate_graphs('ScanNet', 'calibrated', all=True, features=features, depth=depth)
+            # generate_graphs('ETH', 'calibrated', all=True, features=features, depth=depth)
+            # generate_graphs('Phototourism', 'calibrated', all=True, features=features, depth=depth)
+        
+            # generate_graphs('ScanNet', 'shared_focal', features=features, depth=depth, master=True)
+            # generate_graphs('ETH', 'shared_focal', features=features, depth=depth)
+        
+            # generate_graphs('ScanNet', 'varying_focal', features=features, depth=depth, master=True)
+            generate_graphs('Phototourism', 'varying_focal', features=features, depth=depth)
 
