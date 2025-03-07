@@ -98,8 +98,8 @@ def generate_calib_table(cprint=print, prefix='', basenames=basenames, **kwargs)
         print_monodepth_rows(i, monodepth_methods, method_names_calib, means, cprint=cprint)
         cprint('\\hline')
 
-    # experiments.append('mast3r+1')
-    # monodepth_methods.append('mast3r')
+    experiments.append('mast3r+1')
+    monodepth_methods.append('mast3r')
     means_master = get_all_means(experiments, ['mast3r'], basenames, kwargs)
     cprint('\\\\')
     cprint('\\multicolumn{', str(3 + 3*num_supercols), '}{c}{\\begin{tabular}{clcccc}\\hline')
@@ -185,7 +185,7 @@ def generate_shared_table(cprint=print, prefix='', basenames=basenames, master=F
     cprint('\\multicolumn{', str(3 + 5 * num_supercols), '}{c}{\\begin{tabular}{clcccccc}\\hline')
 
     cprint('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{{Solver}} & \\multirow{2.5}{*}{{Opt.}} '
-           '& \\multicolumn{3}{c}{Mast3r~\\cite{leroy2024grounding}} \\\\ \\cmidrule{4-8}')
+           '& \\multicolumn{3}{5}{Mast3r~\\cite{leroy2024grounding}} \\\\ \\cmidrule{4-8}')
     cprint('&&& $\\epsilon(^\\circ)\\downarrow$ & $\\epsilon_f\\downarrow$ & mAA $\\uparrow$ & mAA$_f$ $\\uparrow$ & $\\tau (ms)\\downarrow$ \\\\ \\cmidrule{1-8}')
 
     print_monodepth_rows(0, baseline_methods, method_names_shared, means_master, cprint=cprint, master=False, use_focal=True)
@@ -256,7 +256,7 @@ def generate_varying_table(prefix='', cprint=print, basenames=basenames, master=
     cprint('\\multicolumn{', str(3 + 5 * num_supercols), '}{c}{\\begin{tabular}{clcccccc}\\hline')
 
     cprint('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{{Solver}} & \\multirow{2.5}{*}{{Opt.}} '
-           '& \\multicolumn{3}{c}{Mast3r~\\cite{leroy2024grounding}} \\\\ \\cmidrule{4-8}')
+           '& \\multicolumn{5}{c}{Mast3r~\\cite{leroy2024grounding}} \\\\ \\cmidrule{4-8}')
     cprint('&&& $\\epsilon(^\\circ)\\downarrow$ & $\\epsilon_f\\downarrow$ & mAA $\\uparrow$ & mAA$_f$ $\\uparrow$ & $\\tau (ms)\\downarrow$ \\\\ \\cmidrule{1-8}')
 
     print_monodepth_rows(0, baseline_methods, method_names_varying, means_master, cprint=cprint, master=False, use_focal=True)
