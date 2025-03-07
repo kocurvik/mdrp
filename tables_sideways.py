@@ -138,9 +138,9 @@ def generate_shared_table(cprint=print, prefix='', basenames=basenames, master=F
 
     # monodepth_methods = ['3p_reldepth', 'p3p', 'mad_poselib_shift_scale', '3p_ours_shift_scale', 'madpose',
     #                      'madpose_ours_scale_shift']
-    monodepth_methods = ['3p_reldepth', 'mad_poselib_shift_scale', '4p_ours_scale_shift', '3p_ours_scale',# '3p_ours',
-                         'mad_poselib_shift_scale_reproj', '4p_ours_scale_shift_reproj', '3p_ours_scale_reproj',# '3p_ours_reproj',
-                         'mad_poselib_shift_scale_reproj-s', '4p_ours_scale_shift_reproj-s', '3p_ours_scale_reproj-s',# '3p_ours_reproj-s',
+    monodepth_methods = ['3p_reldepth', 'mad_poselib_shift_scale', '4p_ours_scale_shift', '3p_ours_scale', '3p_ours',
+                         'mad_poselib_shift_scale_reproj', '4p_ours_scale_shift_reproj', '3p_ours_scale_reproj', '3p_ours_reproj',
+                         'mad_poselib_shift_scale_reproj-s', '4p_ours_scale_shift_reproj-s', '3p_ours_scale_reproj-s', '3p_ours_reproj-s',
                          'madpose', 'madpose_ours_scale']
 
     baseline_methods = ['6p']
@@ -203,9 +203,9 @@ def generate_varying_table(prefix='', cprint=print, basenames=basenames, master=
 
     # monodepth_methods = ['3p_reldepth', 'p3p', 'mad_poselib_shift_scale', '3p_ours_shift_scale', 'madpose',
     #                      'madpose_ours_scale_shift']
-    monodepth_methods = ['4p4d', 'mad_poselib_shift_scale', '4p_ours_scale_shift', '3p_ours_scale', #'3p_ours',
-                         'mad_poselib_shift_scale_reproj', '4p_ours_scale_shift_reproj', '3p_ours_scale_reproj', #'3p_ours_reproj',
-                         'mad_poselib_shift_scale_reproj-s', '4p_ours_scale_shift_reproj-s', '3p_ours_scale_reproj-s',# '3p_ours_reproj-s',
+    monodepth_methods = ['4p4d', 'mad_poselib_shift_scale', '4p_ours_scale_shift', '3p_ours_scale', '3p_ours',
+                         'mad_poselib_shift_scale_reproj', '4p_ours_scale_shift_reproj', '3p_ours_scale_reproj', '3p_ours_reproj',
+                         'mad_poselib_shift_scale_reproj-s', '4p_ours_scale_shift_reproj-s', '3p_ours_scale_reproj-s', '3p_ours_reproj-s',
                          'madpose', 'madpose_ours_scale']
 
     baseline_methods = ['7p']
@@ -309,14 +309,14 @@ if __name__ == '__main__':
     # type_table(generate_varying_table, make_pdf=True, t='2.0t', features='splg')
     #
     
-    # type_table(generate_shared_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
+    type_table(generate_shared_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
     # type_table(generate_shared_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
-    # type_table(generate_shared_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
+    type_table(generate_shared_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
     
     
     type_table(generate_varying_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
     type_table(generate_varying_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
-    # type_table(generate_varying_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
+    type_table(generate_varying_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
     
     # basenames.pop('ETH', None)
     # type_table(generate_varying_table, master=True, make_pdf=True, t='2.0t', features='mast3r')

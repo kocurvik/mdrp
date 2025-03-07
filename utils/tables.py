@@ -190,7 +190,7 @@ method_names_varying = {'7p': '7PT~\\cite{hartley2003multiple}',
                         'mad_poselib_shift_scale': '4PT$_{suv}f_{1,2}$(M)~\\cite{yu2025relative}',
                         '4p_ours_scale_shift': '4PT$_{suv}f_{1,2}$(\\textbf{ours})',
                         '3p_ours_scale': '3PT$_{s00}f_{1,2}$(\\textbf{ours})',
-                        '3p_ours': '3PT$_{100}$f_{1,2}(\\textbf{ours})',
+                        '3p_ours': '3PT$_{100}f_{1,2}$(\\textbf{ours})',
                         'madpose': '4PT$_{suv}f_{1,2}$(M)~\\cite{yu2025relative}',
                         'madpose_ours_scale': '3PT$_{s00}f_{1,2}$(\\textbf{ours})',
                         'mast3r': '-'
