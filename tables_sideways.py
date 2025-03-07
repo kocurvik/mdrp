@@ -178,8 +178,8 @@ def generate_shared_table(cprint=print, prefix='', basenames=basenames, master=F
         print_monodepth_rows(i, monodepth_methods, method_names_shared, means, cprint=cprint, use_focal=True)
         cprint('\\hline')
 
-    # experiments.append('mast3r+1')
-    # monodepth_methods.append('mast3r')
+    experiments.append('mast3r+1')
+    monodepth_methods.append('mast3r')
     means_master = get_all_means(experiments, ['mast3r'], basenames, prefix='shared_focal', calc_f_err=True, **kwargs)
     cprint('\\\\')
     cprint('\\multicolumn{', str(3 + 5 * num_supercols), '}{c}{\\begin{tabular}{clcccccc}\\hline')
@@ -192,6 +192,12 @@ def generate_shared_table(cprint=print, prefix='', basenames=basenames, master=F
     cprint('\\cmidrule{1-8}')
     print_monodepth_rows(1, monodepth_methods, method_names_shared, means_master, cprint=cprint, master=True, use_focal=True)
     cprint('\\cmidrule{1-8}')
+
+    # means_master = get_all_means(experiments, ['mast3r_moge'], basenames, prefix='varying_focal', calc_f_err=True, **kwargs)
+    # print_monodepth_rows(1, monodepth_methods, method_names_shared, means_master, cprint=cprint, master=True,
+    #                      use_focal=True)
+    # cprint('\\cmidrule{1-8}')
+
     cprint('\\end{tabular}}')
     cprint('\\end{tabular}}')
 
@@ -243,8 +249,8 @@ def generate_varying_table(prefix='', cprint=print, basenames=basenames, master=
         print_monodepth_rows(i, monodepth_methods, method_names_varying, means, cprint=cprint, use_focal=True)
         cprint('\\hline')
 
-    # experiments.append('mast3r+1')
-    # monodepth_methods.append('mast3r')
+    experiments.append('mast3r+1')
+    monodepth_methods.append('mast3r')
     means_master = get_all_means(experiments, ['mast3r'], basenames, prefix='varying_focal', calc_f_err=True, **kwargs)
     cprint('\\\\')
     cprint('\\multicolumn{', str(3 + 5 * num_supercols), '}{c}{\\begin{tabular}{clcccccc}\\hline')
@@ -257,6 +263,13 @@ def generate_varying_table(prefix='', cprint=print, basenames=basenames, master=
     cprint('\\cmidrule{1-8}')
     print_monodepth_rows(1, monodepth_methods, method_names_varying, means_master, cprint=cprint, master=True, use_focal=True)
     cprint('\\cmidrule{1-8}')
+
+    # means_master = get_all_means(experiments, ['mast3r_moge'], basenames, prefix='varying_focal', calc_f_err=True, **kwargs)
+    #
+    # print_monodepth_rows(1, monodepth_methods, method_names_varying, means_master, cprint=cprint, master=True,
+    #                      use_focal=True)
+    # cprint('\\cmidrule{1-8}')
+
     cprint('\\end{tabular}}')
     cprint('\\end{tabular}}')
 
