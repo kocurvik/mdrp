@@ -100,7 +100,7 @@ def generate_calib_table(cprint=print, prefix='', basenames=basenames, **kwargs)
 
     experiments.append('mast3r+1')
     monodepth_methods.append('mast3r')
-    means_master = get_all_means(experiments, ['mast3r'], basenames, kwargs)
+    means_master = get_all_means(experiments, ['mast3r'], basenames, **kwargs)
     cprint('\\\\')
     cprint('\\multicolumn{', str(3 + 3*num_supercols), '}{c}{\\begin{tabular}{clcccc}\\hline')
 
