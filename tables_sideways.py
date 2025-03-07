@@ -69,7 +69,7 @@ def generate_calib_table(cprint=print, prefix='', basenames=basenames, **kwargs)
     monodepth_methods = [f'{prefix}{x}' for x in monodepth_methods]
     baseline_methods = [f'{prefix}{x}' for x in baseline_methods]
 
-    means = get_all_means(experiments,  ['splg', 'roma'], basenames, kwargs)
+    means = get_all_means(experiments,  ['splg', 'roma'], basenames, **kwargs)
 
     num_supercols = len(means)
 
@@ -315,13 +315,10 @@ if __name__ == '__main__':
     # basenames.pop('ETH', None)
     # basenames.pop('Phototourism', None)
     # basenames.pop('ScanNet', None)
-    type_table(generate_calib_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
-    type_table(generate_calib_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
+    # type_table(generate_calib_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
+    # type_table(generate_calib_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
     type_table(generate_calib_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
-    # type_table(generate_shared_table, make_pdf=True, t='2.0t', features='splg')
-    # type_table(generate_varying_table, make_pdf=True, t='2.0t', features='splg')
-    #
-    
+
     type_table(generate_shared_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
     # type_table(generate_shared_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
     type_table(generate_shared_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
