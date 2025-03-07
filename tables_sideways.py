@@ -315,9 +315,9 @@ if __name__ == '__main__':
     # basenames.pop('ETH', None)
     # basenames.pop('Phototourism', None)
     # basenames.pop('ScanNet', None)
-    # type_table(generate_calib_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
-    # type_table(generate_calib_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
-    # type_table(generate_calib_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
+    type_table(generate_calib_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
+    type_table(generate_calib_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
+    type_table(generate_calib_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
     # type_table(generate_shared_table, make_pdf=True, t='2.0t', features='splg')
     # type_table(generate_varying_table, make_pdf=True, t='2.0t', features='splg')
     #
