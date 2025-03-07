@@ -136,8 +136,8 @@ def generate_shared_table(cprint=print, prefix='', master=False, **kwargs):
     cprint(column_names + '\\\\')
     cprint('\\midrule')
 
-    # for features in ['splg', 'roma', 'mast3r']:
-    for features in ['roma', 'mast3r']:
+    for features in ['splg', 'roma', 'mast3r']:
+    # for features in ['roma', 'mast3r']:
         master = 'mast3r' == features
         experiments = get_experiments('shared', master=master)
         experiments = [x for x in experiments if 'reproj' not in x]
@@ -294,8 +294,8 @@ if __name__ == '__main__':
     basenames.pop('Phototourism', None)
     basenames.pop('ScanNet', None)
     # type_table(generate_calib_table, make_pdf=True, t='2.0t')
-    # type_table(generate_shared_table, make_pdf=True, t='2.0t')
-    type_table(generate_varying_table, make_pdf=True, t='2.0t')
+    type_table(generate_shared_table, make_pdf=True, t='2.0t')
+    # type_table(generate_varying_table, make_pdf=True, t='2.0t')
     #
     # type_table(generate_calib_table, make_pdf=True, t='2.0t', features='roma')
     # type_table(generate_shared_table, make_pdf=True, t='2.0t', features='roma')

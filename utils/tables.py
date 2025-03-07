@@ -47,7 +47,7 @@ def init_latex(destination):
     with open(destination, 'w') as file:
         file.write(latex_preamble)
 
-def get_median_errors(scene, experiments, prefix='calibrated', t='', features='splg', calc_f_err=False):
+def get_median_errors(scene, experiments, prefix='calibrated', t='', features='splg', calc_f_err=False, **kwargs):
     if len(t) > 0:
         t_string = f'-{t}'
     else:
@@ -142,11 +142,20 @@ def get_means(scene_errors, scenes, experiments):
 
 
 class smart_dict(dict):
-    @staticmethod
-    def __missing__(key):
-        if 'madpose' not in key and 'reproj' not in key and 'mast3r' not in key:
-            return key.replace('_', '-') + '-sampson'
-        return key.replace('_', '-')
+    # @staticmethod
+    # def __missing__(key):
+    #     if 'madpose' not in key and 'reproj' not in key and 'mast3r' not in key:
+    #         return key.replace('_', '-') + '-sampson'
+    #     return key.replace('_', '-')
+
+    def __getitem__(self, key):
+        try:
+            if 'reproj' in key:
+                key = key.replace('reproj-s', 'reproj').replace('_reproj', '')
+            return dict.__getitem__(self, key)
+        except Exception:
+            return key
+
 
 
 method_names_calib = {'5p': '5PT~\\cite{nister2004efficient}',
@@ -160,7 +169,7 @@ method_names_calib = {'5p': '5PT~\\cite{nister2004efficient}',
 
 method_names_calib = smart_dict(method_names_calib)
 
-method_names_shared = {'6p': '6PT~\\cite{hartley2012efficient}',
+method_names_shared = {'6p': '6PT~\\cite{larsson2017efficient}',
                        '3p_reldepth': '3p3d~\\cite{dingfundamental}',
                        'mad_poselib_shift_scale': '4PT$_{suv}f$(M)~\\cite{yu2025relative}',
                        '4p_ours_scale_shift': '4PT$_{suv}f$(\\textbf{ours})',

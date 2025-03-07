@@ -9,7 +9,7 @@ import numpy as np
 from utils.tables import depth_names, method_opts, method_names_calib, method_names_shared, method_names_varying, \
     init_latex, feature_names
 from utils.data import basenames, R_err_fun, t_err_fun, err_fun_pose, \
-    get_experiments, basenames_eth
+    get_experiments, basenames_eth, basenames_pt, basenames_scannet
 from utils.tables import get_median_errors, get_means
 
 # depth_order = [1, 2, 3, 4, 5, 6, 7, 12, 8, 11, 9, 10]
@@ -52,19 +52,24 @@ def print_monodepth_rows(depth, methods, method_names, means, use_focal=False, c
         cprint(f'& {method_names[method]} & {method_opts(method)} & {"&".join(text_rows[i])} \\\\')
 
 
-def generate_calib_table(cprint=print, prefix='', master=False, **kwargs):
+def generate_calib_table(cprint=print, prefix='', basenames=basenames, **kwargs):
     experiments = get_experiments('calib', master=False)
-    experiments = [x for x in experiments if 'reproj' not in x and 'mast3r' not in x]
+    # experiments = [x for x in experiments if 'reproj' not in x and 'mast3r' not in x]
 
-    monodepth_methods = ['3p_reldepth', 'p3p', 'mad_poselib_shift_scale', '3p_ours_shift_scale', 'madpose',
-                         'madpose_ours_scale_shift']
+    # monodepth_methods = ['3p_reldepth', 'p3p', 'mad_poselib_shift_scale', '3p_ours_shift_scale', 'madpose',
+    #                      'madpose_ours_scale_shift']
+    monodepth_methods = ['3p_reldepth', 'p3p', 'mad_poselib_shift_scale', '3p_ours_shift_scale',
+                         'p3p_reproj', 'mad_poselib_shift_scale_reproj', '3p_ours_shift_scale_reproj',
+                         'p3p_reproj-s', 'mad_poselib_shift_scale_reproj-s', '3p_ours_shift_scale_reproj-s',
+                         'madpose', 'madpose_ours_scale_shift']
+
     baseline_methods = ['5p']
 
     experiments = [f'{prefix}{x}' for x in experiments]
     monodepth_methods = [f'{prefix}{x}' for x in monodepth_methods]
     baseline_methods = [f'{prefix}{x}' for x in baseline_methods]
 
-    means = get_all_means(experiments,  ['splg', 'roma'], kwargs)
+    means = get_all_means(experiments,  ['splg', 'roma'], basenames, kwargs)
 
     num_supercols = len(means)
 
@@ -95,7 +100,7 @@ def generate_calib_table(cprint=print, prefix='', master=False, **kwargs):
 
     # experiments.append('mast3r+1')
     # monodepth_methods.append('mast3r')
-    means_master = get_all_means(experiments, ['mast3r'], kwargs)
+    means_master = get_all_means(experiments, ['mast3r'], basenames, kwargs)
     cprint('\\\\')
     cprint('\\multicolumn{', str(3 + 3*num_supercols), '}{c}{\\begin{tabular}{clcccc}\\hline')
 
@@ -111,7 +116,7 @@ def generate_calib_table(cprint=print, prefix='', master=False, **kwargs):
     cprint('\\end{tabular}}')
 
 
-def get_all_means(experiments, features, kwargs):
+def get_all_means(experiments, features, basenames, kwargs):
     means = {}
     for feats in features:
         scene_errors = {}
@@ -265,11 +270,12 @@ def typeset_latex(destination, cprint=print):
         print(f"Error during LaTeX compilation: {e}")
 
 
-def type_table(table_func, prefix='', make_pdf=True, master=False, **kwargs):
+def type_table(table_func, prefix='', make_pdf=True, basenames=basenames, master=False, **kwargs):
     if make_pdf:
         if not os.path.exists('pdfs'):
             os.makedirs('pdfs', exist_ok=True)
         kwarg_string = '-'.join([x for x in kwargs.values() if len(x) > 0])
+        kwarg_string = f'{kwarg_string}-{"-".join(basenames.keys())}'
         destination = f'pdfs/sideways-{prefix}{table_func.__name__}{kwarg_string}.tex'
 
         def cprint(*args):
@@ -278,7 +284,7 @@ def type_table(table_func, prefix='', make_pdf=True, master=False, **kwargs):
 
         init_latex(destination)
         print(prefix, table_func.__name__)
-        table_func(prefix=prefix, cprint=cprint, master=master, **kwargs)
+        table_func(prefix=prefix, cprint=cprint, master=master, basenames=basenames, **kwargs)
         typeset_latex(destination, cprint=cprint)
     else:
         print(prefix, table_func.__name__)
@@ -290,9 +296,11 @@ if __name__ == '__main__':
     # cprint = print
 
     # basenames.pop('ETH', None)
-    basenames.pop('Phototourism', None)
-    basenames.pop('ScanNet', None)
-    type_table(generate_calib_table, make_pdf=True, t='2.0t')
+    # basenames.pop('Phototourism', None)
+    # basenames.pop('ScanNet', None)
+    type_table(generate_calib_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
+    type_table(generate_calib_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
+    type_table(generate_calib_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
     # type_table(generate_shared_table, make_pdf=True, t='2.0t', features='splg')
     # type_table(generate_varying_table, make_pdf=True, t='2.0t', features='splg')
     #
