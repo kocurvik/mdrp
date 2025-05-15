@@ -14,7 +14,7 @@ def madpose_opt_from_dict(d):
     # weight when scoring for the two types of errors
     options.data_type_weights = [1.0, 1.0]
     options.use_ours = d['use_ours']
-    options.use_madpose = d['use_madpose']
+    options.use_4p4d = d['use_4p4d']
 
     est_config = madpose.EstimatorConfig()
     est_config.min_depth_constraint = True
