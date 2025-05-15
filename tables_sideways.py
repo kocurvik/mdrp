@@ -193,10 +193,10 @@ def generate_shared_table(cprint=print, prefix='', basenames=basenames, master=F
     print_monodepth_rows(1, monodepth_methods, method_names_shared, means_master, cprint=cprint, master=True, use_focal=True)
     cprint('\\cmidrule{1-8}')
 
-    # means_master = get_all_means(experiments, ['mast3r_moge'], basenames, prefix='varying_focal', calc_f_err=True, **kwargs)
-    # print_monodepth_rows(1, monodepth_methods, method_names_shared, means_master, cprint=cprint, master=True,
-    #                      use_focal=True)
-    # cprint('\\cmidrule{1-8}')
+    means_master = get_all_means(experiments, ['mast3r_moge'], basenames, prefix='varying_focal', calc_f_err=True, **kwargs)
+    print_monodepth_rows(1, monodepth_methods, method_names_shared, means_master, cprint=cprint, master=True,
+                         use_focal=True)
+    cprint('\\cmidrule{1-8}')
 
     cprint('\\end{tabular}}')
     cprint('\\end{tabular}}')
@@ -212,7 +212,7 @@ def generate_varying_table(prefix='', cprint=print, basenames=basenames, master=
     monodepth_methods = ['4p4d', 'mad_poselib_shift_scale', '4p_ours_scale_shift', '3p_ours_scale', '3p_ours',
                          'mad_poselib_shift_scale_reproj', '4p_ours_scale_shift_reproj', '3p_ours_scale_reproj', '3p_ours_reproj',
                          'mad_poselib_shift_scale_reproj-s', '4p_ours_scale_shift_reproj-s', '3p_ours_scale_reproj-s', '3p_ours_reproj-s',
-                         'madpose', 'madpose_ours_scale']
+                         'madpose', 'madpose_ours_scale', 'madpose_4p4d']
 
     baseline_methods = ['7p']
 
@@ -264,11 +264,11 @@ def generate_varying_table(prefix='', cprint=print, basenames=basenames, master=
     print_monodepth_rows(1, monodepth_methods, method_names_varying, means_master, cprint=cprint, master=True, use_focal=True)
     cprint('\\cmidrule{1-8}')
 
-    # means_master = get_all_means(experiments, ['mast3r_moge'], basenames, prefix='varying_focal', calc_f_err=True, **kwargs)
-    #
-    # print_monodepth_rows(1, monodepth_methods, method_names_varying, means_master, cprint=cprint, master=True,
-    #                      use_focal=True)
-    # cprint('\\cmidrule{1-8}')
+    means_master = get_all_means(experiments, ['mast3r_moge'], basenames, prefix='varying_focal', calc_f_err=True, **kwargs)
+
+    print_monodepth_rows(1, monodepth_methods, method_names_varying, means_master, cprint=cprint, master=True,
+                         use_focal=True)
+    cprint('\\cmidrule{1-8}')
 
     cprint('\\end{tabular}}')
     cprint('\\end{tabular}}')
@@ -319,14 +319,14 @@ if __name__ == '__main__':
     # type_table(generate_calib_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
     # type_table(generate_calib_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
 
-    type_table(generate_shared_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
+    # type_table(generate_shared_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
     # type_table(generate_shared_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
-    type_table(generate_shared_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
+    # type_table(generate_shared_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
     
     
-    type_table(generate_varying_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
+    # type_table(generate_varying_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
     type_table(generate_varying_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
-    type_table(generate_varying_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
+    # type_table(generate_varying_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
     
     # basenames.pop('ETH', None)
     # type_table(generate_varying_table, master=True, make_pdf=True, t='2.0t', features='mast3r')
