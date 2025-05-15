@@ -242,6 +242,7 @@ def eval(args):
     if not args.nmad:
         experiments.extend([f'madpose+{i}' for i in mdepths])
         experiments.extend([f'madpose_ours_scale+{i}' for i in mdepths])
+        experiments.extend([f'madpose_noshift_ours_scale+{i}' for i in mdepths])
     experiments.append('6p')
 
     if args.madonly:
