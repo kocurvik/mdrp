@@ -105,6 +105,7 @@ def eval_experiment(x):
 
     ransac_dict['use_reldepth'] = 'reldepth' in experiment
     ransac_dict['use_p3p'] = 'p3p' in experiment
+    ransac_dict['use_4p4d'] = False
 
     ransac_dict['use_ours'] = 'ours' in experiment
     ransac_dict['use_madpose'] = 'mad_poselib' in experiment
