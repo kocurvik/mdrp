@@ -236,7 +236,8 @@ def eval(args):
 
     if args.fix:
         experiments = []
-        experiments.extend([f'madpose_4p4d+{i}' for i in mdepths])
+        experiments.extend([f'madpose+{i}' for i in [10]])
+        experiments.extend([f'madpose_ours_scale+{i}' for i in [10]])
 
     if args.madonly:
         experiments = []
@@ -316,12 +317,11 @@ def eval(args):
                         if '+' in experiment:
                             depth = int(experiment.split('+')[1])
                             d = data[:, depth_indices(depth)]
+                            if depth == 10 and 'madpose' in experiment:
+                                # convert infs to large val
+                                d[np.isinf(d)] = 1e32
                         else:
                             d = np.ones_like(kp1)
-
-                        if 'madpose_4p4d' in experiment:
-                            # convert infs to max val
-                            d[np.isinf(d)] = 1e32
 
                         yield iterations, experiment, np.copy(kp1), np.copy(kp2), \
                             np.copy(d), R_gt, t_gt, K1, K2, args.threshold, args.reproj_threshold
