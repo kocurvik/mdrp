@@ -69,7 +69,10 @@ def generate_calib_table(cprint=print, prefix='', basenames=basenames, **kwargs)
     monodepth_methods = [f'{prefix}{x}' for x in monodepth_methods]
     baseline_methods = [f'{prefix}{x}' for x in baseline_methods]
 
-    means = get_all_means(experiments,  ['splg', 'roma'], basenames, **kwargs)
+    if 'ScanNet' in basenames.keys():
+        means = get_all_means(experiments, ['splg', 'roma', 'sift'], basenames, **kwargs)
+    else:
+        means = get_all_means(experiments,  ['splg', 'roma'], basenames, **kwargs)
 
     num_supercols = len(means)
 
@@ -149,7 +152,11 @@ def generate_shared_table(cprint=print, prefix='', basenames=basenames, master=F
     monodepth_methods = [f'{prefix}{x}' for x in monodepth_methods]
     baseline_methods = [f'{prefix}{x}' for x in baseline_methods]
 
-    means = get_all_means(experiments, ['splg', 'roma'], basenames, prefix='shared_focal', calc_f_err=True, **kwargs)
+    if 'ScanNet' in basenames.keys():
+        means = get_all_means(experiments, ['splg', 'roma', 'sift'], basenames, prefix='shared_focal', calc_f_err=True,
+                              **kwargs)
+    else:
+        means = get_all_means(experiments, ['splg', 'roma'], basenames, prefix='shared_focal', calc_f_err=True, **kwargs)
 
     num_supercols = len(means)
 
@@ -193,10 +200,10 @@ def generate_shared_table(cprint=print, prefix='', basenames=basenames, master=F
     print_monodepth_rows(1, monodepth_methods, method_names_shared, means_master, cprint=cprint, master=True, use_focal=True)
     cprint('\\cmidrule{1-8}')
 
-    means_master = get_all_means(experiments, ['mast3r_moge'], basenames, prefix='varying_focal', calc_f_err=True, **kwargs)
-    print_monodepth_rows(1, monodepth_methods, method_names_shared, means_master, cprint=cprint, master=True,
-                         use_focal=True)
-    cprint('\\cmidrule{1-8}')
+    # means_master = get_all_means(experiments, ['mast3r_moge'], basenames, prefix='varying_focal', calc_f_err=True, **kwargs)
+    # print_monodepth_rows(1, monodepth_methods, method_names_shared, means_master, cprint=cprint, master=True,
+    #                      use_focal=True)
+    # cprint('\\cmidrule{1-8}')
 
     cprint('\\end{tabular}}')
     cprint('\\end{tabular}}')
@@ -220,7 +227,11 @@ def generate_varying_table(prefix='', cprint=print, basenames=basenames, master=
     monodepth_methods = [f'{prefix}{x}' for x in monodepth_methods]
     baseline_methods = [f'{prefix}{x}' for x in baseline_methods]
 
-    means = get_all_means(experiments, ['splg', 'roma'], basenames, prefix='varying_focal', calc_f_err=True, **kwargs)
+    if 'ScanNet' in basenames.keys():
+        means = get_all_means(experiments, ['splg', 'roma', 'sift'], basenames, prefix='varying_focal', calc_f_err=True,
+                              **kwargs)
+    else:
+        means = get_all_means(experiments, ['splg', 'roma'], basenames, prefix='varying_focal', calc_f_err=True, **kwargs)
 
     num_supercols = len(means)
 
@@ -264,11 +275,11 @@ def generate_varying_table(prefix='', cprint=print, basenames=basenames, master=
     print_monodepth_rows(1, monodepth_methods, method_names_varying, means_master, cprint=cprint, master=True, use_focal=True)
     cprint('\\cmidrule{1-8}')
 
-    means_master = get_all_means(experiments, ['mast3r_moge'], basenames, prefix='varying_focal', calc_f_err=True, **kwargs)
-
-    print_monodepth_rows(1, monodepth_methods, method_names_varying, means_master, cprint=cprint, master=True,
-                         use_focal=True)
-    cprint('\\cmidrule{1-8}')
+    # means_master = get_all_means(experiments, ['mast3r_moge'], basenames, prefix='varying_focal', calc_f_err=True, **kwargs)
+    #
+    # print_monodepth_rows(1, monodepth_methods, method_names_varying, means_master, cprint=cprint, master=True,
+    #                      use_focal=True)
+    # cprint('\\cmidrule{1-8}')
 
     cprint('\\end{tabular}}')
     cprint('\\end{tabular}}')
@@ -317,16 +328,16 @@ if __name__ == '__main__':
     # basenames.pop('ScanNet', None)
     # type_table(generate_calib_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
     # type_table(generate_calib_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
-    # type_table(generate_calib_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
+    type_table(generate_calib_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
 
     # type_table(generate_shared_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
     # type_table(generate_shared_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
     # type_table(generate_shared_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
     
     
-    type_table(generate_varying_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
-    type_table(generate_varying_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
-    type_table(generate_varying_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
+    # type_table(generate_varying_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
+    # type_table(generate_varying_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
+    # type_table(generate_varying_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
     
     # basenames.pop('ETH', None)
     # type_table(generate_varying_table, master=True, make_pdf=True, t='2.0t', features='mast3r')
