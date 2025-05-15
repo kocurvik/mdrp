@@ -177,6 +177,7 @@ method_names_shared = {'6p': '6PT~\\cite{larsson2017efficient}',
                        '3p_ours': '3PT$_{100}f$(\\textbf{ours})',
                        'madpose': '4PT$_{suv}f$(M)~\\cite{yu2025relative}',
                        'madpose_ours_scale': '3PT$_{s00}f$(\\textbf{ours})',
+                       'madpose_noshift_ours_scale': '3PT$_{s00}f$(\\textbf{ours})',
                        'mast3r': '-'
                        }
 # method_names_shared.update({f'nLO-{k}': v for k, v in method_names_shared.items()})
