@@ -240,4 +240,5 @@ def method_opts(method):
 
 feature_names = {'splg': 'SP+LG~\\cite{detone2018superpoint, lindenberger2023lightglue}',
                  'roma': 'RoMA~\\cite{edstedt2024roma}',
-                 'mast3r': 'Mast3r~\\cite{leroy2024grounding}'}
+                 'mast3r': 'Mast3r~\\cite{leroy2024grounding}',
+                 'sift': 'SIFT~\\cite{lowe1999object}'}
