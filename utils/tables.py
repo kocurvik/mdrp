@@ -192,7 +192,7 @@ method_names_varying = {'7p': '7PT~\\cite{hartley2003multiple}',
                         '3p_ours_scale': '3PT$_{s00}f_{1,2}$(\\textbf{ours})',
                         '3p_ours': '3PT$_{100}f_{1,2}$(\\textbf{ours})',
                         'madpose': '4PT$_{suv}f_{1,2}$(M)~\\cite{yu2025relative}',
-                        'madpose_4p4d': '4p4d(M)~\\cite{dingfundamental}',
+                        'madpose_4p4d': '4p4d~\\cite{dingfundamental}',
                         'madpose_ours_scale': '3PT$_{s00}f_{1,2}$(\\textbf{ours})',
                         'mast3r': '-'
                        }
@@ -229,6 +229,8 @@ def method_opts(method):
         return 'R'
     if 'madpose' not in method and 'reproj' not in method and 'mast3r' not in method:
         return 'S'
+    if 'madpose_noshift' in method:
+        return 'H$_{NS}$~\\cite{yu2025relative}'
     if 'madpose' in method:
         return 'H~\\cite{yu2025relative}'
     if 'mast3r' in method:

@@ -141,7 +141,7 @@ def generate_shared_table(cprint=print, prefix='', basenames=basenames, master=F
     monodepth_methods = ['3p_reldepth', 'mad_poselib_shift_scale', '4p_ours_scale_shift', '3p_ours_scale', '3p_ours',
                          'mad_poselib_shift_scale_reproj', '4p_ours_scale_shift_reproj', '3p_ours_scale_reproj', '3p_ours_reproj',
                          'mad_poselib_shift_scale_reproj-s', '4p_ours_scale_shift_reproj-s', '3p_ours_scale_reproj-s', '3p_ours_reproj-s',
-                         'madpose', 'madpose_ours_scale']
+                         'madpose', 'madpose_ours_scale', 'madpose_noshift_ours_scale']
 
     baseline_methods = ['6p']
 
@@ -319,13 +319,13 @@ if __name__ == '__main__':
     # type_table(generate_calib_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
     # type_table(generate_calib_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
 
-    # type_table(generate_shared_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
+    type_table(generate_shared_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
     # type_table(generate_shared_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
     # type_table(generate_shared_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
     
     
     # type_table(generate_varying_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
-    type_table(generate_varying_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
+    # type_table(generate_varying_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
     # type_table(generate_varying_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
     
     # basenames.pop('ETH', None)
