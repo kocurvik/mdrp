@@ -319,14 +319,14 @@ if __name__ == '__main__':
     # type_table(generate_calib_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
     # type_table(generate_calib_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
 
-    type_table(generate_shared_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
+    # type_table(generate_shared_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
     # type_table(generate_shared_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
     # type_table(generate_shared_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
     
     
-    # type_table(generate_varying_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
-    # type_table(generate_varying_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
-    # type_table(generate_varying_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
+    type_table(generate_varying_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
+    type_table(generate_varying_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
+    type_table(generate_varying_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
     
     # basenames.pop('ETH', None)
     # type_table(generate_varying_table, master=True, make_pdf=True, t='2.0t', features='mast3r')
