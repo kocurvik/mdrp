@@ -236,7 +236,7 @@ def eval(args):
 
     if args.fix:
         experiments = []
-        experiments.extend([f'madpose_4p4d+{i}' for i in [10]])
+        experiments.extend([f'madpose_4p4d+{i}' for i in mdepths])
 
     if args.madonly:
         experiments = []
