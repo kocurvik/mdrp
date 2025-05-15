@@ -231,13 +231,12 @@ def eval(args):
     if not args.nmad:
         experiments.extend([f'madpose+{i}' for i in mdepths])
         experiments.extend([f'madpose_ours_scale+{i}' for i in mdepths])
+        experiments.extend([f'madpose_4p4d+{i}' for i in mdepths])
     experiments.append('7p')
 
     if args.fix:
         experiments = []
-        experiments.extend([f'4p_ours_scale_shift+{i}' for i in depths])
-        experiments.extend([f'4p_ours_scale_shift_reproj+{i}' for i in depths])
-        experiments.extend([f'4p_ours_scale_shift_reproj-s+{i}' for i in depths])
+        experiments.extend([f'madpose_4p4d+{i}' for i in mdepths])
 
     if args.madonly:
         experiments = []
