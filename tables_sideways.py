@@ -69,7 +69,7 @@ def generate_calib_table(cprint=print, prefix='', basenames=basenames, **kwargs)
     monodepth_methods = [f'{prefix}{x}' for x in monodepth_methods]
     baseline_methods = [f'{prefix}{x}' for x in baseline_methods]
 
-    if 'ScanNet' in basenames.keys():
+    if 'ScanNet' in basenames.keys() or 'ETH3D':
         means = get_all_means(experiments, ['splg', 'roma', 'sift'], basenames, **kwargs)
     else:
         means = get_all_means(experiments,  ['splg', 'roma'], basenames, **kwargs)
@@ -152,7 +152,7 @@ def generate_shared_table(cprint=print, prefix='', basenames=basenames, master=F
     monodepth_methods = [f'{prefix}{x}' for x in monodepth_methods]
     baseline_methods = [f'{prefix}{x}' for x in baseline_methods]
 
-    if 'ScanNet' in basenames.keys():
+    if 'ScanNet' in basenames.keys() or 'ETH' in basenames.keys():
         means = get_all_means(experiments, ['splg', 'roma', 'sift'], basenames, prefix='shared_focal', calc_f_err=True,
                               **kwargs)
     else:
@@ -227,7 +227,7 @@ def generate_varying_table(prefix='', cprint=print, basenames=basenames, master=
     monodepth_methods = [f'{prefix}{x}' for x in monodepth_methods]
     baseline_methods = [f'{prefix}{x}' for x in baseline_methods]
 
-    if 'ScanNet' in basenames.keys():
+    if 'ScanNet' in basenames.keys() or 'ETH' in basenames.keys():
         means = get_all_means(experiments, ['splg', 'roma', 'sift'], basenames, prefix='varying_focal', calc_f_err=True,
                               **kwargs)
     else:
@@ -326,17 +326,17 @@ if __name__ == '__main__':
     # basenames.pop('ETH', None)
     # basenames.pop('Phototourism', None)
     # basenames.pop('ScanNet', None)
-    # type_table(generate_calib_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
+    type_table(generate_calib_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
     # type_table(generate_calib_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
     # type_table(generate_calib_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
 
-    # type_table(generate_shared_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
+    type_table(generate_shared_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
     # type_table(generate_shared_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
-    type_table(generate_shared_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
+    # type_table(generate_shared_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
 
     type_table(generate_varying_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
-    type_table(generate_varying_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
-    type_table(generate_varying_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
+    # type_table(generate_varying_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
+    # type_table(generate_varying_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
     
     # basenames.pop('ETH', None)
     # type_table(generate_varying_table, master=True, make_pdf=True, t='2.0t', features='mast3r')
