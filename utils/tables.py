@@ -165,6 +165,7 @@ method_names_calib = {'5p': '5PT~\\cite{nister2004efficient}',
                       '3p_ours_shift_scale': '3PT$_{suv}$~(\\textbf{ours})',
                       'madpose': '3PT$_{suv}$(M)~\\cite{yu2025relative}',
                       'madpose_ours_scale_shift': '3PT$_{suv}$~(\\textbf{ours})',
+                      'madpose_noshift_ours_scale': '3PT$_{suv}f$(\\textbf{ours})',
                       'mast3r': '-'}
 
 method_names_calib = smart_dict(method_names_calib)
@@ -195,6 +196,7 @@ method_names_varying = {'7p': '7PT~\\cite{hartley2003multiple}',
                         'madpose': '4PT$_{suv}f_{1,2}$(M)~\\cite{yu2025relative}',
                         'madpose_4p4d': '4p4d~\\cite{dingfundamental}',
                         'madpose_ours_scale': '3PT$_{s00}f_{1,2}$(\\textbf{ours})',
+                        'madpose_noshift_ours_scale': '3PT$_{s00}f_{1,2}$(\\textbf{ours})',
                         'mast3r': '-'
                        }
 # method_names_varying.update({f'nLO-{k}': v for k, v in method_names_varying.items()})

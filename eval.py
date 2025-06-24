@@ -113,6 +113,7 @@ def eval_experiment(x):
 
     ransac_dict['use_reproj'] = 'reproj' in experiment
     ransac_dict['optimize_shift'] = 'reproj-s' in experiment
+    ransac_dict['use_madpose_shift_optim'] = not 'noshift' in experiment
 
     ransac_dict['graduated_steps'] = 3 if 'GLO' in experiment else 0
 
@@ -221,24 +222,28 @@ def eval(args):
     if not args.nmad:
         experiments.extend([f'madpose+{i}' for i in mdepths])
         experiments.extend([f'madpose_ours_scale_shift+{i}' for i in mdepths])
+        experiments.extend([f'madpose_noshift_ours_scale+{i}' for i in mdepths])
     experiments.append('5p')
 
     if args.fix:
         experiments = []
-        experiments.extend([f'mad_poselib_shift_scale+{i}' for i in depths])
-        experiments.extend([f'mad_poselib_shift_scale_reproj+{i}' for i in depths])
-        experiments.extend([f'mad_poselib_shift_scale_reproj-s+{i}' for i in depths])
+        # experiments.extend([f'mad_poselib_shift_scale+{i}' for i in depths])
+        # experiments.extend([f'mad_poselib_shift_scale_reproj+{i}' for i in depths])
+        # experiments.extend([f'mad_poselib_shift_scale_reproj-s+{i}' for i in depths])
+        experiments.extend([f'madpose_noshift_ours_scale+{i}' for i in mdepths])
 
     if args.madours:
         experiments = []
         # experiments.extend([f'madpose+{i}' for i in mdepths])
         experiments.extend([f'madpose_ours_scale_shift+{i}' for i in mdepths])
+        experiments.extend([f'madpose_noshift_ours_scale+{i}' for i in mdepths])
 
     if args.madonly:
         experiments = []
         # experiments.extend([f'madpose+{i}' for i in mdepths])
         experiments.extend([f'madpose+{i}' for i in mdepths])
         experiments.extend([f'madpose_ours_scale_shift+{i}' for i in mdepths])
+        experiments.extend([f'madpose_noshift_ours_scale+{i}' for i in mdepths])
 
     if args.nlo:
         experiments = [f'nLO-{x}' for x in experiments]
