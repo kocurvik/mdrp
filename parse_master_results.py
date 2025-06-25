@@ -7,7 +7,7 @@ import numpy as np
 
 from scipy.spatial.transform import Rotation
 
-from utils.data import R_err_fun, t_err_fun
+from utils.data import R_err_fun, t_err_fun, basenames_eth
 
 from utils.eval_utils import print_results_focal
 
@@ -143,7 +143,12 @@ def get_result_dict(info, R_est, t_est, f1_est, f2_est, R_gt, t_gt, f1_gt, f2_gt
 
 def load_master_results(dataset_path, dir, min_cor=7):
 
-    runtimes = np.loadtxt(os.path.join(dir, 'runtimes.txt')).tolist()
+    if os.path.exists(os.path.join(dir, 'result.json')):
+        with open(os.path.join(dir, 'result.json')) as f:
+            master_results = json.load(f)
+            runtimes = [x['info']['runtime'] for x in master_results]
+    else:
+        runtimes = np.loadtxt(os.path.join(dir, 'runtimes.txt')).tolist()
 
     H5_file = h5py.File(dataset_path)
 
@@ -192,26 +197,25 @@ def load_master_results(dataset_path, dir, min_cor=7):
 
     return results
 
-if __name__ == '__main__':
-    args = parse_args()
 
-    basename = os.path.basename(args.dataset_path).split('.')[0]
-    if args.threshold != 1.0:
-        basename = f'{basename}-{args.threshold}t'
-    if args.reproj_threshold != 16.0:
-        basename = f'{basename}-{args.reproj_threshold}r'
+def parse(dataset_path, master_result_path, shared=False, threshold=2.0, reproj_threshold=16.0):
+    basename = os.path.basename(dataset_path).split('.')[0]
+    if threshold != 1.0:
+        basename = f'{basename}-{threshold}t'
+    if reproj_threshold != 16.0:
+        basename = f'{basename}-{reproj_threshold}r'
+    min_samples = 6 if shared else 7
 
-    min_samples = 6 if args.shared else 7
-    master_results = load_master_results(args.dataset_path, os.path.join(args.master_result_path),
-                                         min_samples)
-
-    if args.shared:
+    # if os.path.exists(os.path.join(master_result_path, 'result.json')):
+    #     with open(os.path.join(master_result_path, 'result.json')) as f:
+    #         master_results = json.load(f)
+    master_results = load_master_results(dataset_path, os.path.join(master_result_path),
+                                             min_samples)
+    if shared:
         json_string = f'shared_focal-{basename}.json'
     else:
         json_string = f'varying_focal-{basename}.json'
-
     json_path = os.path.join('results_new', json_string)
-
     try:
         print("Loading: ", json_string)
         with open(json_path, 'r') as f:
@@ -222,12 +226,18 @@ if __name__ == '__main__':
     except Exception as e:
         print(e)
         results = master_results
-
     experiments = sorted(list(set([x['experiment'] for x in results])))
     print_results_focal(experiments, results)
-
     with open(json_path, 'w') as f:
         json.dump(results, f)
-
     print("Wrote results to:", json_path)
+
+
+if __name__ == '__main__':
+    # args = parse_args()
+
+    for basename in basenames_eth:
+        dataset_path = os.path.join(f'/mnt/d/Research/data/mdrp/mast3r/eth3d/{basename}_mast3r.h5')
+        master_result_path = os.path.join('mast3r_results', basename)
+        parse(dataset_path, master_result_path, shared=True)
 
