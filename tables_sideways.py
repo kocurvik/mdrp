@@ -41,8 +41,17 @@ def print_monodepth_rows(depth, methods, method_names, means, use_focal=False, c
     if depth > 0:
         for j in range(len(text_rows[0])):
             idxs = np.argsort(incdec[j] * arr[:, j])
-            text_rows[idxs[0]][j] = '\\textbf{' + text_rows[idxs[0]][j] + '}'
-            text_rows[idxs[1]][j] = '\\underline{' + text_rows[idxs[1]][j] + '}'
+
+            best_text_row = text_rows[idxs[0]][j]
+            k = 0
+            while text_rows[idxs[k]][j] == best_text_row:
+                text_rows[idxs[k]][j] = '\\textbf{' + text_rows[idxs[k]][j] + '}'
+                k += 1
+
+            second_best_text_row = text_rows[idxs[k]][j]
+            while text_rows[idxs[k]][j] == second_best_text_row:
+                text_rows[idxs[k]][j] = '\\underline{' + text_rows[idxs[k]][j] + '}'
+                k += 1
 
     if master:
         cprint('\\multirow{', len(methods), '}{*}{Mast3r~\\cite{leroy2024grounding}}')
@@ -61,7 +70,7 @@ def generate_calib_table(cprint=print, prefix='', basenames=basenames, **kwargs)
     monodepth_methods = ['3p_reldepth', 'p3p', 'mad_poselib_shift_scale', '3p_ours_shift_scale',
                          'p3p_reproj', 'mad_poselib_shift_scale_reproj', '3p_ours_shift_scale_reproj',
                          'p3p_reproj-s', 'mad_poselib_shift_scale_reproj-s', '3p_ours_shift_scale_reproj-s',
-                         'madpose', 'madpose_ours_scale_shift', 'madpose_noshift_ours_scale']
+                         'madpose', 'madpose_ours_scale_shift']
 
     baseline_methods = ['5p']
 
@@ -328,15 +337,15 @@ if __name__ == '__main__':
     # basenames.pop('ScanNet', None)
     type_table(generate_calib_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
     # type_table(generate_calib_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
-    # type_table(generate_calib_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
+    type_table(generate_calib_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
 
     type_table(generate_shared_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
     # type_table(generate_shared_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
-    # type_table(generate_shared_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
+    type_table(generate_shared_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
 
     type_table(generate_varying_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
     # type_table(generate_varying_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
-    # type_table(generate_varying_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
+    type_table(generate_varying_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
     
     # basenames.pop('ETH', None)
     # type_table(generate_varying_table, master=True, make_pdf=True, t='2.0t', features='mast3r')
