@@ -52,12 +52,13 @@ def print_monodepth_rows(depth, methods, method_names, means, use_focal=False, c
                 if k == len(idxs):
                     break
 
-            second_best_text_row = text_rows[idxs[k]][j]
-            while k < len(idxs) and text_rows[idxs[k]][j] == second_best_text_row:
-                text_rows[idxs[k]][j] = '\\underline{' + text_rows[idxs[k]][j] + '}'
-                k += 1
-                if k == len(idxs):
-                    break
+            if k != len(idxs):
+                second_best_text_row = text_rows[idxs[k]][j]
+                while k < len(idxs) and text_rows[idxs[k]][j] == second_best_text_row:
+                    text_rows[idxs[k]][j] = '\\underline{' + text_rows[idxs[k]][j] + '}'
+                    k += 1
+                    if k == len(idxs):
+                        break
 
     if master:
         cprint('& \\multirow{', len(methods), '}{*}{Mast3r~\\cite{leroy2024grounding}}')
