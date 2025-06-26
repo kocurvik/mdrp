@@ -201,7 +201,7 @@ def generate_shared_table(cprint=print, prefix='', basenames=basenames, master=F
     cprint('\\multicolumn{', str(3 + 5 * num_supercols), '}{c}{\\begin{tabular}{clcccccc}\\hline')
 
     cprint('\\multirow{2.5}{*}{{Depth}} &  \\multirow{2.5}{*}{{Solver}} & \\multirow{2.5}{*}{{Opt.}} '
-           '& \\multicolumn{3}{5}{Mast3r~\\cite{leroy2024grounding}} \\\\ \\cmidrule{4-8}')
+           '& \\multicolumn{5}{c}{Mast3r~\\cite{leroy2024grounding}} \\\\ \\cmidrule{4-8}')
     cprint('&&& $\\epsilon(^\\circ)\\downarrow$ & $\\epsilon_f\\downarrow$ & mAA $\\uparrow$ & mAA$_f$ $\\uparrow$ & $\\tau (ms)\\downarrow$ \\\\ \\cmidrule{1-8}')
 
     print_monodepth_rows(0, baseline_methods, method_names_shared, means_master, cprint=cprint, master=False, use_focal=True)
