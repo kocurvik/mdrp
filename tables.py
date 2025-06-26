@@ -7,7 +7,7 @@ import subprocess
 import numpy as np
 
 from utils.data import basenames, R_err_fun, t_err_fun, err_fun_pose, \
-    get_experiments, basenames_eth
+    get_experiments, basenames_eth, basenames_pt
 from utils.tables import get_median_errors, get_means, method_names_calib, depth_names, method_opts, feature_names, \
     depth_order, method_names_shared, init_latex, method_names_varying
 
@@ -43,8 +43,17 @@ def print_monodepth_rows(depth, methods, method_names, means, use_focal=False, c
     if depth > 0:
         for j in range(len(text_rows[0])):
             idxs = np.argsort(incdec[j] * arr[:, j])
-            text_rows[idxs[0]][j] = '\\textbf{' + text_rows[idxs[0]][j] + '}'
-            text_rows[idxs[1]][j] = '\\underline{' + text_rows[idxs[1]][j] + '}'
+
+            best_text_row = text_rows[idxs[0]][j]
+            k = 0
+            while k < len(idxs) and text_rows[idxs[k]][j] == best_text_row:
+                text_rows[idxs[k]][j] = '\\textbf{' + text_rows[idxs[k]][j] + '}'
+                k += 1
+
+            second_best_text_row = text_rows[idxs[k]][j]
+            while k < len(idxs) and text_rows[idxs[k]][j] == second_best_text_row:
+                text_rows[idxs[k]][j] = '\\underline{' + text_rows[idxs[k]][j] + '}'
+                k += 1
 
     if master:
         cprint('& \\multirow{', len(methods), '}{*}{Mast3r~\\cite{leroy2024grounding}}')
@@ -143,10 +152,12 @@ def generate_shared_table(cprint=print, prefix='', master=False, **kwargs):
         experiments = [x for x in experiments if 'reproj' not in x]
 
         # monodepth_methods = sorted(list(set([x.split('+')[0] for x in experiments]) - {'5p'}))
+
+        monodepth_methods = ['3p_reldepth','mad_poselib_shift_scale', '4p_ours_scale_shift', '3p_ours_scale',
+                             'madpose', 'madpose_ours_scale']
+
         if master:
-            monodepth_methods = list(method_names_shared.keys())[1:]
-        else:
-            monodepth_methods = list(method_names_shared.keys())[1:-1]
+            monodepth_methods.append('mast3r')
 
         baseline_methods = ['6p']
 
@@ -208,11 +219,11 @@ def generate_varying_table(prefix='', cprint=print, master=False, **kwargs):
         experiments = get_experiments('varying', master=master)
         experiments = [x for x in experiments if 'reproj' not in x]
 
-        # monodepth_methods = sorted(list(set([x.split('+')[0] for x in experiments]) - {'5p'}))
+        monodepth_methods = ['4p4d', 'mad_poselib_shift_scale', '4p_ours_scale_shift', '3p_ours_scale',
+                             'madpose', 'madpose_4p4d', 'madpose_ours_scale']
+
         if master:
-            monodepth_methods = list(method_names_varying.keys())[1:]
-        else:
-            monodepth_methods = list(method_names_varying.keys())[1:-1]
+            monodepth_methods.append('mast3r')
 
         baseline_methods = ['7p']
 
@@ -293,8 +304,8 @@ if __name__ == '__main__':
     # basenames.pop('ETH', None)
     basenames.pop('Phototourism', None)
     basenames.pop('ScanNet', None)
-    # type_table(generate_calib_table, make_pdf=True, t='2.0t')
-    type_table(generate_shared_table, make_pdf=True, t='2.0t')
+    # type_table(generate_calib_table, master=True, make_pdf=True, t='2.0t')
+    # type_table(generate_shared_table, make_pdf=True, t='2.0t')
     # type_table(generate_varying_table, make_pdf=True, t='2.0t')
     #
     # type_table(generate_calib_table, make_pdf=True, t='2.0t', features='roma')
@@ -304,15 +315,14 @@ if __name__ == '__main__':
     # basenames.pop('ETH', None)
     # type_table(generate_varying_table, master=True, make_pdf=True, t='2.0t', features='mast3r')
     #
-    basenames.pop('Phototourism', None)
-    basenames['ETH'] = basenames_eth
-    type_table(generate_shared_table, master=True, make_pdf=True, t='2.0t', features='mast3r')
+    # basenames.pop('ETH', None)
+    # basenames['ETH'] = basenames_eth
+    type_table(generate_shared_table, master=True, make_pdf=True, t='2.0t')
 
-    basenames.pop('Phototourism', None)
+
     basenames.pop('ETH', None)
-    type_table(generate_calib_table, master=True, make_pdf=True, t='2.0t', features='mast3r_moge')
-    type_table(generate_shared_table, master=True, make_pdf=True, t='2.0t', features='mast3r_moge')
-    type_table(generate_varying_table, master=True, make_pdf=True, t='2.0t', features='mast3r_moge')
+    basenames['Phototourism'] = basenames_pt
+    type_table(generate_varying_table, master=True, make_pdf=True, t='2.0t')
 
 
 
