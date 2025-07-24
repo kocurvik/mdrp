@@ -102,6 +102,7 @@ def get_experiments(prefix, depths=None, master=False, nmad=False, graph=False):
             experiments.extend([f'mad_poselib_shift_scale+{i}' for i in depths])
             experiments.extend([f'4p4d+{i}' for i in depths])
             experiments.extend([f'3p_ours_scale_ff+{i}' for i in depths])
+            experiments.extend([f'3p_ours_scale_repeat+{i}' for i in depths])
             experiments.append('7p')
 
         if 'shared' in prefix:
