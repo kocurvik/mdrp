@@ -599,5 +599,6 @@ if __name__ == '__main__':
             # generate_graphs('ETH', 'shared_focal', features=features, depth=depth)
         
             # generate_graphs('ScanNet', 'varying_focal', features=features, depth=depth, master=False)
-            generate_graphs('Phototourism', 'varying_focal', features=features, depth=depth, xlim=[9.5, 108])
+            # generate_graphs('Phototourism', 'varying_focal', features=features, depth=depth, xlim=[9.5, 108])
+            generate_graphs('Phototourism', 'varying_focal', features=features, depth=depth, xlim=[5.5, 108])
 
