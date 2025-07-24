@@ -408,7 +408,7 @@ def generate_graphs(dataset, results_type, t='-2.0t', features='splg', depth=12,
 
 
     depths = [depth]
-    experiments = get_experiments(results_type, depths=depths, nmad=True)
+    experiments = get_experiments(results_type, depths=depths, nmad=True, graph=True)
     experiments = [x for x in experiments if 'reproj' not in x]
 
 
@@ -584,7 +584,7 @@ def draw_all(experiments, fs, xs, ys, title=None, colors=None, styles=None, ylim
 if __name__ == '__main__':
     # generate_eth_roma()
     
-    for features in ['roma']:
+    for features in ['splg']:
     # for features in ['mast3r_moge']:
         # for depth in [1, 2, 6, 10, 12]:
         for depth in [10]:

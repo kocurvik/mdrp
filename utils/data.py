@@ -83,7 +83,7 @@ def err_fun_pose(r):
     return max(R_err_fun(r), t_err_fun(r))
 
 
-def get_experiments(prefix, depths=None, master=False, nmad=False):
+def get_experiments(prefix, depths=None, master=False, nmad=False, graph=False):
     experiments = []
     if depths is None:
         mdepths = [1, 2, 6, 10, 12]
@@ -94,6 +94,21 @@ def get_experiments(prefix, depths=None, master=False, nmad=False):
     if master:
         depths = [1]
         mdepths = [1]
+
+    if graph:
+        if 'varying' in prefix:
+            experiments.extend([f'3p_ours_scale+{i}' for i in depths])
+            experiments.extend([f'4p_ours_scale_shift+{i}' for i in depths])
+            experiments.extend([f'mad_poselib_shift_scale+{i}' for i in depths])
+            experiments.extend([f'4p4d+{i}' for i in depths])
+            experiments.extend([f'3p_ours_scale_ff+{i}' for i in depths])
+            experiments.append('7p')
+
+        if 'shared' in prefix:
+            return []
+
+        return experiments
+
 
     if 'calib' in prefix:
         experiments.extend([f'3p_reldepth+{i}' for i in depths])
