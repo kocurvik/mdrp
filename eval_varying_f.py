@@ -1,6 +1,6 @@
 import argparse
 import json
-from multiprocessing import Process, Queue, set_start_method
+from multiprocessing import Process, Queue
 import time
 import os
 import signal
@@ -343,7 +343,6 @@ def eval(args):
         if args.num_workers == 1:
             results = [eval_experiment(x) for x in tqdm(gen_data(), total=total_length)]
         else:
-            set_start_method('spawn')
             pool = NoDaemonProcessPool(args.num_workers)
             results = [x for x in pool.imap(run_with_timeout, tqdm(gen_data(), total=total_length))]
 
