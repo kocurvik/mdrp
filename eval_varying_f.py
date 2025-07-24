@@ -306,6 +306,37 @@ def comprehensive_memory_diagnostic():
     print("=== END DIAGNOSTIC ===\n")
 
 
+def minimize_memory_footprint():
+    """Reduce virtual memory footprint before forking"""
+    import gc
+    import sys
+
+    # Force garbage collection
+    gc.collect()
+
+    # Try to reduce numpy memory pools (if using numpy >= 1.20)
+    try:
+        import numpy as np
+        if hasattr(np, '_get_madvise_hugepage'):
+            # Disable memory pools that increase virtual memory
+            import os
+            os.environ['NPY_DISABLE_CPU_FEATURES'] = 'AVX512F'
+    except:
+        pass
+
+    # Clear any cached modules that might hold large memory maps
+    if 'matplotlib' in sys.modules:
+        import matplotlib
+        matplotlib.pyplot.close('all')
+
+    # Final garbage collection
+    gc.collect()
+
+    print(f"Memory footprint after cleanup:")
+    process = psutil.Process(os.getpid())
+    print(f"VMS: {process.memory_info().vms / 1024 ** 3:.2f} GB")
+
+
 def eval(args):
     dataset_path = args.dataset_path
     basename = os.path.basename(dataset_path).split('.')[0]
@@ -444,6 +475,8 @@ def eval(args):
         if args.num_workers == 1:
             results = [eval_experiment(x) for x in tqdm(gen_data(), total=total_length)]
         else:
+            comprehensive_memory_diagnostic()
+            minimize_memory_footprint()
             comprehensive_memory_diagnostic()
             pool = NoDaemonProcessPool(args.num_workers)
             results = [x for x in pool.imap(run_with_timeout, tqdm(gen_data(), total=total_length))]
