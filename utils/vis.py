@@ -101,8 +101,8 @@ def get_colors_styles_fixed(results_type):
     if 'varying' in results_type:
         colors = {
             'madpose_ours_scale': c[0],
-            'madpose_ours_scale_repeat': c[0],
             '3p_ours_scale_ff': c[0],
+            '3p_ours_scale_repeat': c[0],
             '3p_ours_scale': c[0],
             '4p_ours_scale_shift': c[1],
             'mad_poselib_shift_scale': c[2],
