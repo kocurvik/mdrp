@@ -205,6 +205,107 @@ def run_with_timeout(x, timeout=20):
         return get_exception_result_dict(x)
 
 
+import os
+import resource
+import psutil
+import subprocess
+
+
+def comprehensive_memory_diagnostic():
+    print("=== COMPREHENSIVE MEMORY DIAGNOSTIC ===")
+
+    # Process info
+    process = psutil.Process(os.getpid())
+    print(f"PID: {os.getpid()}")
+    print(f"RSS (Physical): {process.memory_info().rss / 1024 ** 3:.2f} GB")
+    print(f"VMS (Virtual): {process.memory_info().vms / 1024 ** 3:.2f} GB")
+    print(f"Shared: {process.memory_info().shared / 1024 ** 3:.2f} GB")
+
+    # System memory
+    mem = psutil.virtual_memory()
+    print(f"System RAM - Total: {mem.total / 1024 ** 3:.2f} GB, Available: {mem.available / 1024 ** 3:.2f} GB")
+
+    # All ulimits
+    print("\n=== ULIMITS ===")
+    limits = {
+        'RLIMIT_AS': 'Virtual memory',
+        'RLIMIT_CORE': 'Core file size',
+        'RLIMIT_CPU': 'CPU time',
+        'RLIMIT_DATA': 'Data segment',
+        'RLIMIT_FSIZE': 'File size',
+        'RLIMIT_MEMLOCK': 'Locked memory',
+        'RLIMIT_NOFILE': 'Open files',
+        'RLIMIT_NPROC': 'Processes',
+        'RLIMIT_RSS': 'RSS',
+        'RLIMIT_STACK': 'Stack size'
+    }
+
+    for limit_name, description in limits.items():
+        if hasattr(resource, limit_name):
+            soft, hard = resource.getrlimit(getattr(resource, limit_name))
+            print(f"{description}: soft={soft}, hard={hard}")
+
+    # Kernel limits
+    print("\n=== KERNEL LIMITS ===")
+    kernel_files = [
+        '/proc/sys/kernel/pid_max',
+        '/proc/sys/kernel/threads-max',
+        '/proc/sys/vm/max_map_count',
+        '/proc/sys/vm/overcommit_memory',
+        '/proc/sys/vm/overcommit_ratio'
+    ]
+
+    for file_path in kernel_files:
+        try:
+            with open(file_path, 'r') as f:
+                value = f.read().strip()
+                print(f"{file_path}: {value}")
+        except:
+            print(f"{file_path}: Could not read")
+
+    # Process count
+    try:
+        result = subprocess.run(['ps', '-u', str(os.getuid())],
+                                capture_output=True, text=True)
+        process_count = len(result.stdout.strip().split('\n')) - 1
+        print(f"\nCurrent processes for user: {process_count}")
+    except:
+        print("\nCould not count processes")
+
+    # Memory mappings count
+    try:
+        with open(f'/proc/{os.getpid()}/maps', 'r') as f:
+            maps_count = len(f.readlines())
+        print(f"Memory mappings: {maps_count}")
+    except:
+        print("Could not read memory mappings")
+
+    # SLURM info if available
+    if 'SLURM_JOB_ID' in os.environ:
+        print(f"\n=== SLURM INFO ===")
+        print(f"Job ID: {os.environ['SLURM_JOB_ID']}")
+
+        # Try to read cgroup limits
+        job_id = os.environ['SLURM_JOB_ID']
+        uid = os.getuid()
+
+        cgroup_files = [
+            f'/sys/fs/cgroup/memory/slurm/uid_{uid}/job_{job_id}/memory.limit_in_bytes',
+            f'/sys/fs/cgroup/pids/slurm/uid_{uid}/job_{job_id}/pids.max',
+            f'/sys/fs/cgroup/memory/slurm/uid_{uid}/job_{job_id}/memory.usage_in_bytes'
+        ]
+
+        for file_path in cgroup_files:
+            try:
+                with open(file_path, 'r') as f:
+                    value = f.read().strip()
+                    print(f"{file_path}: {value}")
+            except:
+                print(f"{file_path}: Could not read")
+
+    print("=== END DIAGNOSTIC ===\n")
+
+
 def eval(args):
     dataset_path = args.dataset_path
     basename = os.path.basename(dataset_path).split('.')[0]
@@ -343,8 +444,7 @@ def eval(args):
         if args.num_workers == 1:
             results = [eval_experiment(x) for x in tqdm(gen_data(), total=total_length)]
         else:
-            import gc
-            gc.collect()
+            comprehensive_memory_diagnostic()
             pool = NoDaemonProcessPool(args.num_workers)
             results = [x for x in pool.imap(run_with_timeout, tqdm(gen_data(), total=total_length))]
 
