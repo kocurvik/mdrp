@@ -144,6 +144,7 @@ def eval_experiment(x):
     ransac_dict['use_reproj'] = 'reproj' in experiment
 
     ransac_dict['filter_focals'] = 'ff' in experiment
+    ransac_dict['filter_scale'] = 'fs' in experiment
 
     if 'madpose' in experiment:
         opt, est_config = madpose_opt_from_dict(ransac_dict)
@@ -244,8 +245,8 @@ def eval(args):
         # experiments.extend([f'madpose_ours_scale+{i}' for i in [10]])
         # experiments.extend([f'madpose_noshift_ours_scale+{i}' for i in mdepths])
         # experiments.extend([f'madpose_noshift_ours_scale+{i}' for i in mdepths])
-        experiments.extend([f'3p_ours_scale+{i}' for i in depths])
-        experiments.extend([f'3p_ours_scale_ff+{i}' for i in depths])
+        # experiments.extend([f'3p_ours_scale+{i}' for i in depths])
+        experiments.extend([f'3p_ours_scale_ff_fs+{i}' for i in depths])
 
     if args.madonly:
         experiments = []
