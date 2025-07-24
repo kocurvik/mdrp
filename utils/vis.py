@@ -101,7 +101,7 @@ def get_colors_styles_fixed(results_type):
     if 'varying' in results_type:
         colors = {
             'madpose_ours_scale': c[0],
-            '3p_ours_scale_ff_fs': c[0],
+            '3p_ours_scale_ff': c[0],
             '3p_ours_scale': c[0],
             '4p_ours_scale_shift': c[1],
             'mad_poselib_shift_scale': c[2],
@@ -114,7 +114,7 @@ def get_colors_styles_fixed(results_type):
         styles = {
             'madpose_ours_scale': 'dashed',
             '3p_ours_scale': 'solid',
-            '3p_ours_scale_ff_fs': 'dotted',
+            '3p_ours_scale_ff': 'dotted',
             '4p_ours_scale_shift': 'solid',
             'mad_poselib_shift_scale': 'solid',
             'madpose': 'dashed',
