@@ -310,7 +310,6 @@ def minimize_memory_footprint():
     """Reduce virtual memory footprint before forking"""
     import gc
     import sys
-    import os
 
     # Force garbage collection
     gc.collect()
