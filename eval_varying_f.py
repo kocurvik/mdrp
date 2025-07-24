@@ -347,7 +347,7 @@ def eval(args):
         # experiments.extend([f'madpose_noshift_ours_scale+{i}' for i in mdepths])
         # experiments.extend([f'madpose_noshift_ours_scale+{i}' for i in mdepths])
         # experiments.extend([f'3p_ours_scale+{i}' for i in depths])
-        experiments.extend([f'3p_ours_scale_ff_fs+{i}' for i in depths])
+        experiments.extend([f'3p_ours_scale_ff+{i}' for i in depths])
 
     if args.madonly:
         experiments = []
