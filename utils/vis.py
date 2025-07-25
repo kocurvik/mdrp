@@ -449,7 +449,7 @@ def generate_graphs(dataset, results_type, t='-2.0t', features='splg', depth=12,
 
         calc_maa(b, experiments, iterations_list, results, fs, xs, ys)
 
-    draw_all(experiments, fs, xs, ys, title=f'{results_type}-{dataset}-{bb}-{features}', colors=colors, styles=styles, ylim=ylim, xlim=xlim)
+    draw_all(experiments, fs, xs, ys, title=f'{results_type}-{dataset}-{features}', colors=colors, styles=styles, ylim=ylim, xlim=xlim)
 
 
 
