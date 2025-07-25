@@ -411,8 +411,7 @@ def draw_rotation_angle_f_err(experiments, results):
 
 
 def generate_graphs(dataset, results_type, t='-2.0t', features='splg', depth=12, master=False, ylim=None, xlim=None):
-    basenames_main = get_basenames(dataset)
-
+    basenames = get_basenames(dataset)
 
     depths = [depth]
     experiments = get_experiments(results_type, depths=depths, nmad=True, graph=True)
@@ -427,33 +426,30 @@ def generate_graphs(dataset, results_type, t='-2.0t', features='splg', depth=12,
 
     iterations_list = [50, 100, 200, 500, 1000]
 
-    for bb in basenames_main:
-        basenames = [bb]
+    xs = np.empty([len(basenames), len(experiments), len(iterations_list)])
+    ys = np.empty([len(basenames), len(experiments), len(iterations_list)])
+    fs = np.empty([len(basenames), len(experiments), len(iterations_list)])
 
-        xs = np.empty([len(basenames), len(experiments), len(iterations_list)])
-        ys = np.empty([len(basenames), len(experiments), len(iterations_list)])
-        fs = np.empty([len(basenames), len(experiments), len(iterations_list)])
+    for b, basename in enumerate(basenames):
+        if 'varying' in results_type:
+            json_path = os.path.join('results_new', f'{results_type}-{basename}_{features}{t}-graph.json')
+        else:
+            json_path = os.path.join('results_new', f'{results_type}-graph-{basename}_{features}{t}.json')
+        print(f'json_path: {json_path}')
+        with open(json_path, 'r') as f:
+            results = [x for x in json.load(f) if x['experiment'] in experiments]
 
-        for b, basename in enumerate(basenames):
-            if 'varying' in results_type:
-                json_path = os.path.join('results_new', f'{results_type}-{basename}_{features}{t}-graph.json')
-            else:
-                json_path = os.path.join('results_new', f'{results_type}-graph-{basename}_{features}{t}.json')
-            print(f'json_path: {json_path}')
-            with open(json_path, 'r') as f:
-                results = [x for x in json.load(f) if x['experiment'] in experiments]
+        if master:
+            master_json_path = os.path.join('results_new', f'{results_type}-mast3rgraph-{basename}.json')
+            with open(master_json_path, 'r') as f:
+                # master_results = json.load(f)
+                master_results = [x for x in json.load(f) if x['experiment'] == 'mast3r']
 
-            if master:
-                master_json_path = os.path.join('results_new', f'{results_type}-mast3rgraph-{basename}.json')
-                with open(master_json_path, 'r') as f:
-                    # master_results = json.load(f)
-                    master_results = [x for x in json.load(f) if x['experiment'] == 'mast3r']
+            results.extend(master_results)
 
-                results.extend(master_results)
+        calc_maa(b, experiments, iterations_list, results, fs, xs, ys)
 
-            calc_maa(b, experiments, iterations_list, results, fs, xs, ys)
-
-        draw_all(experiments, fs, xs, ys, title=f'{results_type}-{dataset}-{bb}-{features}', colors=colors, styles=styles, ylim=ylim, xlim=xlim)
+    draw_all(experiments, fs, xs, ys, title=f'{results_type}-{dataset}-{bb}-{features}', colors=colors, styles=styles, ylim=ylim, xlim=xlim)
 
 
 
@@ -608,5 +604,5 @@ if __name__ == '__main__':
         
             # generate_graphs('ScanNet', 'varying_focal', features=features, depth=depth, master=False)
             # generate_graphs('Phototourism', 'varying_focal', features=features, depth=depth, xlim=[9.5, 108])
-            generate_graphs('Phototourism', 'varying_focal', features=features, depth=depth, xlim=[5.5, 108])
+            generate_graphs('Phototourism', 'varying_focal', features=features, depth=depth, xlim=[3.0, 120])
 
