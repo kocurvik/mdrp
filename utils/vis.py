@@ -534,7 +534,7 @@ def generate_eth_roma():
     draw_all(all_experiments, fs, xs, ys, title='eth_shared_roma', colors=colors, styles=styles, ylim=[80, 88])
 
 def draw_all(experiments, fs, xs, ys, title=None, colors=None, styles=None, ylim=None, ylimf=None, xlim=None):
-    fig = plt.figure(figsize=(8, 6), frameon=True)
+    fig = plt.figure(figsize=(8, 3), frameon=True)
     for i, experiment in enumerate(experiments):
         if colors is not None:
             experiment = experiment.split('+')[0]
@@ -604,5 +604,5 @@ if __name__ == '__main__':
         
             # generate_graphs('ScanNet', 'varying_focal', features=features, depth=depth, master=False)
             # generate_graphs('Phototourism', 'varying_focal', features=features, depth=depth, xlim=[9.5, 108])
-            generate_graphs('Phototourism', 'varying_focal', features=features, depth=depth, xlim=[3.0, 120])
+            generate_graphs('Phototourism', 'varying_focal', features=features, depth=depth, xlim=[3.0, 120], ylim=[35.0, 50.0])
 
