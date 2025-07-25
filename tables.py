@@ -222,7 +222,7 @@ def generate_varying_table(prefix='', cprint=print, master=False, **kwargs):
     # for features in ['roma', 'mast3r']:
         master = 'mast3r' == features
         experiments = get_experiments('varying', master=master)
-        experiments = [x for x in experiments if 'reproj' not in x]
+        # experiments = [x for x in experiments if 'reproj' not in x]
 
         # monodepth_methods = ['4p4d', 'mad_poselib_shift_scale', '4p_ours_scale_shift', '3p_ours_scale',
         #                      'madpose', 'madpose_4p4d', 'madpose_ours_scale']
