@@ -424,8 +424,8 @@ def generate_graphs(dataset, results_type, t='-2.0t', features='splg', depth=12,
 
     iterations_list = [50, 100, 200, 500, 1000]
 
-    for b in basenames_main:
-        basenames = [b]
+    for bb in basenames_main:
+        basenames = [bb]
 
         xs = np.empty([len(basenames), len(experiments), len(iterations_list)])
         ys = np.empty([len(basenames), len(experiments), len(iterations_list)])
@@ -450,7 +450,7 @@ def generate_graphs(dataset, results_type, t='-2.0t', features='splg', depth=12,
 
             calc_maa(b, experiments, iterations_list, results, fs, xs, ys)
 
-        draw_all(experiments, fs, xs, ys, title=f'{results_type}-{dataset}-{b}-{features}', colors=colors, styles=styles, ylim=ylim, xlim=xlim)
+        draw_all(experiments, fs, xs, ys, title=f'{results_type}-{dataset}-{bb}-{features}', colors=colors, styles=styles, ylim=ylim, xlim=xlim)
 
 
 
