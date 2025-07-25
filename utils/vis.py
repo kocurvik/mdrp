@@ -416,7 +416,7 @@ def generate_graphs(dataset, results_type, t='-2.0t', features='splg', depth=12,
 
     depths = [depth]
     experiments = get_experiments(results_type, depths=depths, nmad=True, graph=True)
-    experiments = [x for x in experiments if 'reproj' not in x]
+    # experiments = [x for x in experiments if 'reproj' not in x]
 
 
     colors, styles = get_colors_styles_fixed(results_type)
