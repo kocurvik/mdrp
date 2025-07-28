@@ -308,44 +308,13 @@ if __name__ == '__main__':
     # just print normally
     # cprint = print
 
-    # basenames.pop('ETH', None)
     basenames.pop('Phototourism', None)
     basenames.pop('ScanNet', None)
-    # type_table(generate_calib_table, master=True, make_pdf=True, t='2.0t')
-    # type_table(generate_shared_table, make_pdf=True, t='2.0t')
-    # type_table(generate_varying_table, make_pdf=True, t='2.0t')
-    #
-    # type_table(generate_calib_table, make_pdf=True, t='2.0t', features='roma')
-    # type_table(generate_shared_table, make_pdf=True, t='2.0t', features='roma')
-    # type_table(generate_varying_table, make_pdf=True, t='2.0t', features='roma')
-    #
-    # basenames.pop('ETH', None)
-    # type_table(generate_varying_table, master=True, make_pdf=True, t='2.0t', features='mast3r')
-    #
-    # basenames.pop('ETH', None)
-    # basenames['ETH'] = basenames_eth
+    # Tables for ETH3D in the main paper
+    type_table(generate_calib_table, master=True, make_pdf=True, t='2.0t')
+    type_table(generate_shared_table, master=True, make_pdf=True, t='2.0t')
 
-    # type_table(generate_shared_table, master=True, make_pdf=True, t='2.0t')
-
-
+    # Tables for Phototourism in the main paper
     basenames.pop('ETH', None)
     basenames['Phototourism'] = basenames_pt
     type_table(generate_varying_table, master=True, make_pdf=True, t='2.0t')
-
-
-
-# print("GLO calib")
-    # generate_calib_table('GLO-')
-    # print("LO shared focal")
-    # generate_shared_table()
-    # print("GLO shared focal")
-    # generate_shared_table('GLO-')
-    # print("NN shared focal")
-    # generate_shared_table('NN-')
-
-    # print("LO varying focal")
-    # generate_varying_table()
-    # print("LO varying focal")
-    # generate_varying_table(lo=True)
-    # print("NN varying focal")
-    # generate_varying_table('NN-')

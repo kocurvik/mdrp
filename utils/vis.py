@@ -588,21 +588,10 @@ def draw_all(experiments, fs, xs, ys, title=None, colors=None, styles=None, ylim
 
 
 if __name__ == '__main__':
-    # generate_eth_roma()
-    
     for features in ['splg']:
-    # for features in ['mast3r_moge']:
         # for depth in [1, 2, 6, 10, 12]:
         for depth in [10]:
-            ...
-            # generate_graphs('ScanNet', 'calibrated', features=features, depth=depth)
-            # generate_graphs('ETH', 'calibrated', features=features, depth=depth)
-            # generate_graphs('Phototourism', 'calibrated', features=features, depth=depth)
+            generate_graphs('ETH', 'shared_focal', features=features, depth=depth, master=True)
         
-            # generate_graphs('ScanNet', 'shared_focal', features=features, depth=depth, master=True)
-            # generate_graphs('ETH', 'shared_focal', features=features, depth=depth)
-        
-            # generate_graphs('ScanNet', 'varying_focal', features=features, depth=depth, master=False)
-            # generate_graphs('Phototourism', 'varying_focal', features=features, depth=depth, xlim=[9.5, 108])
             generate_graphs('Phototourism', 'varying_focal', features=features, depth=depth, xlim=[3.0, 120], ylim=[35.0, 50.0])
 
