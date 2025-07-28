@@ -262,7 +262,6 @@ def eval(args):
     if args.fix:
         experiments = []
         experiments.extend([f'madpose_noshift_ours_scale+{i}' for i in mdepths])
-        # experiments.extend([f'madpose_ours_scale+{i}' for i in mdepths])
 
 
     print(experiments)

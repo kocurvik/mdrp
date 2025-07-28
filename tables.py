@@ -94,7 +94,8 @@ def generate_calib_table(cprint=print, prefix='', master=False, **kwargs):
         experiments = [x for x in experiments if 'reproj' not in x and 'mast3r' not in x]
 
         # monodepth_methods = sorted(list(set([x.split('+')[0] for x in experiments]) - {'5p'}))
-        monodepth_methods = list(method_names_calib.keys())[1:-1]
+        monodepth_methods = ['3p_reldepth', 'p3p', 'mad_poselib_shift_scale', '3p_ours_shift_scale', 'madpose',
+                             'madpose_ours_scale_shift']
         baseline_methods = ['5p']
 
         experiments = [f'{prefix}{x}' for x in experiments]
@@ -311,7 +312,7 @@ if __name__ == '__main__':
     basenames.pop('Phototourism', None)
     basenames.pop('ScanNet', None)
     # Tables for ETH3D in the main paper
-    type_table(generate_calib_table, master=True, make_pdf=True, t='2.0t')
+    type_table(generate_calib_table, master=False, make_pdf=True, t='2.0t')
     type_table(generate_shared_table, master=True, make_pdf=True, t='2.0t')
 
     # Tables for Phototourism in the main paper

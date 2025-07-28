@@ -332,11 +332,10 @@ if __name__ == '__main__':
     # just print normally
     # cprint = print
 
-    # basenames.pop('ETH', None)
-    # basenames.pop('Phototourism', None)
-    # basenames.pop('ScanNet', None)
+    # Generate tables in SM
+
     type_table(generate_calib_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
-    # type_table(generate_calib_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
+    type_table(generate_calib_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
     type_table(generate_calib_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
 
     type_table(generate_shared_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
@@ -347,31 +346,3 @@ if __name__ == '__main__':
     # type_table(generate_varying_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
     type_table(generate_varying_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
     
-    # basenames.pop('ETH', None)
-    # type_table(generate_varying_table, master=True, make_pdf=True, t='2.0t', features='mast3r')
-    #
-    # basenames.pop('Phototourism', None)
-    # basenames['ETH'] = basenames_eth
-    # type_table(generate_shared_table, master=True, make_pdf=True, t='2.0t', features='mast3r')
-    #
-    # basenames.pop('Phototourism', None)
-    # basenames.pop('ETH', None)
-    # type_table(generate_calib_table, master=True, make_pdf=True, t='2.0t', features='mast3r_moge')
-    # type_table(generate_shared_table, master=True, make_pdf=True, t='2.0t', features='mast3r_moge')
-    # type_table(generate_varying_table, master=True, make_pdf=True, t='2.0t', features='mast3r_moge')
-
-# print("GLO calib")
-# generate_calib_table('GLO-')
-# print("LO shared focal")
-# generate_shared_table()
-# print("GLO shared focal")
-# generate_shared_table('GLO-')
-# print("NN shared focal")
-# generate_shared_table('NN-')
-
-# print("LO varying focal")
-# generate_varying_table()
-# print("LO varying focal")
-# generate_varying_table(lo=True)
-# print("NN varying focal")
-# generate_varying_table('NN-')
