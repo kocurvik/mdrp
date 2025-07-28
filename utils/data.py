@@ -174,7 +174,6 @@ def get_experiments(prefix, depths=None, master=False, nmad=False, graph=False):
         if not nmad:
             experiments.extend([f'madpose+{i}' for i in mdepths])
             experiments.extend([f'madpose_ours_scale+{i}' for i in mdepths])
-            experiments.extend([f'madpose_noshift_ours_scale+{i}' for i in mdepths])
             experiments.extend([f'madpose_4p4d+{i}' for i in mdepths])
         experiments.append('7p')
 
