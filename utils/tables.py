@@ -151,7 +151,7 @@ class smart_dict(dict):
     def __getitem__(self, key):
         try:
             if 'reproj' in key:
-                key = key.replace('reproj-s', 'reproj').replace('_reproj', '')
+                key = key.replace('reproj-s', 'reproj').replace('sym_reproj','reproj').replace('_reproj', '')
             return dict.__getitem__(self, key)
         except Exception:
             return key
