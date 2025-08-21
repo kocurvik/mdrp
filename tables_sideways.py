@@ -69,6 +69,7 @@ def generate_calib_table(cprint=print, prefix='', basenames=basenames, **kwargs)
     #                      'madpose_ours_scale_shift']
     monodepth_methods = ['3p_reldepth', 'p3p', 'mad_poselib_shift_scale', '3p_ours_shift_scale',
                          'p3p_reproj', 'mad_poselib_shift_scale_reproj', '3p_ours_shift_scale_reproj',
+                         '3p_ours_shift_scale_sym_reproj',
                          'p3p_reproj-s', 'mad_poselib_shift_scale_reproj-s', '3p_ours_shift_scale_reproj-s',
                          'madpose', 'madpose_ours_scale_shift']
 
@@ -153,6 +154,7 @@ def generate_shared_table(cprint=print, prefix='', basenames=basenames, master=F
     monodepth_methods = ['3p_reldepth', 'mad_poselib_shift_scale', '4p_ours_scale_shift', '3p_ours_scale', '3p_ours',
                          'mad_poselib_shift_scale_reproj', '4p_ours_scale_shift_reproj', '3p_ours_scale_reproj', '3p_ours_reproj',
                          'mad_poselib_shift_scale_reproj-s', '4p_ours_scale_shift_reproj-s', '3p_ours_scale_reproj-s', '3p_ours_reproj-s',
+                         '3p_ours_scale_sym_reproj',
                          'madpose', 'madpose_ours_scale', 'madpose_noshift_ours_scale']
 
     baseline_methods = ['6p']
@@ -228,6 +230,7 @@ def generate_varying_table(prefix='', cprint=print, basenames=basenames, master=
     monodepth_methods = ['4p4d', 'mad_poselib_shift_scale', '4p_ours_scale_shift', '3p_ours_scale', '3p_ours',
                          'mad_poselib_shift_scale_reproj', '4p_ours_scale_shift_reproj', '3p_ours_scale_reproj', '3p_ours_reproj',
                          'mad_poselib_shift_scale_reproj-s', '4p_ours_scale_shift_reproj-s', '3p_ours_scale_reproj-s', '3p_ours_reproj-s',
+                         '3p_ours_scale_sym_reproj',
                          'madpose', 'madpose_ours_scale', 'madpose_noshift_ours_scale', 'madpose_4p4d']
 
     baseline_methods = ['7p']
