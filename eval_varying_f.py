@@ -141,7 +141,6 @@ def eval_experiment(x):
 
     ransac_dict['graduated_steps'] = 3 if 'GLO' in experiment else 0
     ransac_dict['no_normalization'] = 'NN' in experiment
-    ransac_dict['use_reproj'] = 'reproj' in experiment
 
     ransac_dict['filter_focals'] = 'ff' in experiment
     ransac_dict['filter_scale'] = 'fs' in experiment
