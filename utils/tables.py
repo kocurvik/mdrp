@@ -228,6 +228,8 @@ depth_order = [1, 2, 6, 10, 12]
 def method_opts(method):
     if 'reproj-s' in method:
         return 'R$_s$'
+    if 'sym_reproj' in method:
+        return 'R$_sym$'
     if 'reproj' in method:
         return 'R'
     if 'madpose' not in method and 'reproj' not in method and 'mast3r' not in method:
