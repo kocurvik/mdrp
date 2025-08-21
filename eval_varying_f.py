@@ -34,6 +34,7 @@ def parse_args():
     parser.add_argument('-o', '--overwrite', action='store_true', default=False)
     parser.add_argument('--graduated', action='store_true', default=False)
     parser.add_argument('--fix', action='store_true', default=False)
+    parser.add_argument('--sym', action='store_true', default=False)
     parser.add_argument('--ppbug', action='store_true', default=False)
     parser.add_argument('--nn', action='store_true', default=False)
     parser.add_argument('--nlo',action='store_true', default=False)
@@ -138,6 +139,7 @@ def eval_experiment(x):
     ransac_dict['use_reproj'] = 'reproj' in experiment
     ransac_dict['optimize_shift'] = 'reproj-s' in experiment
     ransac_dict['use_madpose_shift_optim'] = not 'noshift' in experiment
+    ransac_dict['sym_repro'] = 'sym_reproj' in experiment
 
     ransac_dict['graduated_steps'] = 3 if 'GLO' in experiment else 0
     ransac_dict['no_normalization'] = 'NN' in experiment
@@ -348,6 +350,10 @@ def eval(args):
         # experiments.extend([f'madpose_noshift_ours_scale+{i}' for i in mdepths])
         # experiments.extend([f'3p_ours_scale+{i}' for i in depths])
         experiments.extend([f'3p_ours_scale_repeat+{i}' for i in depths])
+
+    if args.sym:
+        experiments = []
+        experiments.extend([f'3p_ours_scale_sym_reproj+{i}' for i in depths])
 
     if args.madonly:
         experiments = []

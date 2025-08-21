@@ -34,6 +34,7 @@ def parse_args():
     parser.add_argument('-o', '--overwrite', action='store_true', default=False)
     parser.add_argument('--graduated', action='store_true', default=False)
     parser.add_argument('--fix', action='store_true', default=False)
+    parser.add_argument('--sym', action='store_true', default=False)
     parser.add_argument('--nlo', action='store_true', default=False)
     parser.add_argument('--nmad', action='store_true', default=False)
     parser.add_argument('--madours', action='store_true', default=False)
@@ -112,6 +113,7 @@ def eval_experiment(x):
     ransac_dict['solver_scale'] = 'scale' in experiment
 
     ransac_dict['use_reproj'] = 'reproj' in experiment
+    ransac_dict['sym_repro'] = 'sym_reproj' in experiment
     ransac_dict['optimize_shift'] = 'reproj-s' in experiment
     ransac_dict['use_madpose_shift_optim'] = not 'noshift' in experiment
 
@@ -231,6 +233,12 @@ def eval(args):
         # experiments.extend([f'mad_poselib_shift_scale_reproj+{i}' for i in depths])
         # experiments.extend([f'mad_poselib_shift_scale_reproj-s+{i}' for i in depths])
         experiments.extend([f'madpose_noshift_ours_scale+{i}' for i in mdepths])
+
+    if args.sym:
+        experiments = []
+        experiments.extend([f'3p_ours_shift_scale_sym_reproj+{i}' for i in depths])
+        experiments.extend([f'p3p_sym_reproj+{i}' for i in depths])
+
 
     if args.madours:
         experiments = []
