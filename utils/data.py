@@ -132,6 +132,10 @@ def get_experiments(prefix, depths=None, master=False, nmad=False, graph=False):
         experiments.extend([f'p3p+{i}' for i in depths])
         experiments.extend([f'p3p_reproj+{i}' for i in depths])
         experiments.extend([f'p3p_reproj-s+{i}' for i in depths])
+        experiments.extend([f'p3p_hybrid+{i}' for i in depths])
+        experiments.extend([f'p3p_hybrid_reproj+{i}' for i in depths])
+        experiments.extend([f'p3p_reproj-s+{i}' for i in depths])
+
         experiments.extend([f'mad_poselib_shift_scale+{i}' for i in depths])
         experiments.extend([f'mad_poselib_shift_scale_reproj+{i}' for i in depths])
         experiments.extend([f'mad_poselib_shift_scale_reproj-s+{i}' for i in depths])

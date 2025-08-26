@@ -242,7 +242,7 @@ def method_opts(method):
     if 'reproj-s' in method:
         return 'R$_s$'
     if 'sym_reproj' in method:
-        return 'R$_sym$'
+        return 'R$^{1,2}$'
     if 'reproj' in method:
         return 'R'
     if 'madpose' not in method and 'reproj' not in method and 'mast3r' not in method:
