@@ -89,7 +89,7 @@ def generate_calib_table(cprint=print, prefix='', basenames=basenames, **kwargs)
 
     num_supercols = len(means)
 
-    cprint('\\resizebox{\\linewidth}{!}{')
+    cprint('\\resizebox*{!}{\\textheight}{')
     column_alignment = 'clc' + 'c' * num_supercols * 3
     cprint('\\begin{tabular}{' + column_alignment + '}')
     cprint('\\toprule')
