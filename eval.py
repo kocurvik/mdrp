@@ -113,13 +113,15 @@ def eval_experiment(x):
     ransac_dict['solver_scale'] = 'scale' in experiment
 
     ransac_dict['use_reproj'] = 'reproj' in experiment
-    ransac_dict['sym_repro'] = 'sym_reproj' in experiment
-    ransac_dict['optimize_shift'] = 'reproj-s' in experiment
+    ransac_dict['optimize_symmetric'] = 'sym_reproj' in experiment
+    ransac_dict['optimize_hybrid'] = 'hybrid' in experiment
+    ransac_dict['optimize_shift'] = 'reproj-s' in experiment or 'hybrid-s' in experiment
     ransac_dict['use_madpose_shift_optim'] = not 'noshift' in experiment
 
     ransac_dict['graduated_steps'] = 3 if 'GLO' in experiment else 0
 
-    bundle_dict = {'max_iterations': 0 if lo_iterations == 0 else 100}
+    bundle_dict = {'max_iterations': 0 if lo_iterations == 0 else 100, 'verbose': False}
+    # bundle_dict = {'max_iterations': 0}
 
     camera1 = {'model': 'PINHOLE', 'width': -1, 'height': -1, 'params': [K1[0, 0], K1[1, 1], K1[0, 2], K1[1, 2]]}
     camera2 = {'model': 'PINHOLE', 'width': -1, 'height': -1, 'params': [K2[0, 0], K2[1, 1], K2[0, 2], K2[1, 2]]}
@@ -236,8 +238,17 @@ def eval(args):
 
     if args.sym:
         experiments = []
-        experiments.extend([f'3p_ours_shift_scale_sym_reproj+{i}' for i in depths])
-        experiments.extend([f'p3p_sym_reproj+{i}' for i in depths])
+        depths = [10, 12]
+        experiments.extend([f'3p_ours_shift_scale_hybrid+{i}' for i in depths])
+        experiments.extend([f'3p_ours_shift_scale_hybrid-s+{i}' for i in depths])
+        # experiments.extend([f'3p_ours_shift_scale+{i}' for i in depths])
+        experiments.extend([f'3p_ours_shift_scale_hybrid_reproj+{i}' for i in depths])
+        experiments.extend([f'3p_ours_shift_scale_hybrid-s_reproj+{i}' for i in depths])
+        # experiments.extend([f'3p_ours_shift_scale_reproj+{i}' for i in depths])
+        # experiments.extend([f'madpose+{i}' for i in depths])
+        # experiments.extend([f'madpose_ours_scale_shift+{i}' for i in depths])
+        # experiments.extend([f'3p_ours_shift_scale+{i}' for i in depths])
+        # experiments.extend([f'p3p_sym_reproj+{i}' for i in depths])
 
 
     if args.madours:
