@@ -238,7 +238,6 @@ def eval(args):
 
     if args.sym:
         experiments = []
-        depths = [10, 12]
         experiments.extend([f'3p_ours_shift_scale_hybrid+{i}' for i in depths])
         experiments.extend([f'3p_ours_shift_scale_hybrid-s+{i}' for i in depths])
         # experiments.extend([f'3p_ours_shift_scale+{i}' for i in depths])
