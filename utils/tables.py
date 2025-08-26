@@ -152,6 +152,8 @@ class smart_dict(dict):
         try:
             if 'reproj' in key:
                 key = key.replace('reproj-s', 'reproj').replace('sym_reproj','reproj').replace('_reproj', '')
+            if 'hybrid' in key:
+                key = key.replace('_hybrid-s', '').replace('_hybrid', '')
             return dict.__getitem__(self, key)
         except Exception:
             return key
@@ -226,6 +228,17 @@ depth_order = [1, 2, 6, 10, 12]
 
 
 def method_opts(method):
+    if 'hybrid' in method:
+        if 'hybrid-s' in method:
+            if 'reproj' in method:
+                return 'SR$^{1,2}_s$+R$_s$'
+            else:
+                return 'SR$^{1,2}_s$+S'
+        else:
+            if 'reproj' in method:
+                return 'SR$^{1,2}$+R'
+            else:
+                return 'SR$^{1,2}$+S'
     if 'reproj-s' in method:
         return 'R$_s$'
     if 'sym_reproj' in method:
