@@ -11,6 +11,7 @@ from moge.model.v2 import MoGeModel
 from lightglue import LightGlue, SuperPoint
 from lightglue.utils import load_image, rbd
 import open3d as o3d
+# import open3d.ml.torch as ml3d
 
 import poselib
 from tqdm import tqdm
@@ -129,30 +130,56 @@ class VideoMaker():
         self.vis.capture_screen_image(f'video/frame_{self.i:05d}.png', False)
         print("Updated")
         self.updated = True
+
+    def postprocess(self):
+        self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+
+        fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+        self.writer = cv2.VideoWriter('output.avi', fourcc, 25.0, (self.new_width, 2 * self.new_height))
+
+        for i in range(self.video_length):
+            img_pcd = cv2.imread(f'video/frame_{i:05d}.png')
+            ret, frame = self.cap.read()
+            if ret is None or img_pcd is None:
+                break
+
+            frame_resize = cv2.resize(frame, (self.new_width, self.new_height))
+
+            output_frame = np.concatenate([frame_resize, img_pcd], axis=0)
+            self.writer.write(output_frame)
+
+        self.cap.release()
+        self.writer.release()
+
     def run_visualizer(self, key):
+        # capture first frame
+        self.vis.capture_screen_image(f'video/frame_{self.i:05d}.png', False)
+
 
         if not self.updated:
             print("wating for previous updated")
             return
         print("Running forever")
 
-        every = 1
+
         self.updated = False
         while True:
-            for i in range(every):
-                ret, frame = self.cap.read()
+            ret, frame = self.cap.read()
 
-            if not ret:
+            if not ret or frame is None:
                 print("Done")
                 self.vis.close()
+                self.postprocess()
+                return
 
-            self.i += every
+            self.i += 1
 
             xyz, colors = self.infer_images(self.preprocess_image(frame), None)
 
             # pcd = o3d.geometry.PointCloud()
-            self.pcd.points = o3d.utility.Vector3dVector(xyz)
-            self.pcd.colors = o3d.utility.Vector3dVector(colors)
+            self.pcd.points = o3d.utility.Vector3dVector(np.copy(xyz[::20]))
+            self.pcd.colors = o3d.utility.Vector3dVector(np.copy(colors[::20]))
+
             self.vis.update_geometry(self.pcd)
             self.vis.poll_events()
             self.vis.update_renderer()
@@ -161,29 +188,38 @@ class VideoMaker():
 
     def process_video(self, video_path):
         self.i = 0
-
         self.cap = cv2.VideoCapture(video_path)
         self.video_length = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+        self.video_width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        self.video_height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        self.new_width = self.video_width // 2
+        self.new_height = self.video_height // 2
+
+        # self.postprocess()
+        # return
 
         ret, frame = self.cap.read()
 
         xyz, colors = self.infer_on_anchor(self.preprocess_image(frame))
 
         self.pcd = o3d.geometry.PointCloud()
-        self.pcd.points = o3d.utility.Vector3dVector(xyz)
-        self.pcd.colors = o3d.utility.Vector3dVector(colors)
+        self.pcd.points = o3d.utility.Vector3dVector(np.copy(xyz[::20]))
+        self.pcd.colors = o3d.utility.Vector3dVector(np.copy(colors[::20]))
 
-        pcd_init = o3d.geometry.PointCloud()
-        pcd_init.points = o3d.utility.Vector3dVector(xyz)
-        pcd_init.colors = o3d.utility.Vector3dVector(colors)
+        # pcd_init = o3d.geometry.PointCloud()
+        # pcd_init.points = o3d.utility.Vector3dVector(xyz)
+        # pcd_init.colors = o3d.utility.Vector3dVector(colors)
 
         print("First point cloud loaded!")
 
         # self.pcds = [pcd]
         self.vis = o3d.visualization.VisualizerWithKeyCallback()
+        # self.vis = ml3d.vis.VisualizerWithKeyCallback()
         self.vis.register_key_callback(ord('n'), self.step_visualizer)
         self.vis.register_key_callback(ord(' '), self.run_visualizer)
-        self.vis.create_window(width=640, height=480)
+        self.vis.create_window(width=self.new_width, height=self.new_height)
+        self.vis.get_render_option().background_color = [0, 0, 0]
 
         # self.vis.add_geometry(pcd_init)
         self.vis.add_geometry(self.pcd)
