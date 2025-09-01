@@ -117,7 +117,7 @@ def eval_experiment(x):
     ransac_dict['optimize_hybrid'] = 'hybrid' in experiment
     ransac_dict['optimize_shift'] = 'reproj-s' in experiment or 'hybrid-s' in experiment
     ransac_dict['use_madpose_shift_optim'] = not 'noshift' in experiment
-    ransac_dict['weight_sampson'] = 2.0
+    ransac_dict['weight_sampson'] = 4.0
 
     ransac_dict['graduated_steps'] = 3 if 'GLO' in experiment else 0
 
