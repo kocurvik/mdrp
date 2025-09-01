@@ -239,7 +239,7 @@ def method_opts(method):
                 return 'SR$^{1,2}$+R'
             else:
                 return 'SR$^{1,2}$+S'
-    if 'reproj-s' in method:
+    if 'reproj-s' in method or 'reproj-sfix' in method:
         return 'R$_s$'
     if 'sym_reproj' in method:
         return 'R$^{1,2}$'
