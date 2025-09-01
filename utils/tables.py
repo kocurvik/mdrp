@@ -151,7 +151,7 @@ class smart_dict(dict):
     def __getitem__(self, key):
         try:
             if 'reproj' in key:
-                key = key.replace('reproj-s', 'reproj').replace('sym_reproj','reproj').replace('_reproj', '')
+                key = key.replace('reproj-sfix', 'reproj').replace('reproj-s', 'reproj').replace('sym_reproj','reproj').replace('_reproj', '')
             if 'hybrid' in key:
                 key = key.replace('_hybrid-s', '').replace('_hybrid', '')
             return dict.__getitem__(self, key)
