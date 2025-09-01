@@ -72,9 +72,10 @@ def generate_calib_table(cprint=print, prefix='', basenames=basenames, **kwargs)
                          '3p_ours_shift_scale_sym_reproj',
                          '3p_ours_shift_scale_hybrid', '3p_ours_shift_scale_hybrid-s',
                          '3p_ours_shift_scale_hybrid_reproj', '3p_ours_shift_scale_hybrid-s_reproj',
+                         'p3p_sym_reproj',
                          'p3p_hybrid', 'p3p_hybrid_reproj',
                          'p3p_hybrid-s', 'p3p_hybrid-s_reproj',
-                         'p3p_reproj-s', 'mad_poselib_shift_scale_reproj-s', '3p_ours_shift_scale_reproj-s',
+                         'p3p_reproj-sfix', 'mad_poselib_shift_scale_reproj-sfix', '3p_ours_shift_scale_reproj-sfix',
                          'madpose', 'madpose_ours_scale_shift']
 
     baseline_methods = ['5p']
