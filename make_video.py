@@ -1,21 +1,22 @@
-import time
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
-import cv2
-import torch
 import numpy as np
-from matplotlib import pyplot as plt
+import torch
+import rerun as rr
+import rerun.blueprint as rrb
 
 # from moge.model.v1 import MoGeModel
 from moge.model.v2 import MoGeModel
 
 from lightglue import LightGlue, SuperPoint
 from lightglue.utils import load_image, rbd
-import open3d as o3d
 # import open3d.ml.torch as ml3d
 
 import poselib
 from tqdm import tqdm
 
+import cv2
 
 class VideoMaker():
     def __init__(self):
@@ -89,8 +90,11 @@ class VideoMaker():
 
         d = np.column_stack([depths1, depths2])
 
+        print("Poselib start")
         pose, info = poselib.estimate_relative_pose_w_mono_depth(points1[l], points2[l], d[l],
                                                                  cam_dict_1, cam_dict_2, self.ransac_dict, {})
+
+        print("Poselib end")
 
         print(info['inlier_ratio'])
         print("R: ")
@@ -102,34 +106,7 @@ class VideoMaker():
         pcd_1 /= pose.scale
         pcd_1 = (pose.R @ pcd_1.T).T + pose.t
 
-        return pcd_1, colors_1
-
-    def step_visualizer(self, key):
-
-        if not self.updated:
-            print("wating for previous updated")
-            return
-        print("Updating")
-
-        self.updated = False
-        ret, frame = self.cap.read()
-
-        if not ret:
-            self.vis.close()
-
-        self.i += 1
-
-        xyz, colors = self.infer_images(self.preprocess_image(frame), None)
-
-        # pcd = o3d.geometry.PointCloud()
-        self.pcd.points = o3d.utility.Vector3dVector(xyz[::50])
-        self.pcd.colors = o3d.utility.Vector3dVector(colors[::50])
-        self.vis.update_geometry(self.pcd)
-        self.vis.poll_events()
-        self.vis.update_renderer()
-        self.vis.capture_screen_image(f'video/frame_{self.i:05d}.png', False)
-        print("Updated")
-        self.updated = True
+        return pcd_1, colors_1, K1, pose.R, pose.t
 
     def postprocess(self):
         self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
@@ -151,41 +128,6 @@ class VideoMaker():
         self.cap.release()
         self.writer.release()
 
-    def run_visualizer(self, key):
-        # capture first frame
-        self.vis.capture_screen_image(f'video/frame_{self.i:05d}.png', False)
-
-
-        if not self.updated:
-            print("wating for previous updated")
-            return
-        print("Running forever")
-
-
-        self.updated = False
-        while True:
-            ret, frame = self.cap.read()
-
-            if not ret or frame is None:
-                print("Done")
-                self.vis.close()
-                self.postprocess()
-                return
-
-            self.i += 1
-
-            xyz, colors = self.infer_images(self.preprocess_image(frame), None)
-
-            # pcd = o3d.geometry.PointCloud()
-            self.pcd.points = o3d.utility.Vector3dVector(np.copy(xyz[::20]))
-            self.pcd.colors = o3d.utility.Vector3dVector(np.copy(colors[::20]))
-
-            self.vis.update_geometry(self.pcd)
-            self.vis.poll_events()
-            self.vis.update_renderer()
-            self.vis.capture_screen_image(f'video/frame_{self.i:05d}.png', False)
-            print(f"Updated {self.i} / {self.video_length}")
-
     def process_video(self, video_path):
         self.i = 0
         self.cap = cv2.VideoCapture(video_path)
@@ -196,37 +138,46 @@ class VideoMaker():
         self.new_width = self.video_width // 2
         self.new_height = self.video_height // 2
 
-        # self.postprocess()
-        # return
-
         ret, frame = self.cap.read()
 
         xyz, colors = self.infer_on_anchor(self.preprocess_image(frame))
 
-        self.pcd = o3d.geometry.PointCloud()
-        self.pcd.points = o3d.utility.Vector3dVector(np.copy(xyz[::20]))
-        self.pcd.colors = o3d.utility.Vector3dVector(np.copy(colors[::20]))
+        blueprint = rrb.Blueprint(rrb.Spatial3DView())
+        rr.init("points3d_camera", default_blueprint=blueprint, spawn=True)
+        # rr.init("rerun_example_points3d", spawn=True)
 
-        # pcd_init = o3d.geometry.PointCloud()
-        # pcd_init.points = o3d.utility.Vector3dVector(xyz)
-        # pcd_init.colors = o3d.utility.Vector3dVector(colors)
+        rr.set_time("time", duration=self.i)
 
-        print("First point cloud loaded!")
+        rr.log("world/camera/image", rr.Pinhole(image_from_camera=self.anchor_K, width=self.video_width, height=self.video_height, camera_xyz=rr.ViewCoordinates.RDF,))
+        rr.log("world/camera/image", rr.Transform3D(translation=np.zeros(3), mat3x3=np.eye(3)))
+        rr.log("world/camera/image/rgb", rr.Image(frame, color_model="bgr"))
 
-        # self.pcds = [pcd]
-        self.vis = o3d.visualization.VisualizerWithKeyCallback()
-        # self.vis = ml3d.vis.VisualizerWithKeyCallback()
-        self.vis.register_key_callback(ord('n'), self.step_visualizer)
-        self.vis.register_key_callback(ord(' '), self.run_visualizer)
-        self.vis.create_window(width=self.new_width, height=self.new_height)
-        self.vis.get_render_option().background_color = [0, 0, 0]
+        rr.log("world/points", rr.Points3D(xyz, colors=colors))
 
-        # self.vis.add_geometry(pcd_init)
-        self.vis.add_geometry(self.pcd)
-        self.vis.poll_events()
-        self.vis.update_renderer()
-        self.updated = True
-        self.vis.run()
+
+        while True:
+            ret, frame = self.cap.read()
+            msec = self.cap.get(cv2.CAP_PROP_POS_MSEC)
+
+            if not ret or frame is None:
+                print("Done")
+                return
+
+            self.i += 1
+            xyz, colors, K, R, t = self.infer_images(self.preprocess_image(frame), None)
+
+            rr.set_time("time", duration=msec/1000)
+
+            rr.log("world/camera/image",
+                   rr.Pinhole(image_from_camera=K, width=self.video_width, height=self.video_height,
+                              camera_xyz=rr.ViewCoordinates.RDF, ))
+            rr.log("world/camera/image", rr.Transform3D(translation=t, mat3x3=R))
+            rr.log("world/camera/image/rgb", rr.Image(frame, color_model="bgr"))
+
+            rr.log("world/points", rr.Points3D(xyz, colors=colors))
+
+            print(f"Updated {self.i} / {self.video_length}")
+
 
 
     def get_camera_data(self, image, mde_out):
