@@ -250,16 +250,18 @@ def eval(args):
         experiments = []
         experiments.extend([f'3p_ours_shift_scale_hybrid+{i}' for i in depths])
         experiments.extend([f'3p_ours_shift_scale_hybrid-s+{i}' for i in depths])
-        # experiments.extend([f'3p_ours_shift_scale+{i}' for i in depths])
         experiments.extend([f'3p_ours_shift_scale_hybrid_reproj+{i}' for i in depths])
         experiments.extend([f'3p_ours_shift_scale_hybrid-s_reproj+{i}' for i in depths])
-        # experiments.extend([f'3p_ours_shift_scale_reproj+{i}' for i in depths])
-        # experiments.extend([f'madpose+{i}' for i in depths])
-        # experiments.extend([f'madpose_ours_scale_shift+{i}' for i in depths])
-        # experiments.extend([f'3p_ours_shift_scale+{i}' for i in depths])
-        # experiments.extend([f'p3p_sym_reproj+{i}' for i in depths])
+        experiments.extend([f'3p_ours_shift_scale_sym_reproj+{i}' for i in depths])
+        experiments.extend([f'p3p_sym_reproj+{i}' for i in depths])
         experiments.extend([f'p3p_hybrid-s+{i}' for i in depths])
         experiments.extend([f'p3p_hybrid-s_reproj+{i}' for i in depths])
+        experiments.extend([f'p3p_hybrid+{i}' for i in depths])
+        experiments.extend([f'p3p_hybrid_reproj+{i}' for i in depths])
+
+        experiments.extend([f'p3p_reproj-sfix+{i}' for i in depths])
+        experiments.extend([f'3p_ours_shift_scale_reproj-sfix+{i}' for i in depths])
+        experiments.extend([f'mad_poselib_shift_scale_reproj-sfix+{i}' for i in depths])
 
 
     if args.madours:
