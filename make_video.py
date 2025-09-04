@@ -140,6 +140,8 @@ class VideoCaptureProxy:
                 return 30.0
             elif propId == cv2.CAP_PROP_POS_FRAMES:
                 return self.current_frame_index
+            elif propId == cv2.CAP_PROP_POS_MSEC:
+                return 1000 / 30.0 * self.current_frame_index
             else:
                 # For any other unsupported property, return a default value
                 return 0.0
@@ -222,6 +224,7 @@ class VideoMaker():
         parser.add_argument('--subsample_rate', type=float, default=0.05)
         parser.add_argument('--keyframes', type=int, default=0)
         parser.add_argument('--use_cache', action='store_true', default=False)
+        parser.add_argument('--tall', action='store_true', default=False)
         parser.add_argument('-v', '--verbose', action='store_true', default=False)
         parser.add_argument('--cache_path', type=str, default=None)
         parser.add_argument('--output_path', type=str, default=None)
@@ -306,7 +309,7 @@ class VideoMaker():
         # pcd_1 = (pose.R @ pcd_1.T).T + pose.t
 
         if self.args.keyframes:
-            if info['inlier_ratio'] > 0.75 and self.since_last_anchor > self.args.keyframes \
+            if info['inlier_ratio'] > 0.75 and self.since_last_anchor >= self.args.keyframes \
                     and np.sum(info['inliers']) > 200:
                 if self.args.verbose:
                     print("Setting new keyframe")
@@ -315,19 +318,21 @@ class VideoMaker():
                 self.anchor_cam_dict = cam_dict_1
                 self.anchor_mde_out = mde_out1
 
-                self.anchor_R = pose.R @ self.anchor_R
-                self.anchor_t = pose.R @ self.anchor_t + pose.t
+                self.anchor_R = self.anchor_R @ pose.R
+                self.anchor_t = self.anchor_R @ pose.t + self.anchor_t
                 self.anchor_scale *= pose.scale
 
-                self.since_last_anchor = 0
+                self.since_last_anchor = 1
+
+                tqdm.write(f"New anchor at {self.i} frame!")
 
                 return pcd_1, colors_1, K1, self.anchor_R, self.anchor_t, self.anchor_scale
 
             self.since_last_anchor += 1
 
             return pcd_1, colors_1, K1, \
-                pose.R @ self.anchor_R, \
-                pose.R @ self.anchor_t + pose.t, \
+                self.anchor_R @ pose.R, \
+                self.anchor_R @ pose.t + self.anchor_t, \
                 self.anchor_scale * pose.scale
 
         return pcd_1, colors_1, K1, pose.R, pose.t, pose.scale
@@ -336,7 +341,14 @@ class VideoMaker():
         self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
         fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-        self.writer = cv2.VideoWriter(self.output_path, fourcc, 25.0, (3 * self.new_width, self.new_height))
+        if self.args.tall:
+            concat_index = 0
+        else:
+            concat_index = 1
+
+        new_dims = [self.new_width, self.new_height]
+        new_dims[1 - concat_index] *= 3
+        self.writer = cv2.VideoWriter(self.output_path, fourcc, 25.0, new_dims)
 
         for i in range(self.video_length):
             img_pcd = cv2.imread(os.path.join(self.cache_dir, f'frame_ours_{i:05d}.png'))
@@ -348,15 +360,16 @@ class VideoMaker():
 
             frame_resize = cv2.resize(frame, (self.new_width, self.new_height))
 
-            output_frame = np.concatenate([frame_resize, img_moge, img_pcd], axis=1)
+
+            output_frame = np.concatenate([frame_resize, img_moge, img_pcd], axis=concat_index)
             self.writer.write(output_frame)
 
         self.cap.release()
         self.writer.release()
 
-    def process_video_rr(self, video_path):
+    def process_video_rr(self):
         self.i = 0
-        self.cap = cv2.VideoCapture(video_path)
+        self.cap = VideoCaptureProxy(self.args.video_path)
         self.video_length = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
         self.video_width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -380,30 +393,32 @@ class VideoMaker():
 
         rr.log("world/points", rr.Points3D(xyz, colors=colors))
 
+        with tqdm(total=int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))) as pbar:
+            pbar.update(1)
+            while True:
+                ret, frame = self.cap.read()
+                msec = self.cap.get(cv2.CAP_PROP_POS_MSEC)
 
-        while True:
-            ret, frame = self.cap.read()
-            msec = self.cap.get(cv2.CAP_PROP_POS_MSEC)
+                if not ret or frame is None:
+                    print("Done")
+                    return
 
-            if not ret or frame is None:
-                print("Done")
-                return
+                self.i += 1
+                xyz, colors, K, R, t, scale = self.infer_images(self.preprocess_image(frame), None)
 
-            self.i += 1
-            xyz, colors, K, R, t, scale = self.infer_images(self.preprocess_image(frame), None)
+                rr.set_time("time", duration=msec/1000)
 
-            rr.set_time("time", duration=msec/1000)
+                rr.log("world/camera/image",
+                       rr.Pinhole(image_from_camera=K, width=self.video_width, height=self.video_height,
+                                  camera_xyz=rr.ViewCoordinates.RDF))
+                rr.log("world/camera/image", rr.Transform3D(translation=t, mat3x3=R))
+                rr.log("world/camera/image/rgb", rr.Image(frame, color_model="bgr"))
 
-            rr.log("world/camera/image",
-                   rr.Pinhole(image_from_camera=K, width=self.video_width, height=self.video_height,
-                              camera_xyz=rr.ViewCoordinates.RDF))
-            rr.log("world/camera/image", rr.Transform3D(translation=t, mat3x3=R))
-            rr.log("world/camera/image/rgb", rr.Image(frame, color_model="bgr"))
+                xyz = (R @ (xyz / scale).T).T + t
+                rr.log("world/points", rr.Points3D(xyz, colors=colors))
+                pbar.update(1)
 
-            xyz = (R @ (xyz / scale).T) + t
-            rr.log("world/points", rr.Points3D(xyz, colors=colors))
 
-            print(f"Updated {self.i} / {self.video_length}")
 
 
 
@@ -438,8 +453,9 @@ class VideoMaker():
                 self.vis.capture_screen_image(os.path.join(self.cache_dir, f'frame_naive_{self.i:05d}.png'), False)
 
                 self.pcd.scale(1 / scale, np.zeros(3))
-                self.pcd.rotate(R)
+                self.pcd.rotate(R, np.zeros(3))
                 self.pcd.translate(t)
+                # self.pcd.points = o3d.utility.Vector3dVector(((R @ (xyz[l] / scale).T).T + t).astype(np.float64))
                 self.vis_camera.rotate(R)
                 self.vis_camera.translate(t)
 
@@ -462,8 +478,8 @@ class VideoMaker():
 
         self.video_width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         self.video_height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        self.new_width = self.video_width #// 2
-        self.new_height = self.video_height #// 2
+        self.new_width = self.video_width // 2
+        self.new_height = self.video_height // 2
 
         # we have images in cahce so we can skip
         if self.args.use_cache:
@@ -492,7 +508,7 @@ class VideoMaker():
         self.vis.register_key_callback(ord(' '), self.run_visualizer)
         self.vis.create_window(width=self.new_width, height=self.new_height)
         self.vis.get_render_option().background_color = [0, 0, 0]
-        self.vis.get_render_option().point_size = 1
+        self.vis.get_render_option().point_size = 2
 
         self.vis.add_geometry(self.pcd)
         self.vis.add_geometry(self.vis_camera)
