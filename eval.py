@@ -117,7 +117,7 @@ def eval_experiment(x):
     ransac_dict['optimize_hybrid'] = 'hybrid' in experiment
     ransac_dict['optimize_shift'] = 'reproj-s' in experiment or 'hybrid-s' in experiment
     ransac_dict['use_madpose_shift_optim'] = not 'noshift' in experiment
-    ransac_dict['weight_sampson'] = 4.0
+    ransac_dict['weight_sampson'] = 1.0
 
     ransac_dict['graduated_steps'] = 3 if 'GLO' in experiment else 0
 
@@ -252,16 +252,16 @@ def eval(args):
         experiments.extend([f'3p_ours_shift_scale_hybrid-s+{i}' for i in depths])
         experiments.extend([f'3p_ours_shift_scale_hybrid_reproj+{i}' for i in depths])
         experiments.extend([f'3p_ours_shift_scale_hybrid-s_reproj+{i}' for i in depths])
-        experiments.extend([f'3p_ours_shift_scale_sym_reproj+{i}' for i in depths])
-        experiments.extend([f'p3p_sym_reproj+{i}' for i in depths])
+        # experiments.extend([f'3p_ours_shift_scale_sym_reproj+{i}' for i in depths])
+        # experiments.extend([f'p3p_sym_reproj+{i}' for i in depths])
         experiments.extend([f'p3p_hybrid-s+{i}' for i in depths])
         experiments.extend([f'p3p_hybrid-s_reproj+{i}' for i in depths])
         experiments.extend([f'p3p_hybrid+{i}' for i in depths])
         experiments.extend([f'p3p_hybrid_reproj+{i}' for i in depths])
 
-        experiments.extend([f'p3p_reproj-sfix+{i}' for i in depths])
-        experiments.extend([f'3p_ours_shift_scale_reproj-sfix+{i}' for i in depths])
-        experiments.extend([f'mad_poselib_shift_scale_reproj-sfix+{i}' for i in depths])
+        # experiments.extend([f'p3p_reproj-sfix+{i}' for i in depths])
+        # experiments.extend([f'3p_ours_shift_scale_reproj-sfix+{i}' for i in depths])
+        # experiments.extend([f'mad_poselib_shift_scale_reproj-sfix+{i}' for i in depths])
 
 
     if args.madours:
