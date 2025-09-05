@@ -267,9 +267,14 @@ def eval(args):
 
     if args.sym:
         experiments = []
-        experiments.extend([f'3p_ours_scale_sym_reproj+{i}' for i in depths])
-
-
+        experiments.extend([f'3p_ours_hybrid+{i}' for i in depths])
+        experiments.extend([f'3p_ours_scale_hybrid+{i}' for i in depths])
+        experiments.extend([f'3p_ours_scale_shift_hybrid+{i}' for i in depths])
+        experiments.extend([f'mad_poselib_shift_scale+{i}' for i in depths])
+        experiments.extend([f'3p_ours_hybrid_reproj+{i}' for i in depths])
+        experiments.extend([f'3p_ours_scale_hybrid_reproj+{i}' for i in depths])
+        experiments.extend([f'3p_ours_scale_shift_hybrid_reproj+{i}' for i in depths])
+        experiments.extend([f'mad_poselib_shift_scale_reproj+{i}' for i in depths])
     print(experiments)
 
     if args.threshold != 1.0:
