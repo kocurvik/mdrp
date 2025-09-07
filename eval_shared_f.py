@@ -135,6 +135,7 @@ def eval_experiment(x):
     ransac_dict['use_madpose'] = 'mad_poselib' in experiment
     ransac_dict['solver_shift'] = 'shift' in experiment
     ransac_dict['solver_scale'] = 'scale' in experiment
+    ransac_dict['optimize_hybrid'] = 'hybrid' in experiment
 
     ransac_dict['use_reproj'] = 'reproj' in experiment
     ransac_dict['sym_repro'] = 'sym_reproj' in experiment
@@ -267,14 +268,14 @@ def eval(args):
 
     if args.sym:
         experiments = []
-        # experiments.extend([f'3p_ours_hybrid+{i}' for i in depths])
-        # experiments.extend([f'3p_ours_scale_hybrid+{i}' for i in depths])
+        experiments.extend([f'3p_ours_hybrid+{i}' for i in depths])
+        experiments.extend([f'3p_ours_scale_hybrid+{i}' for i in depths])
         experiments.extend([f'4p_ours_scale_shift_hybrid+{i}' for i in depths])
-        # experiments.extend([f'mad_poselib_shift_scale_hybrid+{i}' for i in depths])
-        # experiments.extend([f'3p_ours_hybrid_reproj+{i}' for i in depths])
-        # experiments.extend([f'3p_ours_scale_hybrid_reproj+{i}' for i in depths])
+        experiments.extend([f'mad_poselib_shift_scale_hybrid+{i}' for i in depths])
+        experiments.extend([f'3p_ours_hybrid_reproj+{i}' for i in depths])
+        experiments.extend([f'3p_ours_scale_hybrid_reproj+{i}' for i in depths])
         experiments.extend([f'4p_ours_scale_shift_hybrid_reproj+{i}' for i in depths])
-        # experiments.extend([f'mad_poselib_shift_scale_hybrid_reproj+{i}' for i in depths])
+        experiments.extend([f'mad_poselib_shift_scale_hybrid_reproj+{i}' for i in depths])
     print(experiments)
 
     if args.threshold != 1.0:
