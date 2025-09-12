@@ -10,7 +10,7 @@ import multiprocessing.pool
 import h5py
 import numpy as np
 import poselib
-import madpose
+# import madpose
 # import pykitti
 from tqdm import tqdm
 
@@ -19,7 +19,7 @@ from utils.eval_utils import print_results_focal, NoDaemonProcessPool, get_excep
 from utils.madpose import madpose_opt_from_dict
 
 
-# from utils.vis import draw_results_pose_auc_10
+from utils.vis import draw_results_pose_auc_10
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -34,6 +34,7 @@ def parse_args():
     parser.add_argument('-o', '--overwrite', action='store_true', default=False)
     parser.add_argument('--graduated', action='store_true', default=False)
     parser.add_argument('--fix', action='store_true', default=False)
+    parser.add_argument('--sym', action='store_true', default=False)
     parser.add_argument('--ppbug', action='store_true', default=False)
     parser.add_argument('--nn', action='store_true', default=False)
     parser.add_argument('--nlo',action='store_true', default=False)
@@ -137,7 +138,9 @@ def eval_experiment(x):
     ransac_dict['solver_scale'] = 'scale' in experiment
     ransac_dict['use_reproj'] = 'reproj' in experiment
     ransac_dict['optimize_shift'] = 'reproj-s' in experiment
+    ransac_dict['optimize_hybrid'] = 'hybrid' in experiment
     ransac_dict['use_madpose_shift_optim'] = not 'noshift' in experiment
+    ransac_dict['sym_repro'] = 'sym_reproj' in experiment
 
     ransac_dict['graduated_steps'] = 3 if 'GLO' in experiment else 0
     ransac_dict['no_normalization'] = 'NN' in experiment
@@ -161,7 +164,6 @@ def eval_experiment(x):
         image_pair, info = poselib.estimate_varying_focal_monodepth_relative_pose(kp1, kp2, d, ransac_dict, bundle_dict)
         info['runtime'] = 1000 * (perf_counter() - start)
         result_dict = get_result_dict(info, image_pair, R_gt, t_gt, f1_gt, f2_gt)
-
 
     result_dict['experiment'] = experiment
 
@@ -206,103 +208,7 @@ def run_with_timeout(x, timeout=20):
 
 import os
 import resource
-import psutil
 import subprocess
-
-
-def comprehensive_memory_diagnostic():
-    print("=== COMPREHENSIVE MEMORY DIAGNOSTIC ===")
-
-    # Process info
-    process = psutil.Process(os.getpid())
-    print(f"PID: {os.getpid()}")
-    print(f"RSS (Physical): {process.memory_info().rss / 1024 ** 3:.2f} GB")
-    print(f"VMS (Virtual): {process.memory_info().vms / 1024 ** 3:.2f} GB")
-    print(f"Shared: {process.memory_info().shared / 1024 ** 3:.2f} GB")
-
-    # System memory
-    mem = psutil.virtual_memory()
-    print(f"System RAM - Total: {mem.total / 1024 ** 3:.2f} GB, Available: {mem.available / 1024 ** 3:.2f} GB")
-
-    # All ulimits
-    print("\n=== ULIMITS ===")
-    limits = {
-        'RLIMIT_AS': 'Virtual memory',
-        'RLIMIT_CORE': 'Core file size',
-        'RLIMIT_CPU': 'CPU time',
-        'RLIMIT_DATA': 'Data segment',
-        'RLIMIT_FSIZE': 'File size',
-        'RLIMIT_MEMLOCK': 'Locked memory',
-        'RLIMIT_NOFILE': 'Open files',
-        'RLIMIT_NPROC': 'Processes',
-        'RLIMIT_RSS': 'RSS',
-        'RLIMIT_STACK': 'Stack size'
-    }
-
-    for limit_name, description in limits.items():
-        if hasattr(resource, limit_name):
-            soft, hard = resource.getrlimit(getattr(resource, limit_name))
-            print(f"{description}: soft={soft}, hard={hard}")
-
-    # Kernel limits
-    print("\n=== KERNEL LIMITS ===")
-    kernel_files = [
-        '/proc/sys/kernel/pid_max',
-        '/proc/sys/kernel/threads-max',
-        '/proc/sys/vm/max_map_count',
-        '/proc/sys/vm/overcommit_memory',
-        '/proc/sys/vm/overcommit_ratio'
-    ]
-
-    for file_path in kernel_files:
-        try:
-            with open(file_path, 'r') as f:
-                value = f.read().strip()
-                print(f"{file_path}: {value}")
-        except:
-            print(f"{file_path}: Could not read")
-
-    # Process count
-    try:
-        result = subprocess.run(['ps', '-u', str(os.getuid())],
-                                capture_output=True, text=True)
-        process_count = len(result.stdout.strip().split('\n')) - 1
-        print(f"\nCurrent processes for user: {process_count}")
-    except:
-        print("\nCould not count processes")
-
-    # Memory mappings count
-    try:
-        with open(f'/proc/{os.getpid()}/maps', 'r') as f:
-            maps_count = len(f.readlines())
-        print(f"Memory mappings: {maps_count}")
-    except:
-        print("Could not read memory mappings")
-
-    # SLURM info if available
-    if 'SLURM_JOB_ID' in os.environ:
-        print(f"\n=== SLURM INFO ===")
-        print(f"Job ID: {os.environ['SLURM_JOB_ID']}")
-
-        # Try to read cgroup limits
-        job_id = os.environ['SLURM_JOB_ID']
-        uid = os.getuid()
-
-        cgroup_files = [
-            f'/sys/fs/cgroup/memory/slurm/uid_{uid}/job_{job_id}/memory.limit_in_bytes',
-            f'/sys/fs/cgroup/pids/slurm/uid_{uid}/job_{job_id}/pids.max',
-            f'/sys/fs/cgroup/memory/slurm/uid_{uid}/job_{job_id}/memory.usage_in_bytes'
-        ]
-
-        for file_path in cgroup_files:
-            try:
-                with open(file_path, 'r') as f:
-                    value = f.read().strip()
-                    print(f"{file_path}: {value}")
-            except:
-                print(f"{file_path}: Could not read")
-
-    print("=== END DIAGNOSTIC ===\n")
 
 
 def eval(args):
@@ -347,6 +253,17 @@ def eval(args):
         # experiments.extend([f'madpose_noshift_ours_scale+{i}' for i in mdepths])
         # experiments.extend([f'3p_ours_scale+{i}' for i in depths])
         experiments.extend([f'3p_ours_scale_repeat+{i}' for i in depths])
+
+    if args.sym:
+        experiments = []
+        # experiments.extend([f'3p_ours_hybrid+{i}' for i in depths])
+        # experiments.extend([f'3p_ours_scale_hybrid+{i}' for i in depths])
+        # experiments.extend([f'4p_ours_scale_shift_hybrid+{i}' for i in depths])
+        experiments.extend([f'mad_poselib_shift_hybrid_scale+{i}' for i in depths])
+        # experiments.extend([f'3p_ours_hybrid_reproj+{i}' for i in depths])
+        # experiments.extend([f'3p_ours_scale_hybrid_reproj+{i}' for i in depths])
+        # experiments.extend([f'4p_ours_scale_shift_hybrid_reproj+{i}' for i in depths])
+        experiments.extend([f'mad_poselib_shift_scale_hybrid_reproj+{i}' for i in depths])
 
     if args.madonly:
         experiments = []
@@ -443,7 +360,6 @@ def eval(args):
         if args.num_workers == 1:
             results = [eval_experiment(x) for x in tqdm(gen_data(), total=total_length)]
         else:
-            comprehensive_memory_diagnostic()
             pool = NoDaemonProcessPool(args.num_workers)
             results = [x for x in pool.imap(run_with_timeout, tqdm(gen_data(), total=total_length))]
 
