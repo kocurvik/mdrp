@@ -10,9 +10,9 @@ TBA
 
 TBA
 
-## Evaluation
+## ICCV (2025) Evaluation
 
-You can also run all experiments from the paper.
+To run the experiments from the paper you can use the provided evaluation code. We are currently working on improvements to the methods. For reproducibility we keep the original code available in the `iccv-eval` branches.
 
 ### Setting up eval repo, PoseLib and Madpose
 
@@ -25,7 +25,7 @@ conda activate mdrp
 conda install numpy, scipy, tqdm, hd5py, tectonic, prettytable, matplotlib, seaborn, eigen=3.4
 
 # cloning this repo
-git clone https://github.com/kocurvik/mdrp
+git clone -b iccv-eval https://github.com/kocurvik/mdrp
 
 # installing Madpose
 git clone --recursive https://github.com/kocurvik/madpose
@@ -38,7 +38,7 @@ cd ..
 
 # installing PoseLib fork with all evaluated variants
 # note that you need to have Eigen version 3.4 to run this
-git clone --recursive https://github.com/kocurvik/PoseLib-mdrp
+git clone -b iccv-eval --recursive https://github.com/kocurvik/PoseLib-mdrp
 cd PoseLib-mdrp
 pip install . -v
 cd ..
