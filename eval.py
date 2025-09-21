@@ -118,11 +118,14 @@ def eval_experiment(x):
     ransac_dict['optimize_shift'] = 'reproj-s' in experiment or 'hybrid-s' in experiment
     ransac_dict['use_madpose_shift_optim'] = not 'noshift' in experiment
     ransac_dict['weight_sampson'] = 1.0
+    # ransac_dict['score_strict'] = 'strict' in experiment
 
     ransac_dict['graduated_steps'] = 3 if 'GLO' in experiment else 0
 
     bundle_dict = {'max_iterations': 0 if lo_iterations == 0 else 100, 'verbose': False}
     # bundle_dict = {'max_iterations': 0}
+    if 'strict' in experiment:
+        bundle_dict['loss_type'] = 'TRUNCATED_CAUCHY'
 
     camera1 = {'model': 'PINHOLE', 'width': -1, 'height': -1, 'params': [K1[0, 0], K1[1, 1], K1[0, 2], K1[1, 2]]}
     camera2 = {'model': 'PINHOLE', 'width': -1, 'height': -1, 'params': [K2[0, 0], K2[1, 1], K2[0, 2], K2[1, 2]]}
@@ -249,15 +252,16 @@ def eval(args):
     if args.sym:
         experiments = []
         experiments.extend([f'3p_ours_shift_scale_hybrid+{i}' for i in depths])
-        experiments.extend([f'3p_ours_shift_scale_hybrid-s+{i}' for i in depths])
-        experiments.extend([f'3p_ours_shift_scale_hybrid_reproj+{i}' for i in depths])
-        experiments.extend([f'3p_ours_shift_scale_hybrid-s_reproj+{i}' for i in depths])
+        # experiments.extend([f'3p_ours_shift_scale_hybrid-s+{i}' for i in depths])
+        # experiments.extend([f'3p_ours_shift_scale_hybrid_reproj+{i}' for i in depths])
+        # experiments.extend([f'3p_ours_shift_scale_hybrid_strict+{i}' for i in depths])
+        # experiments.extend([f'3p_ours_shift_scale_hybrid-s_reproj+{i}' for i in depths])
         # experiments.extend([f'3p_ours_shift_scale_sym_reproj+{i}' for i in depths])
         # experiments.extend([f'p3p_sym_reproj+{i}' for i in depths])
-        experiments.extend([f'p3p_hybrid-s+{i}' for i in depths])
-        experiments.extend([f'p3p_hybrid-s_reproj+{i}' for i in depths])
-        experiments.extend([f'p3p_hybrid+{i}' for i in depths])
-        experiments.extend([f'p3p_hybrid_reproj+{i}' for i in depths])
+        # experiments.extend([f'p3p_hybrid-s+{i}' for i in depths])
+        # experiments.extend([f'p3p_hybrid-s_reproj+{i}' for i in depths])
+        # experiments.extend([f'p3p_hybrid+{i}' for i in depths])
+        # experiments.extend([f'p3p_hybrid_reproj+{i}' for i in depths])
 
         # experiments.extend([f'p3p_reproj-sfix+{i}' for i in depths])
         # experiments.extend([f'3p_ours_shift_scale_reproj-sfix+{i}' for i in depths])

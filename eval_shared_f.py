@@ -151,6 +151,10 @@ def eval_experiment(x):
     # ransac_dict['max_focal_1'] = max_dim * 1.87
 
     bundle_dict = {'max_iterations': 0 if lo_iterations == 0 else 100}
+    if 'truncated' in experiment:
+        bundle_dict['loss_type'] = 'TRUNCATED'
+    if 'tcauchy' in experiment:
+        bundle_dict['loss_type'] = 'TRUNCATED_CAUCHY'
 
     if '6p' in experiment:
         start = perf_counter()
@@ -268,14 +272,18 @@ def eval(args):
 
     if args.sym:
         experiments = []
-        experiments.extend([f'3p_ours_hybrid+{i}' for i in depths])
+        # experiments.extend([f'3p_ours_hybrid+{i}' for i in depths])
         experiments.extend([f'3p_ours_scale_hybrid+{i}' for i in depths])
-        experiments.extend([f'4p_ours_scale_shift_hybrid+{i}' for i in depths])
-        experiments.extend([f'mad_poselib_shift_scale_hybrid+{i}' for i in depths])
-        experiments.extend([f'3p_ours_hybrid_reproj+{i}' for i in depths])
-        experiments.extend([f'3p_ours_scale_hybrid_reproj+{i}' for i in depths])
-        experiments.extend([f'4p_ours_scale_shift_hybrid_reproj+{i}' for i in depths])
-        experiments.extend([f'mad_poselib_shift_scale_hybrid_reproj+{i}' for i in depths])
+        # experiments.extend([f'3p_ours_scale_hybrid_truncated+{i}' for i in depths])
+        # experiments.extend([f'3p_ours_scale_hybrid_tcauchy+{i}' for i in depths])
+        # experiments.extend([f'3p_ours_scale+{i}' for i in depths])
+        # experiments.extend([f'4p_ours_scale_shift_hybrid+{i}' for i in depths])
+        # experiments.extend([f'mad_poselib_shift_scale_hybrid+{i}' for i in depths])
+        # experiments.extend([f'3p_ours_hybrid_reproj+{i}' for i in depths])
+        # experiments.extend([f'3p_ours_scale_hybrid_reproj+{i}' for i in depths])
+        # experiments.extend([f'4p_ours_scale_shift_hybrid_reproj+{i}' for i in depths])
+        # experiments.extend([f'mad_poselib_shift_scale_hybrid_reproj+{i}' for i in depths])
+
     print(experiments)
 
     if args.threshold != 1.0:
