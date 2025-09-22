@@ -480,14 +480,14 @@ def generate_eth_roma():
     basenames = get_basenames('ETH')
 
     experiments = []
-    experiments.append('3p_ours_scale+12')
+    experiments.append('3p_ours_scale_hybrid+12')
     # experiments.append('3p_ours+12')
     experiments.append('3p_reldepth+12')
-    experiments.append('mad_poselib_shift_scale+12')
+    # experiments.append('mad_poselib_shift_scale+12')
     experiments.append('6p')
 
     slow_experiments = []
-    slow_experiments.append('madpose_ours_scale+12')
+    # slow_experiments.append('madpose_ours_scale+12')
     slow_experiments.append('madpose+12')
     slow_experiments.append('mast3r+1')
 
@@ -510,7 +510,7 @@ def generate_eth_roma():
         json_path = os.path.join('results_new', f'shared_focal-{basename}_roma-2.0t.json')
         print(f'json_path: {json_path}')
         with open(json_path, 'r') as f:
-            results = [x for x in json.load(f) if x['experiment'] in ['madpose+12', 'madpose_ours_scale+12']]
+            results = [x for x in json.load(f) if x['experiment'] in ['madpose+12']]
         all_results.extend(results)
 
         json_path = os.path.join('results_new', f'shared_focal-{basename}_mast3r-2.0t.json')
@@ -588,10 +588,10 @@ def draw_all(experiments, fs, xs, ys, title=None, colors=None, styles=None, ylim
 
 
 if __name__ == '__main__':
-    for features in ['splg']:
+    # for features in ['splg']:
         # for depth in [1, 2, 6, 10, 12]:
-        for depth in [10]:
-            generate_graphs('ETH', 'shared_focal', features=features, depth=depth, master=True)
-        
-            generate_graphs('Phototourism', 'varying_focal', features=features, depth=depth, xlim=[3.0, 120], ylim=[35.0, 50.0])
+        # for depth in [10]:
+    generate_graphs('ETH', 'calib', features='splg', depth=10, master=False)
+    generate_graphs('ETH', 'shared_focal', features='roma', depth=12, master=True)
+    generate_graphs('Phototourism', 'varying_focal', features='splg', depth=10, xlim=[3.0, 120], ylim=[35.0, 50.0])
 

@@ -97,24 +97,30 @@ def get_experiments(prefix, depths=None, master=False, nmad=False, graph=False):
 
     if graph:
         if 'varying' in prefix:
-            experiments.extend([f'3p_ours_scale+{i}' for i in depths])
-            experiments.extend([f'3p_ours_scale_reproj+{i}' for i in depths])
-            experiments.extend([f'4p_ours_scale_shift+{i}' for i in depths])
-            experiments.extend([f'4p_ours_scale_shift_reproj+{i}' for i in depths])
-            experiments.extend([f'mad_poselib_shift_scale+{i}' for i in depths])
-            experiments.extend([f'mad_poselib_shift_scale_reproj+{i}' for i in depths])
+            experiments.extend([f'3p_ours_scale_hybrid+{i}' for i in depths])
+            # experiments.extend([f'3p_ours_scale_reproj+{i}' for i in depths])
+            # experiments.extend([f'4p_ours_scale_shift+{i}' for i in depths])
+            # experiments.extend([f'4p_ours_scale_shift_reproj+{i}' for i in depths])
+            # experiments.extend([f'mad_poselib_shift_scale+{i}' for i in depths])
+            # experiments.extend([f'mad_poselib_shift_scale_reproj+{i}' for i in depths])
+            experiments.extend([f'madpose+{i}' for i in mdepths])
             experiments.extend([f'4p4d+{i}' for i in depths])
             experiments.append('7p')
 
         if 'shared' in prefix:
-            experiments.extend([f'3p_ours_scale+{i}' for i in depths])
-            experiments.extend([f'4p_ours_scale_shift+{i}' for i in depths])
+            experiments.extend([f'3p_ours_scale_hybrid+{i}' for i in depths])
+            # experiments.extend([f'4p_ours_scale_shift+{i}' for i in depths])
             experiments.extend([f'3p_reldepth+{i}' for i in depths])
-            experiments.extend([f'mad_poselib_shift_scale+{i}' for i in depths])
+            # experiments.extend([f'mad_poselib_shift_scale+{i}' for i in depths])
             experiments.extend([f'madpose+{i}' for i in mdepths])
-            experiments.extend([f'madpose_ours_scale+{i}' for i in mdepths])
-            experiments.extend([f'mast3r+{i}' for i in mdepths])
+            # experiments.extend([f'madpose_ours_scale+{i}' for i in mdepths])
             experiments.append('6p')
+
+        if 'calib' in prefix:
+            experiments.extend([f'3p_ours_scale_shift_hybrid+{i}' for i in depths])
+            experiments.extend([f'p3p_hybrid+{i}' for i in depths])
+            experiments.extend([f'madpose+{i}' for i in depths])
+            experiments.append('5p')
 
         return experiments
 
