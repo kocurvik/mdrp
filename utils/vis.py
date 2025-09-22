@@ -591,7 +591,7 @@ if __name__ == '__main__':
     # for features in ['splg']:
         # for depth in [1, 2, 6, 10, 12]:
         # for depth in [10]:
-    generate_graphs('ETH', 'calib', features='splg', depth=10, master=False)
+    generate_graphs('ETH', 'calibrated', features='splg', depth=10, master=False)
     generate_graphs('ETH', 'shared_focal', features='roma', depth=12, master=True)
     generate_graphs('Phototourism', 'varying_focal', features='splg', depth=10, xlim=[3.0, 120], ylim=[35.0, 50.0])
 
