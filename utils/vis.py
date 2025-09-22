@@ -54,9 +54,11 @@ def get_colors_styles_fixed(results_type):
         colors = {
             '5p': c[5],
             '3p_reldepth': c[3],
-            'p3p': c[6],
+            'p3p': c[1],
+            'p3p_hybrid': c[1],
             'mad_poselib_shift_scale': c[2],
-            '3p_ours_shift_scale': c[1],
+            '3p_ours_shift_scale': c[0],
+            '3p_ours_shift_scale_hybrid': c[0],
             'madpose': c[2],
             'madpose_ours_scale_shift': c[1],
             'mast3r': c[4]
@@ -66,8 +68,10 @@ def get_colors_styles_fixed(results_type):
             '5p': 'solid',
             '3p_reldepth': 'solid',
             'p3p': 'solid',
+            'p3p_hybrid': 'solid',
             'mad_poselib_shift_scale': 'solid',
             '3p_ours_shift_scale': 'solid',
+            '3p_ours_shift_scale_hybrid': 'solid',
             'madpose': 'dashed',
             'madpose_ours_scale_shift': 'dashed',
             'mast3r': 'dotted'
@@ -77,6 +81,7 @@ def get_colors_styles_fixed(results_type):
     if 'shared' in results_type:
         colors = {
             '3p_ours_scale': c[0],
+            '3p_ours_scale_hybrid': c[0],
             'madpose_ours_scale': c[0],
             '4p_ours_scale_shift': c[1],
             'mad_poselib_shift_scale': c[2],
@@ -88,6 +93,7 @@ def get_colors_styles_fixed(results_type):
 
         styles = {
             '3p_ours_scale': 'solid',
+            '3p_ours_scale_hybrid': 'solid',
             'madpose_ours_scale': 'dashed',
             '4p_ours_scale_shift': 'solid',
             'mad_poselib_shift_scale': 'solid',
@@ -103,6 +109,7 @@ def get_colors_styles_fixed(results_type):
             'madpose_ours_scale': c[0],
             '3p_ours_scale_reproj': c[0],
             '3p_ours_scale': c[0],
+            '3p_ours_hybrid': c[0],
             '4p_ours_scale_shift': c[1],
             '4p_ours_scale_shift_reproj': c[1],
             'mad_poselib_shift_scale': c[2],
@@ -116,6 +123,7 @@ def get_colors_styles_fixed(results_type):
         styles = {
             'madpose_ours_scale': 'dashed',
             '3p_ours_scale': 'solid',
+            '3p_ours_scale_hybrid': 'solid',
             '3p_ours_scale_reproj': 'dashed',
             'nLO-3p_ours_scale_repeat': 'solid',
             '4p_ours_scale_shift': 'solid',
