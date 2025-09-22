@@ -251,7 +251,7 @@ def eval(args):
 
     if args.sym:
         experiments = []
-        experiments.extend([f'3p_ours_shift_scale_hybrid+{i}' for i in depths])
+        # experiments.extend([f'3p_ours_shift_scale_hybrid+{i}' for i in depths])
         # experiments.extend([f'3p_ours_shift_scale_hybrid-s+{i}' for i in depths])
         # experiments.extend([f'3p_ours_shift_scale_hybrid_reproj+{i}' for i in depths])
         # experiments.extend([f'3p_ours_shift_scale_hybrid_strict+{i}' for i in depths])
@@ -260,7 +260,7 @@ def eval(args):
         # experiments.extend([f'p3p_sym_reproj+{i}' for i in depths])
         # experiments.extend([f'p3p_hybrid-s+{i}' for i in depths])
         # experiments.extend([f'p3p_hybrid-s_reproj+{i}' for i in depths])
-        # experiments.extend([f'p3p_hybrid+{i}' for i in depths])
+        experiments.extend([f'p3p_hybrid+{i}' for i in depths])
         # experiments.extend([f'p3p_hybrid_reproj+{i}' for i in depths])
 
         # experiments.extend([f'p3p_reproj-sfix+{i}' for i in depths])
