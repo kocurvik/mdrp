@@ -426,7 +426,7 @@ def draw_rotation_angle_f_err(experiments, results):
     plt.ylabel('Portion of samples')
 
 
-def generate_graphs(dataset, results_type, t='-2.0t', features='splg', depth=12, master=False, ylim=None, xlim=None):
+def generate_graphs(dataset, results_type, t='-2.0t', features='splg', depth=12, master=False, ylim=None, xlim=None, load=False):
     basenames = get_basenames(dataset)
 
     depths = [depth]
@@ -442,30 +442,44 @@ def generate_graphs(dataset, results_type, t='-2.0t', features='splg', depth=12,
 
     iterations_list = [50, 100, 200, 500, 1000]
 
-    xs = np.empty([len(basenames), len(experiments), len(iterations_list)])
-    ys = np.empty([len(basenames), len(experiments), len(iterations_list)])
-    fs = np.empty([len(basenames), len(experiments), len(iterations_list)])
+    title = f'{results_type}-{dataset}-{features}-{depth}'
 
-    for b, basename in enumerate(basenames):
-        if 'varying' in results_type:
-            json_path = os.path.join('results_new', f'{results_type}-{basename}_{features}{t}-graph.json')
-        else:
-            json_path = os.path.join('results_new', f'{results_type}-graph-{basename}_{features}{t}.json')
-        print(f'json_path: {json_path}')
-        with open(json_path, 'r') as f:
-            results = [x for x in json.load(f) if x['experiment'] in experiments]
+    if load:
+        print("loading cached data")
+        fs = np.load(f'fig_data/{title}-fs.npy')
+        xs = np.load(f'fig_data/{title}-xs.npy')
+        ys = np.load(f'fig_data/{title}-ys.npy')
+    else:
+        xs = np.empty([len(basenames), len(experiments), len(iterations_list)])
+        ys = np.empty([len(basenames), len(experiments), len(iterations_list)])
+        fs = np.empty([len(basenames), len(experiments), len(iterations_list)])
 
-        if master:
-            master_json_path = os.path.join('results_new', f'{results_type}-mast3rgraph-{basename}.json')
-            with open(master_json_path, 'r') as f:
-                # master_results = json.load(f)
-                master_results = [x for x in json.load(f) if x['experiment'] == 'mast3r']
+        for b, basename in enumerate(basenames):
+            if 'varying' in results_type:
+                json_path = os.path.join('results_new', f'{results_type}-{basename}_{features}{t}-graph.json')
+            else:
+                json_path = os.path.join('results_new', f'{results_type}-graph-{basename}_{features}{t}.json')
+            print(f'json_path: {json_path}')
+            with open(json_path, 'r') as f:
+                results = [x for x in json.load(f) if x['experiment'] in experiments]
 
-            results.extend(master_results)
+            if master:
+                master_json_path = os.path.join('results_new', f'{results_type}-mast3rgraph-{basename}.json')
+                with open(master_json_path, 'r') as f:
+                    # master_results = json.load(f)
+                    master_results = [x for x in json.load(f) if x['experiment'] == 'mast3r']
 
-        calc_maa(b, experiments, iterations_list, results, fs, xs, ys)
+                results.extend(master_results)
 
-    draw_all(experiments, fs, xs, ys, title=f'{results_type}-{dataset}-{features}-{depth}', colors=colors, styles=styles, ylim=ylim, xlim=xlim)
+            calc_maa(b, experiments, iterations_list, results, fs, xs, ys)
+
+
+
+        np.save(f'fig_data/{title}-fs.npy', fs)
+        np.save(f'fig_data/{title}-xs.npy', xs)
+        np.save(f'fig_data/{title}-ys.npy', ys)
+
+    draw_all(experiments, fs, xs, ys, title=title, colors=colors, styles=styles, ylim=ylim, xlim=xlim)
 
 
 
@@ -610,7 +624,8 @@ if __name__ == '__main__':
 
     for features in ['splg', 'roma']:
         for depth in [10, 12]:
-            generate_graphs('ScanNet', 'calibrated', features=features, depth=depth, master=False)
+            generate_graphs('ScanNet', 'calibrated', features=features, depth=depth, master=False, load=True)
+            generate_graphs('ETH', 'calibrated', features=features, depth=depth, master=False, load=True)
             generate_graphs('Phototourism', 'calibrated', features=features, depth=depth, master=False)
     # generate_eth_roma()
     # generate_graphs('Phototourism', 'varying_focal', features='splg', depth=10, xlim=[3.0, 120], ylim=[35.0, 50.0])
