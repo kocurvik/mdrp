@@ -624,8 +624,8 @@ if __name__ == '__main__':
 
     for features in ['splg', 'roma']:
         for depth in [10, 12]:
-            generate_graphs('ScanNet', 'calibrated', features=features, depth=depth, master=False, load=True)
-            generate_graphs('ETH', 'calibrated', features=features, depth=depth, master=False, load=True)
+            generate_graphs('ScanNet', 'calibrated', features=features, depth=depth, master=False)
+            generate_graphs('ETH', 'calibrated', features=features, depth=depth, master=False)
             generate_graphs('Phototourism', 'calibrated', features=features, depth=depth, master=False)
     # generate_eth_roma()
     # generate_graphs('Phototourism', 'varying_focal', features='splg', depth=10, xlim=[3.0, 120], ylim=[35.0, 50.0])
