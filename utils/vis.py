@@ -56,9 +56,13 @@ def get_colors_styles_fixed(results_type):
             '3p_reldepth': c[3],
             'p3p': c[1],
             'p3p_hybrid': c[1],
+            'p3p_hybrid_reproj': c[1],
             'mad_poselib_shift_scale': c[2],
             '3p_ours_shift_scale': c[0],
             '3p_ours_shift_scale_hybrid': c[0],
+            '3p_ours_shift_scale_hybrid-s': c[4],
+            '3p_ours_shift_scale_hybrid_reproj': c[0],
+            '3p_ours_shift_scale_hybrid-s_reproj': c[4],
             'madpose': c[2],
             'madpose_ours_scale_shift': c[1],
             'mast3r': c[4]
@@ -69,9 +73,13 @@ def get_colors_styles_fixed(results_type):
             '3p_reldepth': 'solid',
             'p3p': 'solid',
             'p3p_hybrid': 'solid',
+            'p3p_hybrid_reproj': 'dashed',
             'mad_poselib_shift_scale': 'solid',
             '3p_ours_shift_scale': 'solid',
             '3p_ours_shift_scale_hybrid': 'solid',
+            '3p_ours_shift_scale_hybrid-s': 'solid',
+            '3p_ours_shift_scale_hybrid_reproj': 'dashed',
+            '3p_ours_shift_scale_hybrid-s_reproj': 'dashed',
             'madpose': 'dashed',
             'madpose_ours_scale_shift': 'dashed',
             'mast3r': 'dotted'
@@ -457,7 +465,7 @@ def generate_graphs(dataset, results_type, t='-2.0t', features='splg', depth=12,
 
         calc_maa(b, experiments, iterations_list, results, fs, xs, ys)
 
-    draw_all(experiments, fs, xs, ys, title=f'{results_type}-{dataset}-{features}', colors=colors, styles=styles, ylim=ylim, xlim=xlim)
+    draw_all(experiments, fs, xs, ys, title=f'{results_type}-{dataset}-{features}-{depth}', colors=colors, styles=styles, ylim=ylim, xlim=xlim)
 
 
 
@@ -599,7 +607,11 @@ if __name__ == '__main__':
     # for features in ['splg']:
         # for depth in [1, 2, 6, 10, 12]:
         # for depth in [10]:
-    generate_graphs('ScanNet', 'calibrated', features='splg', depth=12, master=False)
-    generate_eth_roma()
-    generate_graphs('Phototourism', 'varying_focal', features='splg', depth=10, xlim=[3.0, 120], ylim=[35.0, 50.0])
+
+    for features in ['splg', 'roma']:
+        for depth in [10, 12]:
+            generate_graphs('ScanNet', 'calibrated', features=features, depth=depth, master=False)
+            generate_graphs('Phototourism', 'calibrated', features=features, depth=depth, master=False)
+    # generate_eth_roma()
+    # generate_graphs('Phototourism', 'varying_focal', features='splg', depth=10, xlim=[3.0, 120], ylim=[35.0, 50.0])
 
