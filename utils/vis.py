@@ -510,15 +510,15 @@ def generate_eth_roma():
     basenames = get_basenames('ETH')
 
     experiments = []
-    experiments.append('3p_ours_scale_hybrid+12')
+    experiments.append('3p_ours_scale_hybrid+10')
     # experiments.append('3p_ours+12')
-    experiments.append('3p_reldepth+12')
+    experiments.append('3p_reldepth+10')
     # experiments.append('mad_poselib_shift_scale+12')
     experiments.append('6p')
 
     slow_experiments = []
-    # slow_experiments.append('madpose_ours_scale+12')
-    slow_experiments.append('madpose+12')
+    slow_experiments.append('madpose_ours_scale+10')
+    slow_experiments.append('madpose+10')
     slow_experiments.append('mast3r+1')
 
     all_experiments = experiments + slow_experiments
@@ -561,7 +561,7 @@ def generate_eth_roma():
         calc_maa(b, all_experiments, iterations_list, all_results, fs, xs, ys)
 
     colors, styles = get_colors_styles_fixed('shared')
-    draw_all(all_experiments, fs, xs, ys, title='eth_shared_roma', colors=colors, styles=styles, ylim=[80, 88])
+    draw_all(all_experiments, fs, xs, ys, title='eth_shared_roma', colors=colors, styles=styles, ylim=[82, 88])
 
 def draw_all(experiments, fs, xs, ys, title=None, colors=None, styles=None, ylim=None, ylimf=None, xlim=None):
     fig = plt.figure(figsize=(8, 3), frameon=True)
@@ -623,12 +623,12 @@ if __name__ == '__main__':
         # for depth in [10]:
 
     # for type in ['calibrated', 'shared_focal', 'varying_focal']:
-    for type in ['shared_focal', 'varying_focal']:
-        for features in ['splg', 'roma']:
-            for depth in [10, 12]:
-                generate_graphs('ScanNet', type, features=features, depth=depth, master=False)
-                generate_graphs('ETH', type, features=features, depth=depth, master=False)
-                generate_graphs('Phototourism', type, features=features, depth=depth, master=False)
-    # generate_eth_roma()
+    # for type in ['shared_focal', 'varying_focal']:
+    #     for features in ['splg', 'roma']:
+    #         for depth in [10, 12]:
+    #             generate_graphs('ScanNet', type, features=features, depth=depth, master=False)
+    #             generate_graphs('ETH', type, features=features, depth=depth, master=False)
+    #             generate_graphs('Phototourism', type, features=features, depth=depth, master=False)
+    generate_eth_roma()
     # generate_graphs('Phototourism', 'varying_focal', features='splg', depth=10, xlim=[3.0, 120], ylim=[35.0, 50.0])
 
