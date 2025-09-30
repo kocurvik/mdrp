@@ -284,6 +284,12 @@ def eval(args):
         # experiments.extend([f'4p_ours_scale_shift_hybrid_reproj+{i}' for i in depths])
         # experiments.extend([f'mad_poselib_shift_scale_hybrid_reproj+{i}' for i in depths])
 
+    if args.graph:
+        experiments = []
+        experiments.extend([f'3p_ours_scale_hybrid+{i}' for i in depths])
+        experiments.extend([f'3p_reldepth+{i}' for i in depths])
+        experiments.append('6p')
+
     print(experiments)
 
     if args.threshold != 1.0:
@@ -294,7 +300,7 @@ def eval(args):
 
     if args.graph:
         basename = f'graph-{basename}'
-        iterations_list = [10, 20, 50, 100, 200, 500, 1000]
+        iterations_list = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000]
     else:
         iterations_list = [args.iters]
 
