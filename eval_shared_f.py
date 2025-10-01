@@ -150,10 +150,10 @@ def eval_experiment(x):
     # ransac_dict['min_focal_1'] = min_dim * 0.28
     # ransac_dict['max_focal_1'] = max_dim * 1.87
 
-    bundle_dict = {'max_iterations': 0 if lo_iterations == 0 else 100}
+    bundle_dict = {'max_iterations': 0 if lo_iterations == 0 else 100, 'verbose': False}
     if 'truncated' in experiment:
         bundle_dict['loss_type'] = 'TRUNCATED'
-    if 'tcauchy' in experiment:
+    if 'ctruncated' in experiment:
         bundle_dict['loss_type'] = 'TRUNCATED_CAUCHY'
 
     if '6p' in experiment:
