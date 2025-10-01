@@ -285,7 +285,7 @@ def eval(args):
 
     if args.graph:
         experiments = []
-        experiments.extend([f'3p_ours_scale_hybrid_truncated+{i}' for i in depths])
+        experiments.extend([f'3p_ours_scale_hybrid_ctruncated+{i}' for i in depths])
         # experiments.extend([f'3p_ours_scale_hybrid+{i}' for i in depths])
         # experiments.extend([f'3p_reldepth+{i}' for i in depths])
         # experiments.append('6p')
