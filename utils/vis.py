@@ -82,7 +82,7 @@ def get_colors_styles_fixed(results_type):
             '3p_ours_shift_scale_hybrid-s_reproj': 'dashed',
             'madpose': 'dashed',
             'madpose_ours_scale_shift': 'dashed',
-            'mast3r': 'dotted'
+            'mast3r': 'solid'
         }
         return colors, styles
 
@@ -96,7 +96,7 @@ def get_colors_styles_fixed(results_type):
             'madpose': c[2],
             '3p_reldepth': c[3],
             'mast3r': c[4],
-            '6p': c[5],
+            '6p': c[3],
         }
 
         styles = {
@@ -107,7 +107,7 @@ def get_colors_styles_fixed(results_type):
             'mad_poselib_shift_scale': 'solid',
             'madpose': 'dashed',
             '3p_reldepth': 'solid',
-            'mast3r': 'dotted',
+            'mast3r': 'solid',
             '6p': 'solid',
         }
         return colors, styles
@@ -141,7 +141,7 @@ def get_colors_styles_fixed(results_type):
             'madpose': 'dashed',
             '4p4d': 'solid',
             '7p': 'solid',
-            'mast3r': 'dotted'
+            'mast3r': 'solid'
         }
         return colors, styles
 
@@ -506,7 +506,7 @@ def calc_maa(b, experiments, iterations_list, results, fs, xs, ys):
             fs[b, i, j] = fAUC10
 
 
-def generate_eth_roma():
+def generate_eth_roma(load=False):
     basenames = get_basenames('ETH')
 
     experiments = []
@@ -525,68 +525,87 @@ def generate_eth_roma():
 
     iterations_list = [50, 100, 200, 500, 1000]
 
-    xs = np.empty([len(basenames), len(all_experiments), len(iterations_list)])
-    ys = np.empty([len(basenames), len(all_experiments), len(iterations_list)])
-    fs = np.empty([len(basenames), len(all_experiments), len(iterations_list)])
+    if load:
+        fs = np.load(f'fig_data/eth_roma_graph-fs.npy')
+        xs = np.load(f'fig_data/eth_roma_graph-xs.npy')
+        ys = np.load(f'fig_data/eth_roma_graph-ys.npy')
 
-    for b, basename in enumerate(basenames):
-        all_results = []
-        json_path = os.path.join('results_new', f'shared_focal-graph-{basename}_roma-2.0t.json')
-        print(f'json_path: {json_path}')
-        with open(json_path, 'r') as f:
-            results = [x for x in json.load(f) if x['experiment'] in experiments or x['experiment'] in slow_experiments]
-        all_results.extend(results)
+    else:
+        xs = np.empty([len(basenames), len(all_experiments), len(iterations_list)])
+        ys = np.empty([len(basenames), len(all_experiments), len(iterations_list)])
+        fs = np.empty([len(basenames), len(all_experiments), len(iterations_list)])
 
-        json_path = os.path.join('results_new', f'shared_focal-{basename}_roma-2.0t.json')
-        print(f'json_path: {json_path}')
-        with open(json_path, 'r') as f:
-            results = [x for x in json.load(f) if x['experiment'] in ['madpose+12']]
-        all_results.extend(results)
+        for b, basename in enumerate(basenames):
+            all_results = []
+            json_path = os.path.join('results_new', f'shared_focal-graph-{basename}_roma-2.0t.json')
+            print(f'json_path: {json_path}')
+            with open(json_path, 'r') as f:
+                results = [x for x in json.load(f) if x['experiment'] in experiments or x['experiment'] in slow_experiments]
+            all_results.extend(results)
 
-        json_path = os.path.join('results_new', f'shared_focal-{basename}_mast3r-2.0t.json')
-        print(f'json_path: {json_path}')
-        with open(json_path, 'r') as f:
-            results = [x for x in json.load(f) if x['experiment'] == 'mast3r+1']
-        all_results.extend(results)
+            json_path = os.path.join('results_new', f'shared_focal-{basename}_roma-2.0t.json')
+            print(f'json_path: {json_path}')
+            with open(json_path, 'r') as f:
+                results = [x for x in json.load(f) if x['experiment'] in ['madpose+10']]
+            all_results.extend(results)
 
-        json_path = os.path.join('results_new', 'mast3r_extended', f'{basename}.json')
-        print(f'json_path: {json_path}')
-        with open(json_path, 'r') as f:
-            results = [x for x in json.load(f) if x['experiment'] == 'mast3r']
-        for x in results:
-            x['experiment'] = 'mast3r+1'
+            json_path = os.path.join('results_new', f'shared_focal-{basename}_mast3r-2.0t.json')
+            print(f'json_path: {json_path}')
+            with open(json_path, 'r') as f:
+                results = [x for x in json.load(f) if x['experiment'] == 'mast3r+1']
+            all_results.extend(results)
 
-        all_results.extend(results)
+            json_path = os.path.join('results_new', 'mast3r_extended', f'{basename}.json')
+            print(f'json_path: {json_path}')
+            with open(json_path, 'r') as f:
+                results = [x for x in json.load(f) if x['experiment'] == 'mast3r']
+            for x in results:
+                x['experiment'] = 'mast3r+1'
 
-        calc_maa(b, all_experiments, iterations_list, all_results, fs, xs, ys)
+            all_results.extend(results)
+
+            calc_maa(b, all_experiments, iterations_list, all_results, fs, xs, ys)
+
+        np.save(f'fig_data/eth_roma_graph-fs.npy', fs)
+        np.save(f'fig_data/eth_roma_graph-xs.npy', xs)
+        np.save(f'fig_data/eth_roma_graph-ys.npy', ys)
 
     colors, styles = get_colors_styles_fixed('shared')
-    draw_all(all_experiments, fs, xs, ys, title='eth_shared_roma', colors=colors, styles=styles, ylim=[82, 88])
+    draw_all(all_experiments, fs, xs, ys, title='eth_shared_roma', colors=colors, styles=styles, ylim=[83, 88])
 
 def draw_all(experiments, fs, xs, ys, title=None, colors=None, styles=None, ylim=None, ylimf=None, xlim=None):
-    fig = plt.figure(figsize=(8, 3), frameon=True)
+    fig = plt.figure(figsize=(12, 8), frameon=True)
     for i, experiment in enumerate(experiments):
         if colors is not None:
             experiment = experiment.split('+')[0]
-            plt.semilogx(np.mean(xs[:, i, :], axis=0), np.mean(ys[:, i, :], axis=0), label=experiment, marker='*', color=colors[experiment], linestyle=styles[experiment])
+            plt.semilogx(np.mean(xs[:, i, :], axis=0), np.mean(ys[:, i, :], axis=0),  marker='o', label=experiment, color=colors[experiment], linestyle=styles[experiment], linewidth=5, markersize=10)
         else:
-            plt.semilogx(np.mean(xs[:, i, :], axis=0), np.mean(ys[:, i, :], axis=0), label=experiment, marker='*')
+            plt.semilogx(np.mean(xs[:, i, :], axis=0), np.mean(ys[:, i, :], axis=0), marker='o', label=experiment, linewidth=5, markersize=10)
 
     if xlim is not None:
         plt.xlim(xlim)
     if ylim is not None:
         plt.ylim(ylim)
     # plt.gca().yaxis.set_major_formatter(StrMethodFormatter('{x:,.2f}'))
-    plt.xlabel('$\\tau$ (ms)', fontsize=large_size)
-    plt.ylabel('mAA', fontsize=large_size)
-    plt.tick_params(axis='x', which='major', labelsize=small_size)
-    plt.tick_params(axis='y', which='major', labelsize=small_size)
+    plt.xlabel('Runtime (ms) - logscale', fontsize=2*large_size)
+    plt.ylabel('mAA', fontsize=2*large_size)
+    plt.tick_params(axis='x', which='major', labelsize=2*small_size)
+    plt.tick_params(axis='y', which='major', labelsize=2*small_size)
     if title is not None:
+        # plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
         plt.savefig(f'figs/{title}_pose.pdf')  # , bbox_inches='tight', pad_inches=0)
 
-        plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
-        plt.title(title)
-        plt.savefig(f'figs/{title}_pose.png', bbox_inches='tight', pad_inches=0.0)
+        fig.axes[0].spines[['right', 'top']].set_visible(False)
+        fig.axes[0].spines['bottom'].set_linewidth(2)
+        fig.axes[0].spines['left'].set_linewidth(2)
+        # fig.outline.set_linewidth(2)
+        fig.axes[0].xaxis.set_tick_params(width=2, size=8)
+        fig.axes[0].yaxis.set_tick_params(width=2, size=8)
+        fig.axes[0].xaxis.set_tick_params(which='minor', width=1, size=5)
+        fig.axes[0].yaxis.set_tick_params(which='minor', width=1, size=5)
+
+        # plt.title(title)
+        plt.savefig(f'figs/{title}_pose.png', bbox_inches='tight', pad_inches=0.1)
         print(f'saved pose: {title}')
 
     else:
@@ -629,6 +648,6 @@ if __name__ == '__main__':
     #             generate_graphs('ScanNet', type, features=features, depth=depth, master=False)
     #             generate_graphs('ETH', type, features=features, depth=depth, master=False)
     #             generate_graphs('Phototourism', type, features=features, depth=depth, master=False)
-    generate_eth_roma()
+    generate_eth_roma(load=True)
     # generate_graphs('Phototourism', 'varying_focal', features='splg', depth=10, xlim=[3.0, 120], ylim=[35.0, 50.0])
 
