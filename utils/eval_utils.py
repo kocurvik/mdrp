@@ -41,7 +41,7 @@ def print_results_focal(experiments, results, eq_only=False):
 def print_results(experiments, results, eq_only=False):
     tab = PrettyTable(['solver', 'median pose err', 'pose mAA', 'mean time', 'mean inliers'])
     tab.align["solver"] = "l"
-    tab.float_format = '0.2'
+    tab.float_format = '0.4'
 
     for exp in experiments:
         exp_results = [x for x in results if x['experiment'] == exp]
