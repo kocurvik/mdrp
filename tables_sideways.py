@@ -71,9 +71,10 @@ def generate_calib_table(cprint=print, prefix='', basenames=basenames, **kwargs)
                          'p3p_reproj', 'mad_poselib_shift_scale_reproj', '3p_ours_shift_scale_reproj',
                          '3p_ours_shift_scale_sym_reproj',
                          '3p_ours_shift_scale_hybrid', '3p_ours_shift_scale_hybrid-s',
+                         '3p_ours_shift_scale_hybrid-s_truncated', '3p_ours_shift_scale_hybrid-s_ctruncated',
                          '3p_ours_shift_scale_hybrid_reproj', '3p_ours_shift_scale_hybrid-s_reproj',
                          'p3p_sym_reproj',
-                         'p3p_hybrid', 'p3p_hybrid_reproj',
+                         'p3p_hybrid', 'p3p_hybrid_truncated', 'p3p_hybrid_ctruncated', 'p3p_hybrid_reproj',
                          'p3p_hybrid-s', 'p3p_hybrid-s_reproj',
                          'p3p_reproj-sfix', 'mad_poselib_shift_scale_reproj-sfix', '3p_ours_shift_scale_reproj-sfix',
                          'madpose', 'madpose_ours_scale_shift']
@@ -91,7 +92,7 @@ def generate_calib_table(cprint=print, prefix='', basenames=basenames, **kwargs)
 
     num_supercols = len(means)
 
-    cprint('\\resizebox*{!}{\\textheight}{')
+    cprint('\\resizebox*{\\textwidth}{!}{')
     column_alignment = 'clc' + 'c' * num_supercols * 3
     cprint('\\begin{tabular}{' + column_alignment + '}')
     cprint('\\toprule')
@@ -159,7 +160,8 @@ def generate_shared_table(cprint=print, prefix='', basenames=basenames, master=F
     monodepth_methods = ['3p_reldepth', 'mad_poselib_shift_scale', '4p_ours_scale_shift', '3p_ours_scale', '3p_ours',
                          'mad_poselib_shift_scale_reproj', '4p_ours_scale_shift_reproj', '3p_ours_scale_reproj', '3p_ours_reproj',
                          'mad_poselib_shift_scale_reproj-s', '4p_ours_scale_shift_reproj-s', '3p_ours_scale_reproj-s', '3p_ours_reproj-s',
-                         '3p_ours_hybrid', '3p_ours_scale_hybrid', '4p_ours_scale_shift_hybrid', 'mad_poselib_shift_scale_hybrid',
+                         '3p_ours_hybrid', '3p_ours_scale_hybrid', '3p_ours_scale_hybrid_truncated', '3p_ours_scale_hybrid_ctruncated',
+                         '4p_ours_scale_shift_hybrid', 'mad_poselib_shift_scale_hybrid',
                          '3p_ours_hybrid_reproj', '3p_ours_scale_hybrid_reproj', '4p_ours_scale_shift_hybrid_reproj',
                          'mad_poselib_shift_scale_hybrid_reproj',
                          'madpose', 'madpose_ours_scale', 'madpose_noshift_ours_scale']
@@ -238,7 +240,8 @@ def generate_varying_table(prefix='', cprint=print, basenames=basenames, master=
                          'mad_poselib_shift_scale_reproj', '4p_ours_scale_shift_reproj', '3p_ours_scale_reproj', '3p_ours_reproj',
                          'mad_poselib_shift_scale_reproj-s', '4p_ours_scale_shift_reproj-s', '3p_ours_scale_reproj-s', '3p_ours_reproj-s',
                          '3p_ours_scale_sym_reproj',
-                         '3p_ours_hybrid', '3p_ours_scale_hybrid', '4p_ours_scale_shift_hybrid', 'mad_poselib_shift_scale_hybrid',
+                         '3p_ours_hybrid', '3p_ours_scale_hybrid', '3p_ours_scale_hybrid_truncated', '3p_ours_scale_hybrid_ctruncated',
+                         '4p_ours_scale_shift_hybrid', 'mad_poselib_shift_scale_hybrid',
                          '3p_ours_hybrid_reproj', '3p_ours_scale_hybrid_reproj', '4p_ours_scale_shift_hybrid_reproj', 'mad_poselib_shift_scale_hybrid_reproj',
                          'madpose', 'madpose_ours_scale', 'madpose_noshift_ours_scale', 'madpose_4p4d']
 
@@ -345,15 +348,15 @@ if __name__ == '__main__':
     # cprint = print
 
     # Generate tables in SM
-    # type_table(generate_calib_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
+    type_table(generate_calib_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
     type_table(generate_shared_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
     type_table(generate_varying_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
 
-    # type_table(generate_calib_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
+    type_table(generate_calib_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
     type_table(generate_shared_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
     type_table(generate_varying_table, basenames={'ETH':basenames_eth}, make_pdf=True, t='2.0t')
 
-    # type_table(generate_calib_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
+    type_table(generate_calib_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
     type_table(generate_shared_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
     type_table(generate_varying_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
     

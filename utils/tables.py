@@ -153,7 +153,7 @@ class smart_dict(dict):
             if 'reproj' in key:
                 key = key.replace('reproj-sfix', 'reproj').replace('reproj-s', 'reproj').replace('sym_reproj','reproj').replace('_reproj', '')
             if 'hybrid' in key:
-                key = key.replace('_hybrid-s', '').replace('_hybrid', '')
+                key = key.replace('ctruncated','').replace('truncated','').replace('_hybrid-s', '').replace('_hybrid', '')
             return dict.__getitem__(self, key)
         except Exception:
             return key
@@ -229,16 +229,24 @@ depth_order = [1, 2, 6, 10, 12]
 
 def method_opts(method):
     if 'hybrid' in method:
+        tstr = ''
+
+        if 'truncated' in method:
+            tstr = '(T)'
+        if 'ctruncated' in method:
+            tstr = '(TC)'
+
+
         if 'hybrid-s' in method:
             if 'reproj' in method:
-                return 'SR$^{1,2}_s$+R$_s$'
+                return 'SR$^{1,2}_s$+R$_s$' + tstr
             else:
-                return 'SR$^{1,2}_s$+S'
+                return 'SR$^{1,2}_s$+S' + tstr
         else:
             if 'reproj' in method:
-                return 'SR$^{1,2}$+R'
+                return 'SR$^{1,2}$+R' + tstr
             else:
-                return 'SR$^{1,2}$+S'
+                return 'SR$^{1,2}$+S' + tstr
     if 'reproj-s' in method or 'reproj-sfix' in method:
         return 'R$_s$'
     if 'sym_reproj' in method:
