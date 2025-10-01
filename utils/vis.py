@@ -519,7 +519,7 @@ def generate_eth_roma(load=False):
     experiments.append('6p')
 
     slow_experiments = []
-    slow_experiments.append('madpose_ours_scale+10')
+    # slow_experiments.append('madpose_ours_scale+10')
     slow_experiments.append('madpose+10')
     slow_experiments.append('mast3r+1')
 
