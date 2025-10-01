@@ -90,6 +90,7 @@ def get_colors_styles_fixed(results_type):
         colors = {
             '3p_ours_scale': c[0],
             '3p_ours_scale_hybrid': c[0],
+            '3p_ours_scale_hybrid_ctruncated': c[0],
             'madpose_ours_scale': c[0],
             '4p_ours_scale_shift': c[1],
             'mad_poselib_shift_scale': c[2],
@@ -102,6 +103,7 @@ def get_colors_styles_fixed(results_type):
         styles = {
             '3p_ours_scale': 'solid',
             '3p_ours_scale_hybrid': 'solid',
+            '3p_ours_scale_hybrid_ctruncated': 'solid',
             'madpose_ours_scale': 'dashed',
             '4p_ours_scale_shift': 'solid',
             'mad_poselib_shift_scale': 'solid',
@@ -510,7 +512,7 @@ def generate_eth_roma(load=False):
     basenames = get_basenames('ETH')
 
     experiments = []
-    experiments.append('3p_ours_scale_hybrid+10')
+    experiments.append('3p_ours_scale_hybrid_ctruncated+10')
     # experiments.append('3p_ours+12')
     experiments.append('3p_reldepth+10')
     # experiments.append('mad_poselib_shift_scale+12')
@@ -648,6 +650,6 @@ if __name__ == '__main__':
     #             generate_graphs('ScanNet', type, features=features, depth=depth, master=False)
     #             generate_graphs('ETH', type, features=features, depth=depth, master=False)
     #             generate_graphs('Phototourism', type, features=features, depth=depth, master=False)
-    generate_eth_roma(load=True)
+    generate_eth_roma(load=False)
     # generate_graphs('Phototourism', 'varying_focal', features='splg', depth=10, xlim=[3.0, 120], ylim=[35.0, 50.0])
 
