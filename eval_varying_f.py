@@ -10,7 +10,7 @@ import multiprocessing.pool
 import h5py
 import numpy as np
 import poselib
-# import madpose
+import madpose
 # import pykitti
 from tqdm import tqdm
 
@@ -125,7 +125,11 @@ def eval_experiment(x):
         ransac_dict = {'max_iterations': iters, 'max_epipolar_error': t, 'progressive_sampling': False,
                        'min_iterations': iters, 'lo_iterations': lo_iterations, 'max_reproj_error': r}
 
-    bundle_dict = {'max_iterations': 0 if lo_iterations == 0 else 100}
+    bundle_dict = {'max_iterations': 0 if lo_iterations == 0 else 100, 'verbose': False}
+    if 'truncated' in experiment:
+        bundle_dict['loss_type'] = 'TRUNCATED'
+    if 'ctruncated' in experiment:
+        bundle_dict['loss_type'] = 'TRUNCATED_CAUCHY'
 
     ransac_dict['use_fundamental'] = '7p' in experiment
     ransac_dict['use_4p4d'] = '4p4d' in experiment
@@ -257,7 +261,9 @@ def eval(args):
     if args.sym:
         experiments = []
         # experiments.extend([f'3p_ours_hybrid+{i}' for i in depths])
-        experiments.extend([f'3p_ours_scale_hybrid+{i}' for i in depths])
+        # experiments.extend([f'3p_ours_scale_hybrid+{i}' for i in depths])
+        experiments.extend([f'3p_ours_scale_hybrid_truncated+{i}' for i in depths])
+        experiments.extend([f'3p_ours_scale_hybrid_ctruncated+{i}' for i in depths])
         # experiments.extend([f'4p_ours_scale_shift_hybrid+{i}' for i in depths])
         # experiments.extend([f'mad_poselib_shift_hybrid_scale+{i}' for i in depths])
         # experiments.extend([f'3p_ours_hybrid_reproj+{i}' for i in depths])
