@@ -153,7 +153,7 @@ class smart_dict(dict):
             if 'reproj' in key:
                 key = key.replace('reproj-sfix', 'reproj').replace('reproj-s', 'reproj').replace('sym_reproj','reproj').replace('_reproj', '')
             if 'hybrid' in key:
-                key = key.replace('ctruncated','').replace('truncated','').replace('_hybrid-s', '').replace('_hybrid', '')
+                key = key.replace('_ctruncated','').replace('_truncated','').replace('_hybrid-s', '').replace('_hybrid', '')
             return dict.__getitem__(self, key)
         except Exception:
             return key
