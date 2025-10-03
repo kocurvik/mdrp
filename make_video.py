@@ -195,10 +195,13 @@ class VideoMaker():
         self.matcher = LightGlue(features='superpoint').eval().cuda()
 
         self.ransac_dict = {'max_iterations': 1000, 'max_epipolar_error': self.args.threshold, 'progressive_sampling': False,
-                            'min_iterations': 10000, 'lo_iterations': 25, 'max_reproj_error': self.args.reproj_threshold,
-                            'solver_scale': True, 'solver_shift': True, 'use_reproj': True,
-                            'optimize_hybrid': True, 'optimize_shift': False, 'use_ours': True,
+                            'min_iterations': 1000, 'lo_iterations': 25, 'max_reproj_error': self.args.reproj_threshold,
+                            'solver_scale': True, 'solver_shift': False, 'use_reproj': False, 'use_p3p': True,
+                            'optimize_hybrid': True, 'optimize_shift': False, 'use_ours': False,
                             'weight_sampson': self.args.weight_sampson}
+
+        self.bundle_dict = {'loss_type':'TRUNCATED_CAUCHY'}
+        # self.bundle_dict = {}
 
         if self.args.cache_path is None:
             self.cache_dir = os.path.join('video_cache', os.path.basename(self.args.video_path).split('.')[0])
@@ -294,7 +297,8 @@ class VideoMaker():
 
 
         pose, info = poselib.estimate_relative_pose_w_mono_depth(points1[l], points2[l], d[l],
-                                                                 cam_dict_1, cam_dict_2, self.ransac_dict, {})
+                                                                 cam_dict_1, cam_dict_2, self.ransac_dict,
+                                                                 self.bundle_dict)
 
 
         if self.args.verbose:
@@ -319,7 +323,7 @@ class VideoMaker():
                 self.anchor_mde_out = mde_out1
 
                 self.anchor_R = self.anchor_R @ pose.R
-                self.anchor_t = self.anchor_R @ pose.t + self.anchor_t
+                self.anchor_t = self.anchor_R @ pose.t + pose.scale * self.anchor_t
                 self.anchor_scale *= pose.scale
 
                 self.since_last_anchor = 1
@@ -332,7 +336,7 @@ class VideoMaker():
 
             return pcd_1, colors_1, K1, \
                 self.anchor_R @ pose.R, \
-                self.anchor_R @ pose.t + self.anchor_t, \
+                self.anchor_R @ pose.t + pose.scale * self.anchor_t, \
                 self.anchor_scale * pose.scale
 
         return pcd_1, colors_1, K1, pose.R, pose.t, pose.scale
@@ -347,8 +351,16 @@ class VideoMaker():
             concat_index = 1
 
         new_dims = [self.new_width, self.new_height]
+        self.writer_original = cv2.VideoWriter(os.path.join(self.cache_dir, 'original.mp4'), fourcc, 25.0, new_dims)
+
         new_dims[1 - concat_index] *= 3
-        self.writer = cv2.VideoWriter(self.output_path, fourcc, 25.0, new_dims)
+        # self.writer_concat = cv2.VideoWriter(self.output_path, fourcc, 25.0, new_dims)
+
+        img_moge = cv2.imread(os.path.join(self.cache_dir, f'frame_naive_{0:05d}.png'))
+        new_dims = [img_moge.shape[1], img_moge.shape[0]]
+        self.writer_moge = cv2.VideoWriter(os.path.join(self.cache_dir, 'moge.mp4'), fourcc, 25.0, new_dims)
+        self.writer_ours = cv2.VideoWriter(os.path.join(self.cache_dir, 'ours.mp4'), fourcc, 25.0, new_dims)
+
 
         for i in range(self.video_length):
             img_pcd = cv2.imread(os.path.join(self.cache_dir, f'frame_ours_{i:05d}.png'))
@@ -360,12 +372,18 @@ class VideoMaker():
 
             frame_resize = cv2.resize(frame, (self.new_width, self.new_height))
 
-
-            output_frame = np.concatenate([frame_resize, img_moge, img_pcd], axis=concat_index)
-            self.writer.write(output_frame)
+            # output_frame = np.concatenate([frame_resize, img_moge, img_pcd], axis=concat_index)
+            # self.writer_concat.write(output_frame)
+            self.writer_original.write(frame)
+            self.writer_moge.write(img_moge)
+            self.writer_ours.write(img_pcd)
 
         self.cap.release()
-        self.writer.release()
+
+        # self.writer_concat.release()
+        self.writer_original.release()
+        self.writer_moge.release()
+        self.writer_ours.release()
 
     def process_video_rr(self):
         self.i = 0
@@ -426,6 +444,10 @@ class VideoMaker():
         self.vis.capture_screen_image(os.path.join(self.cache_dir, f'frame_ours_{self.i:05d}.png'), False)
         self.vis.capture_screen_image(os.path.join(self.cache_dir, f'frame_naive_{self.i:05d}.png'), False)
 
+        ctr = self.vis.get_view_control()
+        param = ctr.convert_to_pinhole_camera_parameters()
+        o3d.io.write_pinhole_camera_parameters(os.path.join(self.cache_dir, 'camera_position.json'), param)
+
         with tqdm(total=int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))) as pbar:
             pbar.update(1)
             while True:
@@ -452,12 +474,13 @@ class VideoMaker():
                 self.vis.update_renderer()
                 self.vis.capture_screen_image(os.path.join(self.cache_dir, f'frame_naive_{self.i:05d}.png'), False)
 
-                self.pcd.scale(1 / scale, np.zeros(3))
+
                 self.pcd.rotate(R, np.zeros(3))
                 self.pcd.translate(t)
+                self.pcd.scale(1 / scale, np.zeros(3))
                 # self.pcd.points = o3d.utility.Vector3dVector(((R @ (xyz[l] / scale).T).T + t).astype(np.float64))
                 self.vis_camera.rotate(R)
-                self.vis_camera.translate(t)
+                self.vis_camera.translate(t / scale)
 
                 self.vis.update_geometry(self.pcd)
                 self.vis.update_geometry(self.vis_camera)
@@ -467,7 +490,7 @@ class VideoMaker():
 
                 # print(f"Updated {self.i} / {self.video_length}")
 
-                self.vis_camera.translate(-t)
+                self.vis_camera.translate(-t / scale)
                 self.vis_camera.rotate(R.T)
                 pbar.update(1)
 
@@ -478,8 +501,8 @@ class VideoMaker():
 
         self.video_width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         self.video_height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        self.new_width = self.video_width // 2
-        self.new_height = self.video_height // 2
+        self.new_width = self.video_width
+        self.new_height = self.video_height
 
         # we have images in cahce so we can skip
         if self.args.use_cache:
@@ -502,13 +525,15 @@ class VideoMaker():
                                                                           intrinsic=self.anchor_K,
                                                                           extrinsic=Rt)
         self.vis_camera.scale(0.05 * np.max(np.linalg.norm(xyz, axis=1)), np.zeros(3))
+
         print("First point cloud loaded!")
 
         self.vis = o3d.visualization.VisualizerWithKeyCallback()
         self.vis.register_key_callback(ord(' '), self.run_visualizer)
         self.vis.create_window(width=self.new_width, height=self.new_height)
-        self.vis.get_render_option().background_color = [0, 0, 0]
-        self.vis.get_render_option().point_size = 2
+        self.vis.get_render_option().background_color = [255, 255, 255]
+        self.vis.get_render_option().point_size = 1
+        self.vis.get_render_option().line_width = 10
 
         self.vis.add_geometry(self.pcd)
         self.vis.add_geometry(self.vis_camera)

@@ -129,9 +129,14 @@ class PairMaker():
             print("scale: ", pose.scale)
 
         self.pcd_1, self.colors_1 = self.get_pointcloud(np.linalg.inv(K1), mde_out1, image1)
-        self.pcd_1 = (pose.R @ self.pcd_1.T).T + pose.t
-        self.pcd_1 /= pose.scale
+        self.pose = pose
+        # self.pcd_1 = (pose.R @ self.pcd_1.T).T + pose.t
+        # self.pcd_1 /= pose.scale
+
         self.pcd_2, self.colors_2 = self.get_pointcloud(np.linalg.inv(K2), mde_out2, image2)
+
+        self.K1 = K1
+        self.K2 = K2
 
     def postprocess(self):
         print("Processing video")
@@ -168,9 +173,13 @@ class PairMaker():
             self.vis.capture_screen_image(os.path.join(self.cache_dir, f'frame_ours_{i:05d}.png'), False)
             self.geometry_1.rotate(R, self.center)
             self.geometry_2.rotate(R, self.center)
+            self.vis_camera_1.rotate(R, self.center)
+            self.vis_camera_2.rotate(R, self.center)
 
             self.vis.update_geometry(self.geometry_1)
             self.vis.update_geometry(self.geometry_2)
+            self.vis.update_geometry(self.vis_camera_1)
+            self.vis.update_geometry(self.vis_camera_2)
 
             self.vis.poll_events()
             self.vis.update_renderer()
@@ -188,6 +197,10 @@ class PairMaker():
         l = np.logical_and(l, ~np.any(np.isinf(self.pcd_1), axis=1))
         self.geometry_1.points = o3d.utility.Vector3dVector(self.pcd_1[l].astype(np.float64))
         self.geometry_1.colors = o3d.utility.Vector3dVector(self.colors_1[l])
+
+        self.geometry_1.rotate(self.pose.R, np.zeros(3))
+        self.geometry_1.translate(self.pose.t)
+        self.geometry_1.scale(1 / self.pose.scale, np.zeros(3))
         
         self.geometry_2 = o3d.geometry.PointCloud()
         l = np.random.rand(len(self.pcd_2)) < self.args.subsample_rate
@@ -195,12 +208,20 @@ class PairMaker():
         self.geometry_2.points = o3d.utility.Vector3dVector(self.pcd_2[l].astype(np.float64))
         self.geometry_2.colors = o3d.utility.Vector3dVector(self.colors_2[l])
 
-        # Rt = np.eye(4)
-        # self.vis_camera = o3d.geometry.LineSet.create_camera_visualization(view_width_px=self.video_width,
-        #                                                                    view_height_px=self.video_height,
-        #                                                                   intrinsic=self.anchor_K,
-        #                                                                   extrinsic=Rt)
-        # self.vis_camera.scale(0.05 * np.max(np.linalg.norm(xyz, axis=1)), np.zeros(3))
+        Rt = np.eye(4)
+        self.vis_camera_2 = o3d.geometry.LineSet.create_camera_visualization(view_width_px=image_2.shape[1],
+                                                                            view_height_px=image_2.shape[0],
+                                                                            intrinsic=self.K2,
+                                                                            extrinsic=Rt)
+        self.vis_camera_2.scale(0.05 * np.median(np.linalg.norm(self.pcd_2, axis=1)), np.zeros(3))
+
+        self.vis_camera_1 = o3d.geometry.LineSet.create_camera_visualization(view_width_px=image_1.shape[1],
+                                                                             view_height_px=image_1.shape[0],
+                                                                             intrinsic=self.K1,
+                                                                             extrinsic=Rt)
+        self.vis_camera_1.scale(0.05 * np.median(np.linalg.norm(self.pcd_1, axis=1)), np.zeros(3))
+        self.vis_camera_1.rotate(self.pose.R)
+        self.vis_camera_1.translate(self.pose.t / self.pose.scale)
 
         print("First point cloud loaded!")
 
@@ -218,6 +239,8 @@ class PairMaker():
 
         self.vis.add_geometry(self.geometry_1)
         self.vis.add_geometry(self.geometry_2)
+        self.vis.add_geometry(self.vis_camera_1)
+        self.vis.add_geometry(self.vis_camera_2)
         self.vis.poll_events()
         self.vis.update_renderer()
 
