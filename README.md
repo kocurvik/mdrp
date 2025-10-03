@@ -29,7 +29,7 @@ git clone -b iccv-eval https://github.com/kocurvik/mdrp
 
 # installing Madpose
 git clone --recursive https://github.com/kocurvik/madpose
-cd Madpose
+cd madpose
 # this step is optional if you have the libs installed
 # if you do not have root access you can install them for user or using conan etc.
 # sudo apt-get install libceres-dev libopencv-dev
