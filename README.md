@@ -10,6 +10,91 @@ TBA
 
 TBA
 
+## Citation
+
+If you find our work useful please consider citing:
+
+```
+@inproceedings{ding2025reposed,
+  title={RePoseD: Efficient Relative Pose Estimation With Known Depth Information},
+  author={Ding, Yaqing and Kocur, Viktor and V{\'a}vra, V{\'a}clav and Haladov{\'a}, Zuzana Berger and Yang, Jian and Sattler, Torsten and Kukelova, Zuzana},
+  booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision},
+  year={2025}
+}
+```
+
+## Extended Results
+
+After finishing the camera-ready version for ICCV we have implemented an improved LO for PoseLib which optimizes the Sampson and reprojection errors jointly. This results in significant improvement in terms of accuracy often surpassing MADPose results while being significantly faster.
+
+Benchmark results are presented [EXTENDED_RESULTS.md](EXTENDED_RESULTS.md). Below is a preview of results on the PhotoTourism dataset.
+
+#### Phototourism (Calibrated)
+
+<table>
+<tr><td rowspan="2"  style="vertical-align : middle;text-align:center;">Depth</td><td rowspan="2"  style="vertical-align : middle;text-align:center;">Method</td><td rowspan="2"  style="vertical-align : middle;text-align:center;">Scale</td><td rowspan="2"  style="vertical-align : middle;text-align:center;">Shift</td><td colspan="3" align="center">SP+LG</td><td align="center" colspan="3">RoMA</td></tr>
+<tr><td>$\epsilon(^\circ)\downarrow$</td><td>mAA $\uparrow$</td><td>Runtime (ms)</td><td>$\epsilon(^\circ)\downarrow$</td><td>mAA $\uparrow$</td><td>Runtime (ms)</td></tr>
+<td rowspan="1" style="vertical-align : middle;text-align:center;">-</td>
+<td>5-Point</td><td></td><td></td> <td>1.42</td><td>76.56</td><td>63.79</td><td>0.78</td><td>86.18</td><td>264.61</td>
+</tr>
+<td rowspan="5" style="vertical-align : middle;text-align:center;">MoGe</td>
+<td>3P-RelDepth</td><td></td><td></td> <td>8.12</td><td>53.40</td><td>55.85</td><td>1.69</td><td>67.22</td><td>221.06</td>
+</tr>
+<tr>
+<td>P3P</td><td></td><td></td> <td>1.40</td><td>77.37</td><td>32.95</td><td>0.78</td><td>86.42</td><td>148.76</td>
+</tr>
+<tr>
+<td>MADPose</td><td>✔</td><td>✔</td> <td>1.27</td><td>80.28</td><td>788.18</td><td>0.87</td><td>86.85</td><td>1753.49</td>
+</tr>
+<tr>
+<td>Ours</td><td>✔</td><td>✔</td> <td><strong>1.24</strong></td><td><strong>81.34</strong></td><td><strong>28.93</strong></td><td><strong>0.74</strong></td><td><strong>88.58</strong></td><td><strong>125.66</strong></td>
+</tr>
+<tr>
+<td>Ours*</td><td>✔</td><td></td> <td>1.75</td><td>80.29</td><td>30.11</td><td>1.03</td><td>88.02</td><td>135.95</td>
+</tr>
+<td rowspan="5" style="vertical-align : middle;text-align:center;">UniDepth</td>
+<td>3P-RelDepth</td><td></td><td></td> <td>4.07</td><td>51.60</td><td>52.49</td><td>1.33</td><td>67.56</td><td>214.73</td>
+</tr>
+<tr>
+<td>P3P</td><td></td><td></td> <td>1.40</td><td>77.47</td><td>34.30</td><td>0.78</td><td>86.43</td><td>150.95</td>
+</tr>
+<tr>
+<td>MADPose</td><td>✔</td><td>✔</td> <td>1.15</td><td>82.09</td><td>720.34</td><td>0.78</td><td>87.60</td><td>1695.57</td>
+</tr>
+<tr>
+<td>Ours</td><td>✔</td><td>✔</td> <td><strong>1.04</strong></td><td>83.71</td><td><strong>30.88</strong></td><td><strong>0.69</strong></td><td>89.27</td><td><strong>131.52</strong></td>
+</tr>
+<tr>
+<td>Ours*</td><td>✔</td><td></td> <td>1.16</td><td><strong>84.56</strong></td><td>31.19</td><td>0.81</td><td><strong>90.18</strong></td><td>137.26</td>
+</tr>
+</table>
+<table>
+<tr><td rowspan="2"  style="vertical-align : middle;text-align:center;">Depth</td><td rowspan="2"  style="vertical-align : middle;text-align:center;">Method</td><td rowspan="2"  style="vertical-align : middle;text-align:center;">Scale</td><td rowspan="2"  style="vertical-align : middle;text-align:center;">Shift</td><td colspan="3" align="center">MASt3R</td>
+<tr><td>$\epsilon(^\circ)\downarrow$</td><td>mAA $\uparrow$</td><td>Runtime (ms)</td></tr>
+<td rowspan="1" style="vertical-align : middle;text-align:center;">-</td>
+<td>5-Point</td><td></td><td></td> <td>1.14</td><td>81.66</td><td>137.75</td>
+</tr>
+<tr>
+<td rowspan="5" style="vertical-align : middle;text-align:center;">MASt3R</td>
+<td>3P-RelDepth</td><td></td><td></td> <td><strong>1.13</strong></td><td>80.83</td><td>149.86</td>
+</tr>
+<tr>
+<td>P3P</td><td></td><td></td> <td><strong>1.13</strong></td><td><strong>81.50</strong></td><td><strong>66.06</strong></td>
+</tr>
+<tr>
+<td>MADPose</td><td>✔</td><td>✔</td> <td>2.10</td><td>72.14</td><td>2154.89</td>
+</tr>
+<tr>
+<td>Ours</td><td>✔</td><td>✔</td> <td>29.59</td><td>1.27</td><td>95.77</td>
+</tr>
+<tr>
+<td>Ours*</td><td>✔</td><td></td> <td>29.36</td><td>1.28</td><td>121.02</td>
+</tr>
+</table>
+
+\* Denotes the use of P3P + our new optimization strategy.
+
+
 ## ICCV (2025) Evaluation
 
 To run the experiments from the paper you can use the provided evaluation code. We are currently working on improvements to the methods. For reproducibility we keep the original code available in the `iccv-eval` branches.
@@ -92,16 +177,4 @@ python tables.py
 python vis.py
 # SM tables
 python tables_sideways.py
-```
-## Citation
-
-If you find our work useful please consider citing:
-
-```
-@inproceedings{ding2025reposed,
-  title={RePoseD: Efficient Relative Pose Estimation With Known Depth Information},
-  author={Ding, Yaqing and Kocur, Viktor and V{\'a}vra, V{\'a}clav and Haladov{\'a}, Zuzana Berger and Yang, Jian and Sattler, Torsten and Kukelova, Zuzana},
-  booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision},
-  year={2025}
-}
 ```
