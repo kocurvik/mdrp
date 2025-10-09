@@ -48,7 +48,7 @@ def print_monodepth_rows(depth, methods, method_names, means, use_focal=False, c
 
             best_text_row = text_rows[idxs[0]][j]
             k = 0
-            while text_rows[idxs[k]][j] == best_text_row:
+            while k < len(idxs) and text_rows[idxs[k]][j] == best_text_row:
                 text_rows[idxs[k]][j] = '<strong>' + text_rows[idxs[k]][j] + '</strong>'
                 k += 1
 
@@ -276,8 +276,8 @@ if __name__ == '__main__':
     # cprint = print
 
     # Generate tables in SM
-    type_table(generate_calib_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
-    type_table(generate_shared_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
+    # type_table(generate_calib_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
+    # type_table(generate_shared_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
     type_table(generate_varying_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
 
     type_table(generate_calib_table, basenames={'ETH': basenames_eth}, make_pdf=True, t='2.0t')
