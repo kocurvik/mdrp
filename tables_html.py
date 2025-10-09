@@ -184,8 +184,8 @@ def generate_shared_table(cprint=print, prefix='', basenames=basenames, master=F
         '<tr><td rowspan="2"  style="vertical-align : middle;text-align:center;">Depth</td><td rowspan="2"  style="vertical-align : middle;text-align:center;">Method</td><td rowspan="2"  style="vertical-align : middle;text-align:center;">Scale</td><td rowspan="2"  style="vertical-align : middle;text-align:center;">Shift</td><td colspan="5" align="center">MASt3R</td>')
     cprint(
         '<tr><td>$\\epsilon(^\\circ)\\downarrow$</td><td>$\\xi\\downarrow$</td><td>mAA $\\uparrow$</td><td>mAA$_f \\uparrow$</td><td>Runtime (ms)</td></tr>')
-    print_monodepth_rows(0, baseline_methods, method_names, means_master, cprint=cprint, master=False)
-    print_monodepth_rows(1, monodepth_methods, method_names, means_master, cprint=cprint, master=True)
+    print_monodepth_rows(0, baseline_methods, method_names, means_master, use_focal=True, cprint=cprint, master=False)
+    print_monodepth_rows(1, monodepth_methods, method_names, means_master, use_focal=True, cprint=cprint, master=True)
     cprint('</table>')
 
 
@@ -277,14 +277,14 @@ if __name__ == '__main__':
 
     # Generate tables in SM
     # type_table(generate_calib_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
-    # type_table(generate_shared_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
-    type_table(generate_varying_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
+    type_table(generate_shared_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
+    # type_table(generate_varying_table, basenames={'ScanNet': basenames_scannet}, make_pdf=True, t='2.0t')
 
-    type_table(generate_calib_table, basenames={'ETH': basenames_eth}, make_pdf=True, t='2.0t')
+    # type_table(generate_calib_table, basenames={'ETH': basenames_eth}, make_pdf=True, t='2.0t')
     type_table(generate_shared_table, basenames={'ETH': basenames_eth}, make_pdf=True, t='2.0t')
-    type_table(generate_varying_table, basenames={'ETH': basenames_eth}, make_pdf=True, t='2.0t')
+    # type_table(generate_varying_table, basenames={'ETH': basenames_eth}, make_pdf=True, t='2.0t')
 
-    type_table(generate_calib_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
+    # type_table(generate_calib_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
     # type_table(generate_shared_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
-    type_table(generate_varying_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
+    # type_table(generate_varying_table, basenames={'Phototourism': basenames_pt}, make_pdf=True, t='2.0t')
 
