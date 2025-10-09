@@ -133,7 +133,7 @@ def generate_calib_table(cprint=print, prefix='', basenames=basenames, **kwargs)
     cprint(
         '<tr><td>$\\epsilon(^\\circ)\\downarrow$</td><td>mAA $\\uparrow$</td><td>Runtime (ms)</td></tr>')
     print_monodepth_rows(0, baseline_methods, method_names, means_master, cprint=cprint, master=False)
-    print_monodepth_rows(1, monodepth_methods, method_names, means_master, cprint=cprint, master=True)
+    # print_monodepth_rows(1, monodepth_methods, method_names, means_master, cprint=cprint, master=True)
     cprint('</table>')
 
 def generate_shared_table(cprint=print, prefix='', basenames=basenames, master=False, **kwargs):
@@ -163,7 +163,7 @@ def generate_shared_table(cprint=print, prefix='', basenames=basenames, master=F
     cprint(
         '<tr><td rowspan="2"  style="vertical-align : middle;text-align:center;">Depth</td><td rowspan="2"  style="vertical-align : middle;text-align:center;">Method</td><td rowspan="2"  style="vertical-align : middle;text-align:center;">Scale</td><td rowspan="2"  style="vertical-align : middle;text-align:center;">Shift</td><td colspan="5" align="center">SP+LG</td><td align="center" colspan="5">RoMA</td></tr>')
     cprint(
-        '<tr><td>$\\epsilon(^\\circ)\\downarrow$</td><td>$\\xi\\downarrow$</td><td>mAA $\\uparrow$</td><td>mAA$_f \\uparrow$</td><td>Runtime (ms)</td><td>$\\epsilon(^\\circ)\\downarrow$</td><td>$\\xi\\downarrow$</td><td>mAA $\\uparrow$</td><td>mAA$_f \\uparrow$</td><td>Runtime (ms)</td></tr>')
+        '<tr><td>$\\epsilon(^\\circ)\\downarrow$</td><td>$\\xi\\downarrow$</td><td>mAA $\\uparrow$</td><td>mAAf $\\uparrow$</td><td>Runtime (ms)</td><td>$\\epsilon(^\\circ)\\downarrow$</td><td>$\\xi\\downarrow$</td><td>mAA $\\uparrow$</td><td>mAAf $\\uparrow$</td><td>Runtime (ms)</td></tr>')
 
     print_monodepth_rows(0, baseline_methods, method_names, means, use_focal=True, cprint=cprint)
     for i in depth_order:
@@ -171,7 +171,7 @@ def generate_shared_table(cprint=print, prefix='', basenames=basenames, master=F
     cprint('</table>')
 
     # experiments.append('mast3r+1')
-    monodepth_methods.append('mast3r')
+    monodepth_methods = ['mast3r']
 
     experiments = []
     experiments.extend(baseline_methods)
@@ -183,7 +183,7 @@ def generate_shared_table(cprint=print, prefix='', basenames=basenames, master=F
     cprint(
         '<tr><td rowspan="2"  style="vertical-align : middle;text-align:center;">Depth</td><td rowspan="2"  style="vertical-align : middle;text-align:center;">Method</td><td rowspan="2"  style="vertical-align : middle;text-align:center;">Scale</td><td rowspan="2"  style="vertical-align : middle;text-align:center;">Shift</td><td colspan="5" align="center">MASt3R</td>')
     cprint(
-        '<tr><td>$\\epsilon(^\\circ)\\downarrow$</td><td>$\\xi\\downarrow$</td><td>mAA $\\uparrow$</td><td>mAA$_f \\uparrow$</td><td>Runtime (ms)</td></tr>')
+        '<tr><td>$\\epsilon(^\\circ)\\downarrow$</td><td>$\\xi\\downarrow$</td><td>mAA $\\uparrow$</td><td>mAAf $\\uparrow$</td><td>Runtime (ms)</td></tr>')
     print_monodepth_rows(0, baseline_methods, method_names, means_master, use_focal=True, cprint=cprint, master=False)
     print_monodepth_rows(1, monodepth_methods, method_names, means_master, use_focal=True, cprint=cprint, master=True)
     cprint('</table>')
@@ -216,7 +216,7 @@ def generate_varying_table(prefix='', cprint=print, basenames=basenames, master=
     cprint(
         '<tr><td rowspan="2"  style="vertical-align : middle;text-align:center;">Depth</td><td rowspan="2"  style="vertical-align : middle;text-align:center;">Method</td><td rowspan="2"  style="vertical-align : middle;text-align:center;">Scale</td><td rowspan="2"  style="vertical-align : middle;text-align:center;">Shift</td><td colspan="5" align="center">SP+LG</td><td align="center" colspan="5">RoMA</td></tr>')
     cprint(
-        '<tr><td>$\\epsilon(^\\circ)\\downarrow$</td><td>$\\xi\\downarrow$</td><td>mAA $\\uparrow$</td><td>mAA$_f \\uparrow$</td><td>Runtime (ms)</td><td>$\\epsilon(^\\circ)\\downarrow$</td><td>$\\xi\\downarrow$</td><td>mAA $\\uparrow$</td><td>mAA$_f \\uparrow$</td><td>Runtime (ms)</td></tr>')
+        '<tr><td>$\\epsilon(^\\circ)\\downarrow$</td><td>$\\xi\\downarrow$</td><td>mAA $\\uparrow$</td><td>mAAf $\\uparrow$</td><td>Runtime (ms)</td><td>$\\epsilon(^\\circ)\\downarrow$</td><td>$\\xi\\downarrow$</td><td>mAA $\\uparrow$</td><td>mAAf $\\uparrow$</td><td>Runtime (ms)</td></tr>')
 
     print_monodepth_rows(0, baseline_methods, method_names, means, cprint=cprint, use_focal=True)
     for i in depth_order:
@@ -224,7 +224,7 @@ def generate_varying_table(prefix='', cprint=print, basenames=basenames, master=
     cprint('</table>')
 
     # experiments.append('mast3r+1')
-    monodepth_methods.append('mast3r')
+    monodepth_methods = ['mast3r']
 
     experiments = []
     experiments.extend(baseline_methods)
@@ -236,7 +236,7 @@ def generate_varying_table(prefix='', cprint=print, basenames=basenames, master=
     cprint(
         '<tr><td rowspan="2"  style="vertical-align : middle;text-align:center;">Depth</td><td rowspan="2"  style="vertical-align : middle;text-align:center;">Method</td><td rowspan="2"  style="vertical-align : middle;text-align:center;">Scale</td><td rowspan="2"  style="vertical-align : middle;text-align:center;">Shift</td><td colspan="5" align="center">MASt3R</td>')
     cprint(
-        '<tr><td>$\\epsilon(^\\circ)\\downarrow$</td><td>$\\xi\\downarrow$</td><td>mAA $\\uparrow$</td><td>mAA$_f \\uparrow$</td><td>Runtime (ms)</td></tr>')
+        '<tr><td>$\\epsilon(^\\circ)\\downarrow$</td><td>$\\xi\\downarrow$</td><td>mAA $\\uparrow$</td><td>mAAf $\\uparrow$</td><td>Runtime (ms)</td></tr>')
     print_monodepth_rows(0, baseline_methods, method_names, means_master, use_focal=True, cprint=cprint, master=False)
     print_monodepth_rows(1, monodepth_methods, method_names, means_master, use_focal=True, cprint=cprint, master=True)
     cprint('</table>')
