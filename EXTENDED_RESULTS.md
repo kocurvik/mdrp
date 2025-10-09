@@ -49,22 +49,6 @@ Since the camera-ready version of the paper we have implemented an improved opti
 <td rowspan="1" style="vertical-align : middle;text-align:center;">-</td>
 <td>5-Point</td><td></td><td></td> <td>3.21</td><td>62.88</td><td>163.73</td>
 </tr>
-<tr>
-<td rowspan="5" style="vertical-align : middle;text-align:center;">MASt3R</td>
-<td>3P-RelDepth</td><td></td><td></td> <td>3.21</td><td>62.91</td><td>174.26</td>
-</tr>
-<tr>
-<td>P3P</td><td></td><td></td> <td>3.21</td><td>62.90</td><td><strong>78.05</strong></td>
-</tr>
-<tr>
-<td>MADPose</td><td>✔</td><td>✔</td> <td><strong>3.17</strong></td><td><strong>62.99</strong></td><td>2459.38</td>
-</tr>
-<tr>
-<td>Ours</td><td>✔</td><td>✔</td> <td>3.19</td><td>62.97</td><td>134.47</td>
-</tr>
-<tr>
-<td>Ours</td><td>✔</td><td></td> <td><strong>3.17</strong></td><td>62.73</td><td>155.95</td>
-</tr>
 </table>
 
 ### Unkown and shared focal case
@@ -101,16 +85,7 @@ Since the camera-ready version of the paper we have implemented an improved opti
 <td>6-Point</td><td></td><td></td> <td>3.38</td><td>0.03</td><td>61.09</td><td>63.59</td><td>97.82</td>
 </tr>
 <tr>
-<td rowspan="4" style="vertical-align : middle;text-align:center;">MASt3R</td>
-<td>3P3D</td><td></td><td></td> <td><strong>3.40</strong></td><td><strong>0.03</strong></td><td>60.29</td><td>62.71</td><td><strong>49.14</strong></td>
-</tr>
-<tr>
-<td>MADPose</td><td>✔</td><td>✔</td> <td>3.42</td><td><strong>0.03</strong></td><td>59.78</td><td>61.92</td><td>3348.40</td>
-</tr>
-<tr>
-<td>Ours</td><td>✔</td><td></td> <td>3.41</td><td><strong>0.03</strong></td><td><strong>60.37</strong></td><td><strong>63.63</strong></td><td>112.36</td>
-</tr>
-<tr>
+<td rowspan="1" style="vertical-align : middle;text-align:center;">MASt3R</td>
 <td>MASt3R Opt.</td><td></td><td></td> <td>3.45</td><td>0.06</td><td>59.49</td><td>52.90</td><td>5080.77</td>
 </tr>
 </table>
@@ -149,16 +124,7 @@ Since the camera-ready version of the paper we have implemented an improved opti
 <td>7-Point</td><td></td><td></td> <td>4.01</td><td>0.04</td><td>54.25</td><td>52.79</td><td>37.99</td>
 </tr>
 <tr>
-<td rowspan="4" style="vertical-align : middle;text-align:center;">MASt3R</td>
-<td>4P4D</td><td></td><td></td> <td>4.07</td><td><strong>0.05</strong></td><td>53.41</td><td>50.67</td><td><strong>33.18</strong></td>
-</tr>
-<tr>
-<td>MADPose</td><td>✔</td><td>✔</td> <td>4.21</td><td><strong>0.05</strong></td><td>52.41</td><td>50.25</td><td>4445.31</td>
-</tr>
-<tr>
-<td>Ours</td><td>✔</td><td></td> <td>5.22</td><td><strong>0.05</strong></td><td>46.39</td><td>47.19</td><td>118.59</td>
-</tr>
-<tr>
+<td rowspan="1" style="vertical-align : middle;text-align:center;">MASt3R</td>
 <td>MASt3R Opt.</td><td></td><td></td> <td><strong>3.80</strong></td><td><strong>0.05</strong></td><td><strong>56.37</strong></td><td><strong>53.87</strong></td><td>5080.77</td>
 </tr>
 </table>
@@ -211,22 +177,6 @@ Since the camera-ready version of the paper we have implemented an improved opti
 <td rowspan="1" style="vertical-align : middle;text-align:center;">-</td>
 <td>5-Point</td><td></td><td></td> <td>1.14</td><td>81.66</td><td>137.75</td>
 </tr>
-<tr>
-<td rowspan="5" style="vertical-align : middle;text-align:center;">MASt3R</td>
-<td>3P-RelDepth</td><td></td><td></td> <td><strong>1.13</strong></td><td>80.83</td><td>149.86</td>
-</tr>
-<tr>
-<td>P3P</td><td></td><td></td> <td><strong>1.13</strong></td><td><strong>81.50</strong></td><td><strong>66.06</strong></td>
-</tr>
-<tr>
-<td>MADPose</td><td>✔</td><td>✔</td> <td>2.10</td><td>72.14</td><td>2154.89</td>
-</tr>
-<tr>
-<td>Ours</td><td>✔</td><td>✔</td> <td>29.59</td><td>1.27</td><td>95.77</td>
-</tr>
-<tr>
-<td>Ours</td><td>✔</td><td></td> <td>29.36</td><td>1.28</td><td>121.02</td>
-</tr>
 </table>
 
 ### Uknown and different focals case
@@ -263,16 +213,7 @@ Since the camera-ready version of the paper we have implemented an improved opti
 <td>7-Point</td><td></td><td></td> <td>4.39</td><td>0.09</td><td>54.01</td><td>35.02</td><td>39.53</td>
 </tr>
 <tr>
-<td rowspan="4" style="vertical-align : middle;text-align:center;">MASt3R</td>
-<td>4P4D</td><td></td><td></td> <td>5.20</td><td>0.11</td><td>49.69</td><td>31.64</td><td><strong>36.90</strong></td>
-</tr>
-<tr>
-<td>MADPose</td><td>✔</td><td>✔</td> <td>10.11</td><td>0.24</td><td>35.16</td><td>20.56</td><td>4871.24</td>
-</tr>
-<tr>
-<td>Ours</td><td>✔</td><td></td> <td>33.62</td><td>0.83</td><td>1.17</td><td>2.73</td><td>77.14</td>
-</tr>
-<tr>
+<td rowspan="1" style="vertical-align : middle;text-align:center;">MASt3R</td>
 <td>MASt3R Opt.</td><td></td><td></td> <td><strong>2.71</strong></td><td><strong>0.04</strong></td><td><strong>66.54</strong></td><td><strong>56.43</strong></td><td>4903.10</td>
 </tr>
 </table>
@@ -322,24 +263,8 @@ Since the camera-ready version of the paper we have implemented an improved opti
 <table>
 <tr><td rowspan="2"  style="vertical-align : middle;text-align:center;">Depth</td><td rowspan="2"  style="vertical-align : middle;text-align:center;">Method</td><td rowspan="2"  style="vertical-align : middle;text-align:center;">Scale</td><td rowspan="2"  style="vertical-align : middle;text-align:center;">Shift</td><td colspan="3" align="center">MASt3R</td>
 <tr><td>$\epsilon(^\circ)\downarrow$</td><td>mAA $\uparrow$</td><td>Runtime (ms)</td></tr>
-<td rowspan="1" style="vertical-align : middle;text-align:center;">-</td>
+<tr><td rowspan="1" style="vertical-align : middle;text-align:center;">-</td>
 <td>5-Point</td><td></td><td></td> <td>0.66</td><td>90.29</td><td>126.77</td>
-</tr>
-<tr>
-<td rowspan="5" style="vertical-align : middle;text-align:center;">MASt3R</td>
-<td>3P-RelDepth</td><td></td><td></td> <td><strong>0.67</strong></td><td><strong>90.30</strong></td><td>104.46</td>
-</tr>
-<tr>
-<td>P3P</td><td></td><td></td> <td><strong>0.67</strong></td><td>90.24</td><td><strong>56.52</strong></td>
-</tr>
-<tr>
-<td>MADPose</td><td>✔</td><td>✔</td> <td>0.92</td><td>87.96</td><td>2647.02</td>
-</tr>
-<tr>
-<td>Ours</td><td>✔</td><td>✔</td> <td>0.82</td><td>89.09</td><td>81.64</td>
-</tr>
-<tr>
-<td>Ours</td><td>✔</td><td></td> <td>0.85</td><td>87.73</td><td>87.17</td>
 </tr>
 </table>
 
@@ -377,16 +302,7 @@ Since the camera-ready version of the paper we have implemented an improved opti
 <td>6-Point</td><td></td><td></td> <td>1.23</td><td>0.03</td><td>82.99</td><td>69.00</td><td>85.89</td>
 </tr>
 <tr>
-<td rowspan="4" style="vertical-align : middle;text-align:center;">MASt3R</td>
-<td>3P3D</td><td></td><td></td> <td>1.37</td><td>0.03</td><td>81.30</td><td>67.31</td><td><strong>38.96</strong></td>
-</tr>
-<tr>
-<td>MADPose</td><td>✔</td><td>✔</td> <td>2.43</td><td>0.05</td><td>72.28</td><td>58.32</td><td>3825.11</td>
-</tr>
-<tr>
-<td>Ours</td><td>✔</td><td></td> <td>2.87</td><td>0.05</td><td>70.25</td><td>59.30</td><td>67.01</td>
-</tr>
-<tr>
+<td rowspan="1" style="vertical-align : middle;text-align:center;">MASt3R</td>
 <td>MASt3R Opt.</td><td></td><td></td> <td><strong>1.32</strong></td><td><strong>0.01</strong></td><td><strong>85.64</strong></td><td><strong>82.95</strong></td><td>4800.37</td>
 </tr>
 </table>

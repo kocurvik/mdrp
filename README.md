@@ -74,22 +74,6 @@ Benchmark results are presented [EXTENDED_RESULTS.md](EXTENDED_RESULTS.md). Belo
 <td rowspan="1" style="vertical-align : middle;text-align:center;">-</td>
 <td>5-Point</td><td></td><td></td> <td>1.14</td><td>81.66</td><td>137.75</td>
 </tr>
-<tr>
-<td rowspan="5" style="vertical-align : middle;text-align:center;">MASt3R</td>
-<td>3P-RelDepth</td><td></td><td></td> <td><strong>1.13</strong></td><td>80.83</td><td>149.86</td>
-</tr>
-<tr>
-<td>P3P</td><td></td><td></td> <td><strong>1.13</strong></td><td><strong>81.50</strong></td><td><strong>66.06</strong></td>
-</tr>
-<tr>
-<td>MADPose</td><td>✔</td><td>✔</td> <td>2.10</td><td>72.14</td><td>2154.89</td>
-</tr>
-<tr>
-<td>Ours</td><td>✔</td><td>✔</td> <td>29.59</td><td>1.27</td><td>95.77</td>
-</tr>
-<tr>
-<td>Ours*</td><td>✔</td><td></td> <td>29.36</td><td>1.28</td><td>121.02</td>
-</tr>
 </table>
 
 \* Denotes the use of P3P + our new optimization strategy.
