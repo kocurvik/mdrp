@@ -24,12 +24,12 @@ pip install git+https://github.com/kocurvik/PoseLib@pr-mdrp
 
 If this is not sufficient you may need to first install some extra packages and/or clone the repo manually:
 ```shell
-!git clone https://github.com/kocurvik/PoseLib
-%cd PoseLib
-!git checkout pr-mdrp
-!pip install pybind11_stubs
-!apt-get install libeigen3-dev
-!python setup.py install
+git clone https://github.com/kocurvik/PoseLib
+cd PoseLib
+git checkout pr-mdrp
+pip install pybind11_stubs
+apt-get install libeigen3-dev
+python setup.py install
 ```
 
 Once installed you can use the new methods added to poselib for relative pose estimation.
