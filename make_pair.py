@@ -7,22 +7,15 @@ import torch
 import open3d as o3d
 from scipy.spatial.transform.rotation import Rotation
 
-
-import rerun as rr
-import rerun.blueprint as rrb
-
-# from moge.model.v1 import MoGeModel
 from moge.model.v2 import MoGeModel
 
 from lightglue import LightGlue, SuperPoint
 from lightglue.utils import load_image, rbd
-# import open3d.ml.torch as ml3d
 
 import poselib
 from tqdm import tqdm
 
 import cv2
-import re
 
 class PairMaker():
     def __init__(self):
@@ -37,8 +30,6 @@ class PairMaker():
 
         self.ransac_dict = {'max_iterations': 1000, 'max_epipolar_error': self.args.threshold, 'progressive_sampling': False,
                             'min_iterations': 1000, 'lo_iterations': 25, 'max_reproj_error': self.args.reproj_threshold,
-                            'solver_scale': True, 'solver_shift': False, 'use_reproj': False, 'use_p3p': True,
-                            'optimize_hybrid': True, 'optimize_shift': False, 'use_ours': False,
                             'weight_sampson': self.args.weight_sampson}
 
         self.bundle_dict = {'loss_type':'TRUNCATED_CAUCHY'}
@@ -54,13 +45,16 @@ class PairMaker():
 
     def parse_args(self):
         parser = argparse.ArgumentParser()
-        parser.add_argument('-t', '--threshold', type=float, default=2.0)
-        parser.add_argument('-r', '--reproj_threshold', type=float, default=16.0)
-        parser.add_argument('-w', '--weight_sampson', type=float, default=0.1)
-        parser.add_argument('--subsample_rate', type=float, default=0.5)
-        parser.add_argument('--use_cache', action='store_true', default=False)
-        parser.add_argument('-v', '--verbose', action='store_true', default=False)
-        parser.add_argument('--cache_path', type=str, default=None)
+        parser.add_argument('-t', '--threshold', type=float, default=2.0, help='Sampson Error Threshold')
+        parser.add_argument('-r', '--reproj_threshold', type=float, default=16.0, help='Reprojection Error Threshold')
+        parser.add_argument('-w', '--weight_sampson', type=float, default=1.0,
+                            help='Relative Weight of Sampson Error to reprojection error')
+        parser.add_argument('--subsample_rate', type=float, default=1.0, help='Rate at which to subsample to pointcloud. Lower values result in faster rendering. Set to 1.0 keep all points.')
+        parser.add_argument('--use_cache', action='store_true', default=False,
+                            help='Reload frames from cache and render videos.')
+        parser.add_argument('-v', '--verbose', action='store_true', default=False, help='Print out estiamted poses.')
+        parser.add_argument('--cache_path', type=str, default=None,
+                            help='Path to chache where individual frames and output are stored')
         parser.add_argument('image_1_path')
         parser.add_argument('image_2_path')
 
@@ -114,12 +108,8 @@ class PairMaker():
         K2, cam_dict_2 = self.get_camera_data(image2, mde_out2)        
         K1, cam_dict_1 = self.get_camera_data(image1, mde_out1)
 
-        d = np.column_stack([depths1, depths2])
-
-
-        pose, info = poselib.estimate_relative_pose_w_mono_depth(points1[l], points2[l], d[l],
-                                                                 cam_dict_1, cam_dict_2, self.ransac_dict,
-                                                                 self.bundle_dict)
+        pose, info = poselib.estimate_monodepth_pose(points1[l], points2[l], depths1[l], depths2[l], cam_dict_1,
+                                                     cam_dict_2, self.ransac_dict, self.bundle_dict)
 
         if self.args.verbose:
             print(info['inlier_ratio'])
@@ -130,8 +120,6 @@ class PairMaker():
 
         self.pcd_1, self.colors_1 = self.get_pointcloud(np.linalg.inv(K1), mde_out1, image1)
         self.pose = pose
-        # self.pcd_1 = (pose.R @ self.pcd_1.T).T + pose.t
-        # self.pcd_1 /= pose.scale
 
         self.pcd_2, self.colors_2 = self.get_pointcloud(np.linalg.inv(K2), mde_out2, image2)
 
@@ -146,13 +134,12 @@ class PairMaker():
         new_dims = [img_ours.shape[1], img_ours.shape[0]]
         self.writer_ours = cv2.VideoWriter(os.path.join(self.cache_dir, 'ours.mp4'), fourcc, 25.0, new_dims)
 
-
         for i in range(360//3):
             img_pcd = cv2.imread(os.path.join(self.cache_dir, f'frame_ours_{i:05d}.png'))
             self.writer_ours.write(img_pcd)
 
         self.writer_ours.release()
-        print("Video processed")
+        print("Video saved to: ", os.path.join(self.cache_dir, 'ours.mp4'))
 
     def run_visualizer(self, key):
         ctr = self.vis.get_view_control()
@@ -221,9 +208,11 @@ class PairMaker():
                                                                              extrinsic=Rt)
         self.vis_camera_1.scale(0.05 * np.median(np.linalg.norm(self.pcd_1, axis=1)), np.zeros(3))
         self.vis_camera_1.rotate(self.pose.R)
-        self.vis_camera_1.translate(self.pose.t / self.pose.scale)
+        self.vis_camera_1.translate(self.pose.t)
+        self.vis_camera_1.scale(1 / self.pose.scale, np.zeros(3))
 
-        print("First point cloud loaded!")
+        print("Two-view reconstruction point cloud loaded!")
+        print("Adjust your view using Open3D controls and press space to capture turntable motion!")
 
         self.width = 1280
         self.height = 720

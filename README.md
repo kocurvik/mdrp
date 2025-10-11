@@ -2,13 +2,72 @@
 
 This is the repository containing the code for ICCV 2025 (oral) paper. DOI: TBA. Pre-print available on Arxiv: [2501.07742](https://arxiv.org/abs/2501.07742)
 
-## Demo
+## Demos
 
-TBA
+We provide a [Google Colab demo](demo/reposed_demo.ipynb) for the estimation of relative pose of two images and following dense two-view reconstruction.
+
+<a href="https://colab.research.google.com/github/kocurvik/mdrp/blob/main/demo/reposed_demo.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+
+We also provide a [script](make_pair.py) to create a nice visualization of the resulting pointcloud.
+
+You can also try a [script](make_video.py) to perform dynamic scene reconstruction. Note that this script does not currently include foreground/background segmentation so it works only for videos with static background with sufficient features for matching.
+
+To run the last two scripts you need to install [MoGe](https://github.com/microsoft/MoGe), [LightGlue](https://github.com/cvg/LightGlue) and [Open3D](https://www.open3d.org). You will also need to follow the instructions in the next section.
 
 ## Use in your own project
 
-TBA
+To use RePoseD in your own project you must first install [PoseLib with our PR](https://github.com/PoseLib/PoseLib/pull/152).
+
+```shell
+pip install git+https://github.com/kocurvik/PoseLib@pr-mdrp
+```
+
+If this is not sufficient you may need to first install some extra packages and/or clone the repo manually:
+```shell
+!git clone https://github.com/kocurvik/PoseLib
+%cd PoseLib
+!git checkout pr-mdrp
+!pip install pybind11_stubs
+!apt-get install libeigen3-dev
+!python setup.py install
+```
+
+Once installed you can use the new methods added to poselib for relative pose estimation.
+
+```python
+import poselib
+
+# extract keypoints and their corresponding depths
+# make sure you remove any nans or infs
+
+# set your thresholds
+ransac_dict = {'max_epipolar_error': 2.0, 'max_reproj_error': 16.0}
+# set this to true if you also want to estimate shit (calib case only)
+ransac_dict['estimate_shift'] = False
+
+# use this loss for better estimation in final optimization
+bundle_dict = {'loss_type': 'TRUNCATED_CAUCHY'}
+
+# if you know intrinsics you can use this
+camera1 = {'model': 'SIMPLE_PINHOLE', 'width': -1, 'height': -1, 'params': [f1, px1, py1]}
+camera2 = {'model': 'SIMPLE_PINHOLE', 'width': -1, 'height': -1, 'params': [f2, px2, py2]}
+pose, info = poselib.estimate_monodepth_pose(points1, points2, depths1, depths2, camera1, camera2, ransac_dict, bundle_dict)
+
+# for uknown and shared focals you can use (pp is the principal point - usually image center)
+image_pair, info = poselib.estimate_monodepth_shared_focal_pose(points1 - pp1, points2 - pp2, depths1, depths2, ransac_dict, bundle_dict)
+f = image_pair.camera1.focal()
+pose = image_pair.pose
+
+# for uknown and different focals you can use
+image_pair, info = poselib.estimate_monodepth_varying_focal_pose(points1 - pp1, points2 - pp2, depths1, depths2, ransac_dict, bundle_dict)
+f1 = image_pair.camera1.focal()
+f2 = image_pair.camera2.focal()
+pose = image_pair.pose
+
+# to transform the pointcloud from the first image into the coordinates of the second image you can use:
+xyz1_in_camera2_frame = (1/pose.scale) * ((pose.R @ xyz1.T).T + pose.t)
+```
+
 
 ## Citation
 
@@ -86,6 +145,8 @@ To run the experiments from the paper you can use the provided evaluation code. 
 ### Setting up eval repo, PoseLib and Madpose
 
 You will need to clone this repo and install our PoseLib and Madpose forks with all variants.
+
+Note that the PoseLib variant used in the evaluation scripts is different from the one mentioned in previous sections which includes only our version.
 
 ```shell
 # create a conda environment

@@ -5,22 +5,17 @@ os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 import numpy as np
 import torch
 import open3d as o3d
-import rerun as rr
-import rerun.blueprint as rrb
 
-# from moge.model.v1 import MoGeModel
 from moge.model.v2 import MoGeModel
 
 from lightglue import LightGlue, SuperPoint
-from lightglue.utils import load_image, rbd
-# import open3d.ml.torch as ml3d
+from lightglue.utils import rbd
 
 import poselib
 from tqdm import tqdm
 
 import cv2
 import re
-
 
 class VideoCaptureProxy:
     """
@@ -194,10 +189,8 @@ class VideoMaker():
         print("Loading LightGlue")
         self.matcher = LightGlue(features='superpoint').eval().cuda()
 
-        self.ransac_dict = {'max_iterations': 1000, 'max_epipolar_error': self.args.threshold, 'progressive_sampling': False,
-                            'min_iterations': 1000, 'lo_iterations': 25, 'max_reproj_error': self.args.reproj_threshold,
-                            'solver_scale': True, 'solver_shift': False, 'use_reproj': False, 'use_p3p': True,
-                            'optimize_hybrid': True, 'optimize_shift': False, 'use_ours': False,
+        self.ransac_dict = {'max_iterations': 10000, 'max_epipolar_error': self.args.threshold, 'progressive_sampling': False,
+                            'min_iterations': 10000, 'lo_iterations': 25, 'max_reproj_error': self.args.reproj_threshold,
                             'weight_sampson': self.args.weight_sampson}
 
         self.bundle_dict = {'loss_type':'TRUNCATED_CAUCHY'}
@@ -209,11 +202,6 @@ class VideoMaker():
             self.cache_dir = self.args.cache_path
         os.makedirs(self.cache_dir, exist_ok=True)
 
-        if self.args.output_path is None:
-            self.output_path = os.path.join(self.cache_dir, 'output.avi')
-        else:
-            self.output_path = self.args.output_path
-
         self.anchor_K = None
         self.anchor_cam_dict = None
         self.anchor_mde_out = None
@@ -221,16 +209,15 @@ class VideoMaker():
 
     def parse_args(self):
         parser = argparse.ArgumentParser()
-        parser.add_argument('-t', '--threshold', type=float, default=2.0)
-        parser.add_argument('-r', '--reproj_threshold', type=float, default=16.0)
-        parser.add_argument('-w', '--weight_sampson', type=float, default=1.0)
-        parser.add_argument('--subsample_rate', type=float, default=0.05)
-        parser.add_argument('--keyframes', type=int, default=0)
-        parser.add_argument('--use_cache', action='store_true', default=False)
-        parser.add_argument('--tall', action='store_true', default=False)
-        parser.add_argument('-v', '--verbose', action='store_true', default=False)
-        parser.add_argument('--cache_path', type=str, default=None)
-        parser.add_argument('--output_path', type=str, default=None)
+        parser.add_argument('-t', '--threshold', type=float, default=2.0, help='Sampson Error Threshold')
+        parser.add_argument('-s', '--camera_scale', type=float, default=0.05, help='Scale of camera in visualization.')
+        parser.add_argument('-r', '--reproj_threshold', type=float, default=16.0, help='Reprojection Error Threshold')
+        parser.add_argument('-w', '--weight_sampson', type=float, default=1.0, help='Relative Weight of Sampson Error to reprojection error')
+        parser.add_argument('--subsample_rate', type=float, default=0.05, help='Rate at which to subsample to pointcloud. Lower values result in faster rendering. Set to 1.0 keep all points.')
+        parser.add_argument('--keyframes', type=int, default=0, help='How many frames at mininum to set a new keyframe. Set to 0 to not use keyframes.')
+        parser.add_argument('--use_cache', action='store_true', default=False, help='Reload frames from cache and render videos.')
+        parser.add_argument('-v', '--verbose', action='store_true', default=False, help='Print out estiamted poses.')
+        parser.add_argument('--cache_path', type=str, default=None, help='Path to chache where individual frames and output are stored')
         parser.add_argument('video_path')
 
         self.args = parser.parse_args()
@@ -293,13 +280,8 @@ class VideoMaker():
 
         K1, cam_dict_1 = self.get_camera_data(image1, mde_out1)
 
-        d = np.column_stack([depths1, depths2])
-
-
-        pose, info = poselib.estimate_relative_pose_w_mono_depth(points1[l], points2[l], d[l],
-                                                                 cam_dict_1, cam_dict_2, self.ransac_dict,
-                                                                 self.bundle_dict)
-
+        pose, info = poselib.estimate_monodepth_pose(points1[l], points2[l], depths1[l], depths2[l], cam_dict_1,
+                                                     cam_dict_2, self.ransac_dict, self.bundle_dict)
 
         if self.args.verbose:
             print(info['inlier_ratio'])
@@ -313,7 +295,7 @@ class VideoMaker():
         # pcd_1 = (pose.R @ pcd_1.T).T + pose.t
 
         if self.args.keyframes:
-            if info['inlier_ratio'] > 0.75 and self.since_last_anchor >= self.args.keyframes \
+            if info['inlier_ratio'] > 0.5 and self.since_last_anchor >= self.args.keyframes \
                     and np.sum(info['inliers']) > 200:
                 if self.args.verbose:
                     print("Setting new keyframe")
@@ -322,8 +304,10 @@ class VideoMaker():
                 self.anchor_cam_dict = cam_dict_1
                 self.anchor_mde_out = mde_out1
 
-                self.anchor_R = self.anchor_R @ pose.R
-                self.anchor_t = self.anchor_R @ pose.t + pose.scale * self.anchor_t
+                new_anchor_R = self.anchor_R @ pose.R
+                new_anchor_t = self.anchor_R @ pose.t + pose.scale * self.anchor_t
+                self.anchor_R = new_anchor_R
+                self.anchor_t = new_anchor_t
                 self.anchor_scale *= pose.scale
 
                 self.since_last_anchor = 1
@@ -345,22 +329,14 @@ class VideoMaker():
         self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
         fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-        if self.args.tall:
-            concat_index = 0
-        else:
-            concat_index = 1
 
         new_dims = [self.new_width, self.new_height]
         self.writer_original = cv2.VideoWriter(os.path.join(self.cache_dir, 'original.mp4'), fourcc, 25.0, new_dims)
-
-        new_dims[1 - concat_index] *= 3
-        # self.writer_concat = cv2.VideoWriter(self.output_path, fourcc, 25.0, new_dims)
-
         img_moge = cv2.imread(os.path.join(self.cache_dir, f'frame_naive_{0:05d}.png'))
+
         new_dims = [img_moge.shape[1], img_moge.shape[0]]
         self.writer_moge = cv2.VideoWriter(os.path.join(self.cache_dir, 'moge.mp4'), fourcc, 25.0, new_dims)
         self.writer_ours = cv2.VideoWriter(os.path.join(self.cache_dir, 'ours.mp4'), fourcc, 25.0, new_dims)
-
 
         for i in range(self.video_length):
             img_pcd = cv2.imread(os.path.join(self.cache_dir, f'frame_ours_{i:05d}.png'))
@@ -370,10 +346,6 @@ class VideoMaker():
             if ret is None or img_pcd is None or img_moge is None:
                 break
 
-            frame_resize = cv2.resize(frame, (self.new_width, self.new_height))
-
-            # output_frame = np.concatenate([frame_resize, img_moge, img_pcd], axis=concat_index)
-            # self.writer_concat.write(output_frame)
             self.writer_original.write(frame)
             self.writer_moge.write(img_moge)
             self.writer_ours.write(img_pcd)
@@ -384,61 +356,6 @@ class VideoMaker():
         self.writer_original.release()
         self.writer_moge.release()
         self.writer_ours.release()
-
-    def process_video_rr(self):
-        self.i = 0
-        self.cap = VideoCaptureProxy(self.args.video_path)
-        self.video_length = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
-
-        self.video_width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        self.video_height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        self.new_width = self.video_width // 2
-        self.new_height = self.video_height // 2
-
-        ret, frame = self.cap.read()
-
-        xyz, colors = self.infer_on_initial_anchor(self.preprocess_image(frame))
-
-        blueprint = rrb.Blueprint(rrb.Spatial3DView())
-        rr.init("points3d_camera", default_blueprint=blueprint, spawn=True)
-        # rr.init("rerun_example_points3d", spawn=True)
-
-        rr.set_time("time", duration=self.i)
-
-        rr.log("world/camera/image", rr.Pinhole(image_from_camera=self.anchor_K, width=self.video_width, height=self.video_height, camera_xyz=rr.ViewCoordinates.RDF,))
-        rr.log("world/camera/image", rr.Transform3D(translation=np.zeros(3), mat3x3=np.eye(3)))
-        rr.log("world/camera/image/rgb", rr.Image(frame, color_model="bgr"))
-
-        rr.log("world/points", rr.Points3D(xyz, colors=colors))
-
-        with tqdm(total=int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))) as pbar:
-            pbar.update(1)
-            while True:
-                ret, frame = self.cap.read()
-                msec = self.cap.get(cv2.CAP_PROP_POS_MSEC)
-
-                if not ret or frame is None:
-                    print("Done")
-                    return
-
-                self.i += 1
-                xyz, colors, K, R, t, scale = self.infer_images(self.preprocess_image(frame), None)
-
-                rr.set_time("time", duration=msec/1000)
-
-                rr.log("world/camera/image",
-                       rr.Pinhole(image_from_camera=K, width=self.video_width, height=self.video_height,
-                                  camera_xyz=rr.ViewCoordinates.RDF))
-                rr.log("world/camera/image", rr.Transform3D(translation=t, mat3x3=R))
-                rr.log("world/camera/image/rgb", rr.Image(frame, color_model="bgr"))
-
-                xyz = (R @ (xyz / scale).T).T + t
-                rr.log("world/points", rr.Points3D(xyz, colors=colors))
-                pbar.update(1)
-
-
-
-
 
     def run_visualizer(self, key):
         self.vis.capture_screen_image(os.path.join(self.cache_dir, f'frame_ours_{self.i:05d}.png'), False)
@@ -524,9 +441,10 @@ class VideoMaker():
                                                                            view_height_px=self.video_height,
                                                                           intrinsic=self.anchor_K,
                                                                           extrinsic=Rt)
-        self.vis_camera.scale(0.05 * np.max(np.linalg.norm(xyz, axis=1)), np.zeros(3))
+        self.vis_camera.scale(self.args.camera_scale * np.nanmedian(np.linalg.norm(xyz, axis=1)), np.zeros(3))
 
         print("First point cloud loaded!")
+        print("Adjust your view using Open3D controls and press space to render the video frame-by-frame.")
 
         self.vis = o3d.visualization.VisualizerWithKeyCallback()
         self.vis.register_key_callback(ord(' '), self.run_visualizer)
