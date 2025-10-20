@@ -12,9 +12,13 @@ We provide a [Google Colab demo](demo/reposed_demo.ipynb) for the estimation of 
 
 <a href="https://colab.research.google.com/github/kocurvik/mdrp/blob/main/demo/reposed_demo.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 
-We also provide a [script](make_pair.py) to create a nice visualization of the resulting pointcloud.
+We also provide a [script](make_pair.py) to create a nice visualization of the resulting pointcloud:
 
-You can also try a [script](make_video.py) to perform dynamic scene reconstruction. Note that this script does not currently include foreground/background segmentation so it works only for videos with static background with sufficient features for matching.
+https://github.com/user-attachments/assets/7cae9b8e-2008-4b1b-97cc-9e07f0ee03d0
+
+You can also try a [script](make_video.py) to perform dynamic scene reconstruction. Note that this script does not currently include foreground/background segmentation so it works only for videos with static background with sufficient features for matching. Below is an example.
+
+https://github.com/user-attachments/assets/7825f13a-d1e3-4572-a16c-a7827cfd04ea
 
 To run the last two scripts you need to install [MoGe](https://github.com/microsoft/MoGe), [LightGlue](https://github.com/cvg/LightGlue) and [Open3D](https://www.open3d.org). You will also need to follow the instructions in the next section.
 
