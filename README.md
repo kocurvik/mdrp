@@ -4,9 +4,7 @@
 
 This is the repository containing the code for ICCV 2025 (oral) [paper](https://openaccess.thecvf.com/content/ICCV2025/papers/Ding_RePoseD_Efficient_Relative_Pose_Estimation_With_Known_Depth_Information_ICCV_2025_paper.pdf). DOI: TBA. Pre-print available on Arxiv: [2501.07742](https://arxiv.org/abs/2501.07742)
 
-
-<video src="https://kocurvik.github.io/reposed/static/videos/scale.mp4" width="640"></video>
-
+https://github.com/user-attachments/assets/aea6ac6d-9f4c-42d1-8c49-fb0462b40d41
 
 ## Demos
 
