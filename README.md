@@ -1,8 +1,31 @@
-# RePoseD: Efficient Relative Pose Estimation With Known Depth Information
+<p align="center">
+  <h1 align="center">RePoseD: Efficient Relative Pose Estimation With Known Depth Information</h1>
+  <h3 align="center">ICCV 2025 Oral</h3>
+  <p align="center">
+    <span class="author-block">
+      Yaqing Ding
+      ·
+      Viktor Kocur
+      ·
+      Václav Vávra
+      ·
+      Zuzana Berger Haladová
+      ·
+      Jian Yang
+      ·
+      Torsten Sattler
+      ·
+      Zuzana Kukelova
+  </p>
+  <div align="center">
 
-<a href="https://kocurvik.github.io/reposed/"><img src="https://img.shields.io/static/v1?label=Project&message=Website&color=red" height=20.5></a> 
+  [![arXiv](https://img.shields.io/badge/arXiv-2505.04788-b31b1b.svg)](https://arxiv.org/abs/2501.07742)
+  [![ICCV Paper](https://img.shields.io/static/v1?label=ICCV&message=Paper&color=blue)](https://openaccess.thecvf.com/content/ICCV2025/papers/Ding_RePoseD_Efficient_Relative_Pose_Estimation_With_Known_Depth_Information_ICCV_2025_paper.pdf)
+  [![Project Page](https://img.shields.io/static/v1?label=Project&message=Website&color=red)](https://kocurvik.github.io/reposed/)
+  <a href="https://colab.research.google.com/github/kocurvik/mdrp/blob/main/demo/reposed_demo.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+  </div>
+</p>
 
-This is the repository containing the code for ICCV 2025 (oral) [paper](https://openaccess.thecvf.com/content/ICCV2025/papers/Ding_RePoseD_Efficient_Relative_Pose_Estimation_With_Known_Depth_Information_ICCV_2025_paper.pdf). DOI: TBA. Pre-print available on Arxiv: [2501.07742](https://arxiv.org/abs/2501.07742)
 
 https://github.com/user-attachments/assets/aea6ac6d-9f4c-42d1-8c49-fb0462b40d41
 
