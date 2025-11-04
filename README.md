@@ -23,6 +23,7 @@
   [![ICCV Paper](https://img.shields.io/static/v1?label=ICCV&message=Paper&color=blue)](https://openaccess.thecvf.com/content/ICCV2025/papers/Ding_RePoseD_Efficient_Relative_Pose_Estimation_With_Known_Depth_Information_ICCV_2025_paper.pdf)
   [![Project Page](https://img.shields.io/static/v1?label=Project&message=Website&color=red)](https://kocurvik.github.io/reposed/)
   <a href="https://colab.research.google.com/github/kocurvik/mdrp/blob/main/demo/reposed_demo.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+  <a href="https://colab.research.google.com/github/kocurvik/mdrp/blob/main/demo/reposed_demo_roma.ipynb" target="_parent"><img src="https://img.shields.io/badge/Open_In_Colab (Roma)-blue" alt="Open In Colab"/></a>
   </div>
 </p>
 
