@@ -76,7 +76,7 @@ import poselib
 # set your thresholds
 ransac_dict = {'max_epipolar_error': 2.0, 'max_reproj_error': 16.0}
 # set this to true if you also want to estimate shit (calib case only)
-ransac_dict['estimate_shift'] = False
+ransac_dict['monodepth_estimate_shift'] = False
 
 # use this loss for better estimation in final optimization
 bundle_dict = {'loss_type': 'TRUNCATED_CAUCHY'}
@@ -84,21 +84,24 @@ bundle_dict = {'loss_type': 'TRUNCATED_CAUCHY'}
 # if you know intrinsics you can use this
 camera1 = {'model': 'SIMPLE_PINHOLE', 'width': -1, 'height': -1, 'params': [f1, px1, py1]}
 camera2 = {'model': 'SIMPLE_PINHOLE', 'width': -1, 'height': -1, 'params': [f2, px2, py2]}
-pose, info = poselib.estimate_monodepth_pose(points1, points2, depths1, depths2, camera1, camera2, ransac_dict, bundle_dict)
+geometry, info = poselib.estimate_monodepth_relative_pose(points1, points2, depths1, depths2, camera1, camera2, ransac_dict, bundle_dict)
+pose = geometry.pose
 
 # for uknown and shared focals you can use (pp is the principal point - usually image center)
-image_pair, info = poselib.estimate_monodepth_shared_focal_pose(points1 - pp1, points2 - pp2, depths1, depths2, ransac_dict, bundle_dict)
+image_pair, info = poselib.estimate_monodepth_shared_focal_relative_pose(points1 - pp1, points2 - pp2, depths1, depths2, ransac_dict, bundle_dict)
 f = image_pair.camera1.focal()
-pose = image_pair.pose
+geometry = image_pair.geometry
+pose = geometry.pose
 
 # for uknown and different focals you can use
-image_pair, info = poselib.estimate_monodepth_varying_focal_pose(points1 - pp1, points2 - pp2, depths1, depths2, ransac_dict, bundle_dict)
+image_pair, info = poselib.estimate_monodepth_varying_focal_relative_pose(points1 - pp1, points2 - pp2, depths1, depths2, ransac_dict, bundle_dict)
 f1 = image_pair.camera1.focal()
 f2 = image_pair.camera2.focal()
-pose = image_pair.pose
+geometry = image_pair.geometry
+pose = geometry.pose
 
 # to transform the pointcloud from the first image into the coordinates of the second image you can use:
-xyz1_in_camera2_frame = (1/pose.scale) * ((pose.R @ xyz1.T).T + pose.t)
+xyz1_in_camera2_frame = (1/geometry.scale) * ((pose.R @ xyz1.T).T + pose.t)
 ```
 
 

@@ -216,6 +216,7 @@ class VideoMaker():
         parser.add_argument('--subsample_rate', type=float, default=0.05, help='Rate at which to subsample to pointcloud. Lower values result in faster rendering. Set to 1.0 keep all points.')
         parser.add_argument('--keyframes', type=int, default=0, help='How many frames at mininum to set a new keyframe. Set to 0 to not use keyframes.')
         parser.add_argument('--use_cache', action='store_true', default=False, help='Reload frames from cache and render videos.')
+        parser.add_argument('--load_camera', action='store_true', default=False, help='Reload camera position from cache.')
         parser.add_argument('-v', '--verbose', action='store_true', default=False, help='Print out estiamted poses.')
         parser.add_argument('--cache_path', type=str, default=None, help='Path to chache where individual frames and output are stored')
         parser.add_argument('video_path')
@@ -280,18 +281,20 @@ class VideoMaker():
 
         K1, cam_dict_1 = self.get_camera_data(image1, mde_out1)
 
-        pose, info = poselib.estimate_monodepth_pose(points1[l], points2[l], depths1[l], depths2[l], cam_dict_1,
-                                                     cam_dict_2, self.ransac_dict, self.bundle_dict)
+        geometry, info = poselib.estimate_monodepth_relative_pose(points1[l], points2[l], depths1[l], depths2[l], 
+                                                                  cam_dict_1, cam_dict_2, self.ransac_dict, 
+                                                                  self.bundle_dict)
+        pose = geometry.pose
 
         if self.args.verbose:
             print(info['inlier_ratio'])
             print("R: ")
             print(pose.R)
             print("t: ", pose.t)
-            print("scale: ", pose.scale)
+            print("scale: ", geometry.scale)
 
         pcd_1, colors_1 = self.get_pointcloud(np.linalg.inv(K1), mde_out1, image1)
-        # pcd_1 /= pose.scale
+        # pcd_1 /= geometry.scale
         # pcd_1 = (pose.R @ pcd_1.T).T + pose.t
 
         if self.args.keyframes:
@@ -305,10 +308,10 @@ class VideoMaker():
                 self.anchor_mde_out = mde_out1
 
                 new_anchor_R = self.anchor_R @ pose.R
-                new_anchor_t = self.anchor_R @ pose.t + pose.scale * self.anchor_t
+                new_anchor_t = self.anchor_R @ pose.t + geometry.scale * self.anchor_t
                 self.anchor_R = new_anchor_R
                 self.anchor_t = new_anchor_t
-                self.anchor_scale *= pose.scale
+                self.anchor_scale *= geometry.scale
 
                 self.since_last_anchor = 1
 
@@ -320,10 +323,10 @@ class VideoMaker():
 
             return pcd_1, colors_1, K1, \
                 self.anchor_R @ pose.R, \
-                self.anchor_R @ pose.t + pose.scale * self.anchor_t, \
-                self.anchor_scale * pose.scale
+                self.anchor_R @ pose.t + geometry.scale * self.anchor_t, \
+                self.anchor_scale * geometry.scale
 
-        return pcd_1, colors_1, K1, pose.R, pose.t, pose.scale
+        return pcd_1, colors_1, K1, pose.R, pose.t, geometry.scale
 
     def postprocess(self):
         self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
@@ -455,6 +458,12 @@ class VideoMaker():
 
         self.vis.add_geometry(self.pcd)
         self.vis.add_geometry(self.vis_camera)
+
+        if self.args.load_camera:
+            ctr = self.vis.get_view_control()
+            param = o3d.io.read_pinhole_camera_parameters(os.path.join(self.cache_dir, 'camera_position.json'))
+            ctr.convert_from_pinhole_camera_parameters(param)
+
         self.vis.poll_events()
         self.vis.update_renderer()
         self.vis.run()

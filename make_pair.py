@@ -108,17 +108,20 @@ class PairMaker():
         K2, cam_dict_2 = self.get_camera_data(image2, mde_out2)        
         K1, cam_dict_1 = self.get_camera_data(image1, mde_out1)
 
-        pose, info = poselib.estimate_monodepth_pose(points1[l], points2[l], depths1[l], depths2[l], cam_dict_1,
-                                                     cam_dict_2, self.ransac_dict, self.bundle_dict)
-
+        geometry, info = poselib.estimate_monodepth_relative_pose(points1[l], points2[l], depths1[l], depths2[l],
+                                                                  cam_dict_1, cam_dict_2, self.ransac_dict,
+                                                                  self.bundle_dict)
+        pose = geometry.pose
+        
         if self.args.verbose:
             print(info['inlier_ratio'])
             print("R: ")
             print(pose.R)
             print("t: ", pose.t)
-            print("scale: ", pose.scale)
+            print("scale: ", geometry.scale)
 
         self.pcd_1, self.colors_1 = self.get_pointcloud(np.linalg.inv(K1), mde_out1, image1)
+        self.geometry = geometry
         self.pose = pose
 
         self.pcd_2, self.colors_2 = self.get_pointcloud(np.linalg.inv(K2), mde_out2, image2)
@@ -187,7 +190,7 @@ class PairMaker():
 
         self.geometry_1.rotate(self.pose.R, np.zeros(3))
         self.geometry_1.translate(self.pose.t)
-        self.geometry_1.scale(1 / self.pose.scale, np.zeros(3))
+        self.geometry_1.scale(1 / self.geometry.scale, np.zeros(3))
         
         self.geometry_2 = o3d.geometry.PointCloud()
         l = np.random.rand(len(self.pcd_2)) < self.args.subsample_rate
@@ -206,10 +209,9 @@ class PairMaker():
                                                                              view_height_px=image_1.shape[0],
                                                                              intrinsic=self.K1,
                                                                              extrinsic=Rt)
-        self.vis_camera_1.scale(0.05 * np.median(np.linalg.norm(self.pcd_1, axis=1)), np.zeros(3))
+        self.vis_camera_1.scale(0.05 * np.median(np.linalg.norm(self.pcd_2, axis=1)), np.zeros(3))
         self.vis_camera_1.rotate(self.pose.R)
-        self.vis_camera_1.translate(self.pose.t)
-        self.vis_camera_1.scale(1 / self.pose.scale, np.zeros(3))
+        self.vis_camera_1.translate(self.pose.t / self.geometry.scale)
 
         print("Two-view reconstruction point cloud loaded!")
         print("Adjust your view using Open3D controls and press space to capture turntable motion!")
