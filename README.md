@@ -49,17 +49,16 @@ To run the last two scripts you need to install [MoGe](https://github.com/micros
 
 ## Use in your own project
 
-To use RePoseD in your own project you must first install [PoseLib with our PR](https://github.com/PoseLib/PoseLib/pull/152).
+To use RePoseD in your own project you must first install [PoseLib with our PR](https://github.com/PoseLib/PoseLib/pull/152). Currently, you need to compile the master branch of PoseLib yourself. Using `pip install poselib` will not work until a new version with wheels is released.
 
 ```shell
-pip install git+https://github.com/kocurvik/PoseLib@pr-mdrp
+pip install https://github.com/PoseLib/PoseLib
 ```
 
 If this is not sufficient you may need to first install some extra packages and/or clone the repo manually:
 ```shell
-git clone https://github.com/kocurvik/PoseLib
+git clone https://github.com/PoseLib/PoseLib
 cd PoseLib
-git checkout pr-mdrp
 pip install pybind11_stubs
 apt-get install libeigen3-dev
 python setup.py install
